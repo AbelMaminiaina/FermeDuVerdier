@@ -1,0 +1,146 @@
+'use client';
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Truck, Home, Package, MessageCircle, Check } from 'lucide-react';
+import { services, faqItems } from '@/data/services';
+import { Card, CardContent, Button, Accordion } from '@/components/ui';
+import { fadeInUp, staggerContainer, viewportOnce } from '@/lib/animations';
+import Link from 'next/link';
+
+const iconMap: Record<string, React.ElementType> = {
+  Truck: Truck,
+  Home: Home,
+  Package: Package,
+  MessageCircle: MessageCircle,
+};
+
+export default function ServicesPage() {
+  const faqAccordionItems = faqItems.map((item) => ({
+    id: item.id,
+    title: item.question,
+    content: <p className="text-warm-600">{item.answer}</p>,
+  }));
+
+  return (
+    <div className="min-h-screen bg-cream-50 py-12">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <motion.div
+          className="text-center max-w-2xl mx-auto mb-16"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+        >
+          <span className="text-prairie-600 font-medium mb-2 block">
+            À votre service
+          </span>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-warm-800 mb-4">
+            Nos Services
+          </h1>
+          <p className="text-warm-600 text-lg">
+            Au-delà de nos produits, nous vous accompagnons avec des services
+            adaptés à vos besoins : livraison, gardiennage, conseils...
+          </p>
+        </motion.div>
+
+        {/* Services grid */}
+        <motion.div
+          className="grid md:grid-cols-2 gap-8 mb-20"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          {services.map((service) => {
+            const Icon = iconMap[service.icon];
+            return (
+              <motion.div key={service.id} variants={fadeInUp}>
+                <Card
+                  hover
+                  className="h-full"
+                  padding="lg"
+                  id={service.slug}
+                >
+                  <CardContent>
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-prairie-100 flex items-center justify-center shrink-0">
+                        {Icon && <Icon className="h-7 w-7 text-prairie-600" />}
+                      </div>
+                      <div className="flex-1">
+                        <h2 className="text-xl font-semibold text-warm-800 mb-2">
+                          {service.title}
+                        </h2>
+                        <p className="text-warm-600 mb-4">{service.description}</p>
+
+                        {/* Features */}
+                        <ul className="space-y-2 mb-6">
+                          {service.features.map((feature, index) => (
+                            <li
+                              key={index}
+                              className="flex items-center gap-2 text-sm text-warm-600"
+                            >
+                              <Check className="h-4 w-4 text-prairie-500 shrink-0" />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Pricing */}
+                        {service.pricing && (
+                          <div className="flex items-center justify-between pt-4 border-t border-warm-100">
+                            <div>
+                              <span className="text-sm text-warm-500">À partir de</span>
+                              <span className="block text-lg font-bold text-prairie-600">
+                                {service.pricing}
+                              </span>
+                            </div>
+                            <Link href="/contact">
+                              <Button variant="outline" size="sm">
+                                Nous contacter
+                              </Button>
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* FAQ Section */}
+        <motion.div
+          className="max-w-3xl mx-auto"
+          variants={fadeInUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={viewportOnce}
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-display font-bold text-warm-800 mb-4">
+              Questions fréquentes
+            </h2>
+            <p className="text-warm-600">
+              Vous avez des questions ? Consultez notre FAQ ou contactez-nous !
+            </p>
+          </div>
+
+          <Accordion items={faqAccordionItems} />
+
+          <div className="text-center mt-8">
+            <p className="text-warm-600 mb-4">
+              Vous ne trouvez pas la réponse à votre question ?
+            </p>
+            <Link href="/contact">
+              <Button icon={<MessageCircle className="h-4 w-4" />}>
+                Nous contacter
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

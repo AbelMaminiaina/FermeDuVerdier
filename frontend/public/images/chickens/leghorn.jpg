@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect fill="#dcfce7" width="400" height="400"/>
+  <ellipse fill="#fff" cx="200" cy="220" rx="75" ry="65" stroke="#e7e5e4" stroke-width="2"/>
+  <ellipse fill="#fff" cx="200" cy="150" rx="40" ry="38" stroke="#e7e5e4" stroke-width="2"/>
+  <polygon fill="#DC2626" points="200,95 230,140 170,140"/>
+  <polygon fill="#DC2626" points="170,130 150,150 170,145"/>
+  <circle fill="#f59e0b" cx="185" cy="145" r="5"/>
+  <polygon fill="#f59e0b" points="200,158 210,168 190,168"/>
+  <rect fill="#f59e0b" x="175" y="280" width="8" height="35"/>
+  <rect fill="#f59e0b" x="217" y="280" width="8" height="35"/>
+  <text fill="#166534" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="200" y="380">Leghorn Blanche</text>
+</svg>

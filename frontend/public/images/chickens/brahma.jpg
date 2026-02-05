@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect fill="#dcfce7" width="400" height="400"/>
+  <ellipse fill="#d6d3d1" cx="200" cy="230" rx="100" ry="90"/>
+  <ellipse fill="#f5f5f4" cx="200" cy="140" rx="55" ry="50"/>
+  <polygon fill="#DC2626" points="200,80 220,120 180,120"/>
+  <circle fill="#f59e0b" cx="180" cy="135" r="7"/>
+  <polygon fill="#f59e0b" points="200,155 212,167 188,167"/>
+  <ellipse fill="#d6d3d1" cx="170" cy="310" rx="25" ry="20"/>
+  <ellipse fill="#d6d3d1" cx="230" cy="310" rx="25" ry="20"/>
+  <rect fill="#f59e0b" x="160" y="305" width="10" height="25"/>
+  <rect fill="#f59e0b" x="230" y="305" width="10" height="25"/>
+  <text fill="#166534" font-family="sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="200" y="380">Brahma</text>
+</svg>
