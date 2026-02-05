@@ -2,7 +2,11 @@
   "name": "ferme-du-vardier-backend",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "db:migrate:deploy": "prisma migrate deploy",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
