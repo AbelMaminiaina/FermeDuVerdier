@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Ensure compatibility with older browsers including Safari
+  transpilePackages: ['framer-motion', 'lucide-react'],
   images: {
     remotePatterns: [
       {

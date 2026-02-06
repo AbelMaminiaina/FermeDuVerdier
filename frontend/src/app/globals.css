@@ -104,6 +104,21 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+    /* Fallback for Safari */
+    @supports not (text-wrap: balance) {
+      text-wrap: wrap;
+    }
+  }
+
+  /* Safari backdrop-filter support */
+  .backdrop-blur-md {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .backdrop-blur-sm {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
 
   .animate-in {

@@ -2,6 +2,13 @@
   "name": "ferme-du-vardier",
   "version": "1.0.0",
   "private": true,
+  "browserslist": [
+    ">0.3%",
+    "not dead",
+    "not op_mini all",
+    "safari >= 12",
+    "ios_saf >= 12"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
