@@ -35,16 +35,8 @@ export default async function ProductsPage() {
   const data = await getProducts();
 
   return (
-    <>
-      {/* Debug info - à supprimer après */}
-      {process.env.NODE_ENV === 'production' && (
-        <div className="bg-yellow-100 text-yellow-800 text-xs p-2 text-center">
-          API: {API_BASE_URL} | Products: {data.products?.length || 0}
-        </div>
-      )}
-      <Suspense fallback={<div className="min-h-screen bg-cream-50 py-12 flex items-center justify-center">Chargement...</div>}>
-        <ProductsClient initialProducts={data.products} />
-      </Suspense>
-    </>
+    <Suspense fallback={<div className="min-h-screen bg-cream-50 py-12 flex items-center justify-center">Chargement...</div>}>
+      <ProductsClient initialProducts={data.products} />
+    </Suspense>
   );
 }
