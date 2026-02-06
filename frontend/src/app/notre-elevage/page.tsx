@@ -64,7 +64,7 @@ export default function NotreElevagePage() {
       <section className="relative h-[60vh] min-h-[400px] flex items-center">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=1920"
+            src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1920"
             alt="Vue de notre élevage"
             fill
             className="object-cover"

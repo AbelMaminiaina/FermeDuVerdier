@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Product } from '@/types';
 import ProductGrid from '@/components/products/ProductGrid';
@@ -42,26 +43,42 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
   }, [initialProducts]);
 
   return (
-    <div className="min-h-screen bg-cream-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <motion.div
-          className="text-center max-w-2xl mx-auto mb-12"
-          variants={fadeInUp}
-          initial="initial"
-          animate="animate"
-        >
-          <span className="text-prairie-600 font-medium mb-2 block">
-            Notre boutique
-          </span>
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-warm-800 mb-4">
-            Nos Produits
-          </h1>
-          <p className="text-warm-600">
-            Découvrez notre gamme complète de produits bio : œufs frais,
-            œufs fécondés, poules pondeuses et accessoires pour votre basse-cour.
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-cream-50">
+      {/* Hero Section */}
+      <section className="relative h-[40vh] min-h-[300px] flex items-center">
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1569127959161-2b1297b2d9a6?w=1920"
+            alt="Œufs frais bio"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-warm-900/70 to-warm-900/40" />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            className="max-w-2xl text-white"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            <span className="text-prairie-300 font-medium mb-2 block">
+              Notre boutique
+            </span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              Nos Produits
+            </h1>
+            <p className="text-lg text-warm-200">
+              Découvrez notre gamme complète de produits bio : œufs frais,
+              œufs fécondés, poules pondeuses et accessoires pour votre basse-cour.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-12">
+        {/* Header removed - now in hero */}
 
         {/* Filters */}
         <motion.div

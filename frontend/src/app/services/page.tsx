@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Truck, Home, Package, MessageCircle, Check } from 'lucide-react';
 import { services, faqItems } from '@/data/services';
@@ -23,26 +24,41 @@ export default function ServicesPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-cream-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <motion.div
-          className="text-center max-w-2xl mx-auto mb-16"
-          variants={fadeInUp}
-          initial="initial"
-          animate="animate"
-        >
-          <span className="text-prairie-600 font-medium mb-2 block">
-            À votre service
-          </span>
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-warm-800 mb-4">
-            Nos Services
-          </h1>
-          <p className="text-warm-600 text-lg">
-            Au-delà de nos produits, nous vous accompagnons avec des services
-            adaptés à vos besoins : livraison, gardiennage, conseils...
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-cream-50">
+      {/* Hero Section */}
+      <section className="relative h-[40vh] min-h-[300px] flex items-center">
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=1920"
+            alt="Nos services"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-warm-900/70 to-warm-900/40" />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            className="max-w-2xl text-white"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            <span className="text-prairie-300 font-medium mb-2 block">
+              À votre service
+            </span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              Nos Services
+            </h1>
+            <p className="text-lg text-warm-200">
+              Au-delà de nos produits, nous vous accompagnons avec des services
+              adaptés à vos besoins : livraison, gardiennage, conseils...
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-12">
 
         {/* Services grid */}
         <motion.div
