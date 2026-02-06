@@ -5,7 +5,7 @@ import chickensRouter from './routes/chickens.js';
 import contactRouter from './routes/contact.js';
 import checkoutRouter from './routes/checkout.js';
 import newsletterRouter from './routes/newsletter.js';
-import { connectRedis, redis } from './lib/redis.js';
+import { connectRedis, redis, isRedisAvailable } from './lib/redis.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,18 +26,26 @@ app.use('/api/newsletter', newsletterRouter);
 
 // Health check with Redis status
 app.get('/api/health', async (_req, res) => {
-  let redisStatus = 'disconnected';
-  try {
-    await redis.ping();
-    redisStatus = 'connected';
-  } catch {
-    redisStatus = 'error';
+  let redisStatus = 'not_configured';
+
+  if (isRedisAvailable) {
+    try {
+      await redis.ping();
+      redisStatus = 'connected';
+    } catch (err) {
+      redisStatus = 'error';
+      console.error('Redis ping failed:', err);
+    }
   }
 
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     redis: redisStatus,
+    env: {
+      hasUpstashUrl: Boolean(process.env.UPSTASH_REDIS_REST_URL),
+      hasUpstashToken: Boolean(process.env.UPSTASH_REDIS_REST_TOKEN),
+    },
   });
 });
 

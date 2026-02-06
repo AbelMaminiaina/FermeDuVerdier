@@ -2,18 +2,27 @@ import { Redis as UpstashRedis } from '@upstash/redis';
 import IORedis from 'ioredis';
 
 // Use Upstash REST API in production, ioredis locally
-const isUpstash = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+const isUpstash = Boolean(upstashUrl && upstashToken);
+
+console.log('Redis config:', {
+  isUpstash,
+  hasUpstashUrl: Boolean(upstashUrl),
+  hasUpstashToken: Boolean(upstashToken),
+  nodeEnv: process.env.NODE_ENV,
+});
 
 let upstashClient: UpstashRedis | null = null;
 let ioredisClient: IORedis | null = null;
 
 if (isUpstash) {
   upstashClient = new UpstashRedis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    url: upstashUrl!,
+    token: upstashToken!,
   });
   console.log('Using Upstash Redis (REST API)');
-} else {
+} else if (process.env.REDIS_URL || process.env.NODE_ENV !== 'production') {
   const redisUrl = process.env.REDIS_URL || 'redis://:redis123@localhost:6380';
   ioredisClient = new IORedis(redisUrl, {
     maxRetriesPerRequest: 3,
@@ -27,11 +36,17 @@ if (isUpstash) {
   ioredisClient.on('error', (err) => {
     console.error('Redis connection error:', err.message);
   });
+} else {
+  console.log('No Redis configured - cache disabled');
 }
+
+// Check if Redis is available
+export const isRedisAvailable = Boolean(upstashClient || ioredisClient);
 
 // Unified interface
 export const redis = {
   async get(key: string): Promise<string | null> {
+    if (!isRedisAvailable) return null;
     if (upstashClient) {
       return await upstashClient.get(key);
     }
@@ -39,6 +54,7 @@ export const redis = {
   },
 
   async set(key: string, value: string, options?: { ex?: number }): Promise<void> {
+    if (!isRedisAvailable) return;
     if (upstashClient) {
       if (options?.ex) {
         await upstashClient.set(key, value, { ex: options.ex });
@@ -55,6 +71,7 @@ export const redis = {
   },
 
   async del(key: string): Promise<void> {
+    if (!isRedisAvailable) return;
     if (upstashClient) {
       await upstashClient.del(key);
     } else {
@@ -63,6 +80,7 @@ export const redis = {
   },
 
   async keys(pattern: string): Promise<string[]> {
+    if (!isRedisAvailable) return [];
     if (upstashClient) {
       return await upstashClient.keys(pattern);
     }
@@ -70,6 +88,9 @@ export const redis = {
   },
 
   async ping(): Promise<string> {
+    if (!isRedisAvailable) {
+      throw new Error('Redis not configured');
+    }
     if (upstashClient) {
       return await upstashClient.ping();
     }
@@ -77,8 +98,8 @@ export const redis = {
   },
 
   async info(section?: string): Promise<string> {
+    if (!isRedisAvailable) return 'Redis not configured';
     if (upstashClient) {
-      // Upstash doesn't support INFO command via REST
       return 'Upstash REST API - INFO not available';
     }
     if (section) {
@@ -88,6 +109,7 @@ export const redis = {
   },
 
   async dbsize(): Promise<number> {
+    if (!isRedisAvailable) return 0;
     if (upstashClient) {
       return await upstashClient.dbsize();
     }
@@ -95,6 +117,7 @@ export const redis = {
   },
 
   async flushdb(): Promise<void> {
+    if (!isRedisAvailable) return;
     if (upstashClient) {
       await upstashClient.flushdb();
     } else {
@@ -111,7 +134,6 @@ export async function connectRedis(): Promise<void> {
       console.error('Failed to connect to Redis:', error);
     }
   }
-  // Upstash doesn't need explicit connection
 }
 
 export default redis;
