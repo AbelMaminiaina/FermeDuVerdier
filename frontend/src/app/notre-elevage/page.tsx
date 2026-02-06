@@ -110,7 +110,7 @@ export default function NotreElevagePage() {
               Un élevage bio et respectueux
             </h2>
             <p className="text-warm-600">
-              Depuis 2010, nous avons fait le choix d&apos;une agriculture biologique
+              Depuis 2024, nous avons fait le choix d&apos;une agriculture biologique
               et d&apos;un élevage en plein air. Un choix de conviction pour des
               produits de qualité.
             </p>

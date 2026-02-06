@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     apple: '/images/logo.jpeg',
   },
   description:
-    'Découvrez nos œufs frais bio et nos poules pondeuses élevées en plein air à Madagascar. Livraison à Antananarivo et environs. Agriculture biologique et durable depuis 2010.',
+    'Découvrez nos œufs frais bio et nos poules pondeuses élevées en plein air à Madagascar. Livraison à Antananarivo et environs. Agriculture biologique et durable depuis 2024.',
   keywords: [
     'œufs bio',
     'poules pondeuses',

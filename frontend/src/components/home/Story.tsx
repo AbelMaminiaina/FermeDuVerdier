@@ -32,7 +32,7 @@ export function Story() {
 
             {/* Experience badge */}
             <div className="absolute -bottom-4 left-8 bg-white rounded-xl shadow-lg p-4">
-              <div className="text-3xl font-bold text-prairie-600">2010</div>
+              <div className="text-3xl font-bold text-prairie-600">2024</div>
               <div className="text-sm text-warm-600">Création de la ferme</div>
             </div>
           </motion.div>
@@ -53,13 +53,13 @@ export function Story() {
 
             <div className="space-y-4 text-warm-600 leading-relaxed">
               <p>
-                Tout a commencé il y a plus de 15 ans, lorsque Pierre a décidé de
-                reprendre la ferme familiale avec une vision nouvelle : produire
+                Tout a commencé en 2024, lorsque Varombo a décidé de
+                créer cette ferme avec une vision nouvelle : produire
                 des œufs de qualité exceptionnelle tout en respectant les animaux
                 et l&apos;environnement.
               </p>
               <p>
-                Installée au cœur des Yvelines, la Ferme du Vardier s&apos;étend sur
+                Installée à Ambatolampy Tsimahafotsy à Madagascar, la Ferme du Vardier s&apos;étend sur
                 5 hectares de prairies verdoyantes où nos poules vivent en totale
                 liberté. Ici, pas de cages ni d&apos;élevage intensif : chaque poule
                 dispose d&apos;un espace généreux pour picorer, gratter et profiter
