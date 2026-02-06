@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,27 +69,41 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <motion.div
-          className="text-center max-w-2xl mx-auto mb-16"
-          variants={fadeInUp}
-          initial="initial"
-          animate="animate"
-        >
-          <span className="text-prairie-600 font-medium mb-2 block">
-            Contactez-nous
-          </span>
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-warm-800 mb-4">
-            Une question ? Écrivez-nous !
-          </h1>
-          <p className="text-warm-600 text-lg">
-            Nous sommes là pour vous aider. N&apos;hésitez pas à nous contacter
-            pour toute question sur nos produits ou services.
-          </p>
-        </motion.div>
+    <div className="min-h-screen bg-cream-50">
+      {/* Hero Section */}
+      <section className="relative h-[40vh] min-h-[300px] flex items-center">
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1920"
+            alt="Contactez la Ferme du Vardier"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-warm-900/70 to-warm-900/40" />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            className="max-w-2xl text-white"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+          >
+            <span className="text-prairie-300 font-medium mb-2 block">
+              Contactez-nous
+            </span>
+            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+              Une question ? Écrivez-nous !
+            </h1>
+            <p className="text-lg text-warm-200">
+              Nous sommes là pour vous aider. N&apos;hésitez pas à nous contacter
+              pour toute question sur nos produits ou services.
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
+      <div className="container mx-auto px-4 py-12">
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Contact info */}
           <motion.div

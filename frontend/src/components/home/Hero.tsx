@@ -14,8 +14,8 @@ export function Hero() {
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=1920&q=80"
-          alt="Poules en liberté dans la prairie"
+          src="https://images.unsplash.com/photo-1569127959161-2b1297b2d9a6?w=1920&q=80"
+          alt="Œufs frais bio de la ferme"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-warm-900/80 via-warm-900/60 to-transparent" />
