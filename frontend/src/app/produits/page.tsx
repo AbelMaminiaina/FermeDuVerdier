@@ -5,12 +5,28 @@ import ProductsClient from './ProductsClient';
 
 async function getProducts() {
   noStore(); // Mark this fetch as dynamic
+
+  const apiUrl = `${API_BASE_URL}/products`;
+  console.log('[SSR] Fetching products from:', apiUrl);
+
   try {
-    const res = await fetch(`${API_BASE_URL}/products`);
-    if (!res.ok) throw new Error('Failed to fetch');
-    return res.json();
+    const res = await fetch(apiUrl, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      console.error('[SSR] Fetch failed:', res.status, res.statusText);
+      throw new Error('Failed to fetch');
+    }
+
+    const data = await res.json();
+    console.log('[SSR] Products fetched:', data.products?.length || 0);
+    return data;
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('[SSR] Error fetching products:', error);
     return { products: [], total: 0 };
   }
 }
