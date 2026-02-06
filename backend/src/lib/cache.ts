@@ -39,7 +39,7 @@ export async function getCache<T>(key: string): Promise<T | null> {
  */
 export async function setCache<T>(key: string, data: T, ttl: number): Promise<void> {
   try {
-    await redis.setex(key, ttl, JSON.stringify(data));
+    await redis.set(key, JSON.stringify(data), { ex: ttl });
     console.log(`Cache SET: ${key} (TTL: ${ttl}s)`);
   } catch (error) {
     console.error('Cache set error:', error);
@@ -65,7 +65,9 @@ export async function deleteCacheByPattern(pattern: string): Promise<void> {
   try {
     const keys = await redis.keys(pattern);
     if (keys.length > 0) {
-      await redis.del(...keys);
+      for (const key of keys) {
+        await redis.del(key);
+      }
       console.log(`Cache DELETE pattern: ${pattern} (${keys.length} keys)`);
     }
   } catch (error) {
