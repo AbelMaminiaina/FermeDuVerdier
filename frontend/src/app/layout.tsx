@@ -22,6 +22,11 @@ export const metadata: Metadata = {
     default: 'Ferme du Vardier - Œufs Bio et Poules Pondeuses à Madagascar',
     template: '%s | Ferme du Vardier',
   },
+  icons: {
+    icon: '/images/logo.jpeg',
+    shortcut: '/images/logo.jpeg',
+    apple: '/images/logo.jpeg',
+  },
   description:
     'Découvrez nos œufs frais bio et nos poules pondeuses élevées en plein air à Madagascar. Livraison à Antananarivo et environs. Agriculture biologique et durable depuis 2010.',
   keywords: [
