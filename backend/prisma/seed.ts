@@ -232,7 +232,7 @@ async function main() {
       description: 'Mangeoire avec grille anti-gaspillage qui empêche les poules de gratter.',
       shortDescription: 'Mangeoire grande capacité anti-gaspillage.',
       price: 135000,
-      images: ['https://images.unsplash.com/photo-1606567595334-d39972c85dfd?w=600'],
+      images: ['https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600'],
       inStock: true,
       stockQuantity: 20,
       badges: ['populaire'] as ProductBadge[],
