@@ -201,6 +201,7 @@ export function Header() {
                   <div key={item.name}>
                     <Link
                       href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
                         'block px-4 py-3 rounded-lg text-base font-medium transition-colors',
                         pathname === item.href
@@ -216,6 +217,7 @@ export function Header() {
                           <Link
                             key={subitem.name}
                             href={subitem.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
                             className="block px-4 py-2 text-sm text-warm-600 hover:text-prairie-700 hover:bg-prairie-50 rounded-lg transition-colors"
                           >
                             {subitem.name}
