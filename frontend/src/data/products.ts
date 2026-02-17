@@ -18,7 +18,7 @@ export const products: Product[] = [
     stockQuantity: 10,
     badges: ['populaire'],
     metadata: {
-      poids: '80-100 kg',
+      weight: '80-100 kg',
     },
     characteristics: [
       'Poids approximatif : 80-100 kg',
@@ -45,7 +45,7 @@ export const products: Product[] = [
     stockQuantity: 15,
     badges: ['populaire'],
     metadata: {
-      poids: '40-50 kg',
+      weight: '40-50 kg',
     },
     characteristics: [
       'Poids approximatif : 40-50 kg',
@@ -71,7 +71,7 @@ export const products: Product[] = [
     stockQuantity: 20,
     badges: [],
     metadata: {
-      poids: '20-25 kg',
+      weight: '20-25 kg',
     },
     characteristics: [
       'Poids approximatif : 20-25 kg',
@@ -97,7 +97,7 @@ export const products: Product[] = [
     stockQuantity: 50,
     badges: ['nouveau'],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -123,7 +123,7 @@ export const products: Product[] = [
     stockQuantity: 30,
     badges: ['populaire'],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -149,7 +149,7 @@ export const products: Product[] = [
     stockQuantity: 35,
     badges: [],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -175,7 +175,7 @@ export const products: Product[] = [
     stockQuantity: 25,
     badges: [],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -201,7 +201,7 @@ export const products: Product[] = [
     stockQuantity: 40,
     badges: ['populaire'],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -227,7 +227,7 @@ export const products: Product[] = [
     stockQuantity: 30,
     badges: ['nouveau'],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -253,7 +253,7 @@ export const products: Product[] = [
     stockQuantity: 45,
     badges: [],
     metadata: {
-      poids: '500 g',
+      weight: '500 g',
     },
     characteristics: [
       'Poids : 500 g',
@@ -281,7 +281,7 @@ export const products: Product[] = [
     stockQuantity: 60,
     badges: ['populaire'],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -308,7 +308,7 @@ export const products: Product[] = [
     stockQuantity: 30,
     badges: ['promo'],
     metadata: {
-      poids: '3 kg',
+      weight: '3 kg',
     },
     characteristics: [
       'Poids : 3 kg',
@@ -335,7 +335,7 @@ export const products: Product[] = [
     stockQuantity: 25,
     badges: ['promo', 'populaire'],
     metadata: {
-      poids: '5 kg',
+      weight: '5 kg',
     },
     characteristics: [
       'Poids : 5 kg',
@@ -362,7 +362,7 @@ export const products: Product[] = [
     stockQuantity: 15,
     badges: ['promo'],
     metadata: {
-      poids: '10 kg',
+      weight: '10 kg',
     },
     characteristics: [
       'Poids : 10 kg',
@@ -388,7 +388,7 @@ export const products: Product[] = [
     stockQuantity: 45,
     badges: [],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg',
@@ -414,7 +414,7 @@ export const products: Product[] = [
     stockQuantity: 35,
     badges: ['nouveau'],
     metadata: {
-      poids: '500 g',
+      weight: '500 g',
     },
     characteristics: [
       'Poids : 500 g',
@@ -442,7 +442,7 @@ export const products: Product[] = [
     stockQuantity: 40,
     badges: ['nouveau', 'populaire'],
     metadata: {
-      poids: '500 g',
+      weight: '500 g',
     },
     characteristics: [
       'Poids : 500 g (environ 6 saucisses)',
@@ -468,7 +468,7 @@ export const products: Product[] = [
     stockQuantity: 30,
     badges: [],
     metadata: {
-      poids: '1 kg',
+      weight: '1 kg',
     },
     characteristics: [
       'Poids : 1 kg (environ 15 chipolatas)',
@@ -494,7 +494,7 @@ export const products: Product[] = [
     stockQuantity: 35,
     badges: [],
     metadata: {
-      poids: '500 g',
+      weight: '500 g',
     },
     characteristics: [
       'Poids : 500 g',
@@ -520,7 +520,7 @@ export const products: Product[] = [
     stockQuantity: 25,
     badges: ['nouveau'],
     metadata: {
-      poids: '300 g',
+      weight: '300 g',
     },
     characteristics: [
       'Poids : 300 g',
@@ -546,7 +546,7 @@ export const products: Product[] = [
     stockQuantity: 30,
     badges: [],
     metadata: {
-      poids: '250 g',
+      weight: '250 g',
     },
     characteristics: [
       'Poids : 250 g',
@@ -572,7 +572,7 @@ export const products: Product[] = [
     stockQuantity: 20,
     badges: ['populaire'],
     metadata: {
-      quantite: '4 pièces',
+      quantity: '4 pièces',
     },
     characteristics: [
       'Lot de 4 pièces',
@@ -598,7 +598,7 @@ export const products: Product[] = [
     stockQuantity: 30,
     badges: ['nouveau'],
     metadata: {
-      poids: '500 g',
+      weight: '500 g',
     },
     characteristics: [
       'Poids : 500 g',
@@ -624,7 +624,7 @@ export const products: Product[] = [
     stockQuantity: 20,
     badges: ['populaire'],
     metadata: {
-      poids: '800 g environ',
+      weight: '800 g environ',
     },
     characteristics: [
       'Saucisson artisanal',
