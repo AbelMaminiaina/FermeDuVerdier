@@ -38,6 +38,7 @@ router.get('/', async (req: Request, res: Response) => {
         if (category && category !== 'all') {
           const categoryMap: Record<string, ProductCategory> = {
             'porc': 'porc',
+            'poulet': 'poulet',
             'poisson': 'poisson',
             'transformes': 'transformes',
             'oeufs-frais': 'oeufs_frais',
