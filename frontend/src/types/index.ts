@@ -19,12 +19,15 @@ export interface Product {
 }
 
 export type ProductCategory =
+  | 'porc'
+  | 'poisson'
+  | 'transformes'
   | 'oeufs-frais'
   | 'oeufs-fecondes'
   | 'poules'
   | 'accessoires';
 
-export type ProductBadge = 'bio' | 'plein-air' | 'nouveau' | 'promo' | 'populaire';
+export type ProductBadge = 'bio' | 'plein_air' | 'nouveau' | 'promo' | 'populaire';
 
 export interface ProductMetadata {
   race?: string;
