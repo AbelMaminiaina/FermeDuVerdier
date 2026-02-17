@@ -73,7 +73,7 @@ export function getCategoryLabel(category: string): string {
 export function getBadgeLabel(badge: string): string {
   const labels: Record<string, string> = {
     'bio': 'Bio',
-    'plein-air': 'Plein air',
+    'plein_air': 'Plein air',
     'nouveau': 'Nouveau',
     'promo': 'Promo',
     'populaire': 'Populaire',

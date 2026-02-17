@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface BadgeProps {
-  type: 'bio' | 'plein-air' | 'nouveau' | 'promo' | 'populaire' | 'default';
+  type: 'bio' | 'plein_air' | 'nouveau' | 'promo' | 'populaire' | 'default';
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -10,7 +10,7 @@ export interface BadgeProps {
 
 const badgeStyles = {
   bio: 'bg-green-100 text-green-800 border-green-200',
-  'plein-air': 'bg-blue-100 text-blue-800 border-blue-200',
+  'plein_air': 'bg-blue-100 text-blue-800 border-blue-200',
   nouveau: 'bg-purple-100 text-purple-800 border-purple-200',
   promo: 'bg-red-100 text-red-800 border-red-200',
   populaire: 'bg-amber-100 text-amber-800 border-amber-200',
