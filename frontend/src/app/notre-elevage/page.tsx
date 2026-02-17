@@ -10,9 +10,9 @@ import { fadeInUp, fadeInLeft, fadeInRight, staggerContainer, viewportOnce } fro
 
 const certifications = [
   {
-    name: 'Agriculture Biologique',
+    name: 'Élevage Responsable',
     icon: Leaf,
-    description: 'Certification Bio depuis 2012',
+    description: 'Pratiques respectueuses depuis 2024',
   },
   {
     name: 'Qualité Premium',
@@ -24,37 +24,37 @@ const certifications = [
 const methods = [
   {
     icon: Sun,
-    title: 'Élevage en plein air',
+    title: 'Enclos spacieux',
     description:
-      'Nos poules disposent de 10m² minimum chacune pour picorer, gratter et profiter du soleil.',
+      'Nos porcs disposent d\'enclos spacieux et bien aérés pour leur épanouissement optimal.',
   },
   {
     icon: Leaf,
-    title: 'Alimentation 100% bio',
+    title: 'Alimentation de qualité',
     description:
-      'Céréales bio (blé, maïs, orge), sans OGM ni antibiotiques. Complétées par les insectes et herbes du parcours.',
+      'Aliments sélectionnés, sans antibiotiques de croissance. Une nutrition équilibrée pour des produits savoureux.',
   },
   {
     icon: Heart,
     title: 'Bien-être animal',
     description:
-      'Pas de bec coupé, pas de stress. Nos poules vivent naturellement, au rythme des saisons.',
+      'Respect du rythme naturel des animaux. Un élevage sans stress pour une viande de qualité.',
   },
   {
     icon: Award,
     title: 'Qualité contrôlée',
     description:
-      'Ramassage quotidien, tri manuel et contrôle qualité pour ne vous offrir que le meilleur.',
+      'Suivi vétérinaire régulier et contrôle qualité rigoureux pour votre sécurité.',
   },
 ];
 
 const galleryImages = [
-  { src: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600', alt: 'Poules en liberté dans la prairie' },
-  { src: 'https://images.unsplash.com/photo-1612170153139-6f881ff067e0?w=600', alt: 'Le poulailler principal' },
-  { src: 'https://images.unsplash.com/photo-1569428034239-f9565e32e224?w=600', alt: 'Ramassage des œufs' },
-  { src: 'https://images.unsplash.com/photo-1598965402089-897ce52e8355?w=600', alt: 'Poussins dans l\'éleveuse' },
-  { src: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=600', alt: 'Vue aérienne de la ferme' },
-  { src: 'https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=600', alt: 'L\'équipe de la ferme' },
+  { src: '/images/porc/WhatsApp Image 2026-02-17 at 00.43.16.jpeg', alt: 'Vue d\'ensemble de nos installations porcines' },
+  { src: '/images/porc/WhatsApp Image 2026-02-17 at 00.43.17.jpeg', alt: 'Nos porcs en train de manger' },
+  { src: '/images/porc/test3.jpeg', alt: 'Vue aérienne de la porcherie' },
+  { src: '/images/porc/test4.jpeg', alt: 'Porcs dans leur enclos' },
+  { src: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=600', alt: 'Bassins de pisciculture' },
+  { src: 'https://images.unsplash.com/photo-1498654200943-1088dd4438ae?w=600', alt: 'Poissons frais' },
 ];
 
 export default function NotreElevagePage() {
@@ -64,8 +64,8 @@ export default function NotreElevagePage() {
       <section className="relative h-[60vh] min-h-[400px] flex items-center">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1920"
-            alt="Vue de notre élevage"
+            src="/images/porc/test3.jpeg"
+            alt="Vue de notre élevage porcin"
             fill
             className="object-cover"
             priority
@@ -86,8 +86,8 @@ export default function NotreElevagePage() {
               Notre Élevage
             </h1>
             <p className="text-lg text-warm-200 leading-relaxed">
-              Découvrez notre ferme avicole biologique, nos méthodes d&apos;élevage
-              respectueuses et notre passion pour le bien-être animal.
+              Découvrez notre élevage porcin et notre pisciculture,
+              nos méthodes respectueuses et notre passion pour le bien-être animal.
             </p>
           </motion.div>
         </div>
@@ -238,9 +238,9 @@ export default function NotreElevagePage() {
                 Venez nous rendre visite !
               </h2>
               <p className="text-warm-300 text-lg mb-8 leading-relaxed">
-                Nous vous accueillons à la ferme pour découvrir notre élevage,
-                rencontrer nos poules et repartir avec des œufs fraîchement pondus.
-                Une expérience authentique pour petits et grands !
+                Nous vous accueillons à la ferme pour découvrir notre élevage porcin
+                et notre pisciculture. Repartez avec de la viande fraîche et du poisson
+                de qualité. Une expérience authentique !
               </p>
 
               <div className="space-y-4 mb-8">

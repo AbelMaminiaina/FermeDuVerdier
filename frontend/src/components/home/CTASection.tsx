@@ -34,8 +34,8 @@ export function CTASection() {
               Venez nous rendre visite à la ferme !
             </h2>
             <p className="text-warm-300 text-lg mb-8 leading-relaxed">
-              Découvrez notre élevage en plein air, rencontrez nos poules et
-              repartez avec des œufs fraîchement pondus. Les enfants adorent !
+              Découvrez notre élevage porcin et notre pisciculture.
+              Repartez avec de la viande fraîche et du poisson de qualité !
             </p>
 
             <div className="space-y-4 mb-8">
@@ -93,8 +93,8 @@ export function CTASection() {
           >
             <div className="relative aspect-square rounded-2xl overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=600"
-                alt="Visite de la ferme"
+                src="/images/porc/WhatsApp Image 2026-02-17 at 00.43.17.jpeg"
+                alt="Nos porcs à la ferme"
                 fill
                 className="object-cover"
               />
@@ -107,10 +107,10 @@ export function CTASection() {
                   <div className="w-8 h-8 rounded-full bg-terre-200 ring-2 ring-white" />
                   <div className="w-8 h-8 rounded-full bg-warm-200 ring-2 ring-white" />
                 </div>
-                <span className="text-sm font-medium text-warm-800">+500 visiteurs/an</span>
+                <span className="text-sm font-medium text-warm-800">+100 clients/an</span>
               </div>
               <p className="text-sm text-warm-600">
-                Familles et passionnés nous rendent visite chaque année.
+                Clients satisfaits de la qualité de nos produits.
               </p>
             </div>
           </motion.div>

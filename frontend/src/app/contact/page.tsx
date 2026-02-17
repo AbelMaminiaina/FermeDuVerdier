@@ -74,7 +74,7 @@ export default function ContactPage() {
       <section className="relative h-[40vh] min-h-[300px] flex items-center">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1920"
+            src="/images/porc/WhatsApp Image 2026-02-17 at 00.43.16.jpeg"
             alt="Contactez la Ferme du Vardier"
             fill
             className="object-cover"

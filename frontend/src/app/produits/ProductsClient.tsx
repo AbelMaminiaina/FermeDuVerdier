@@ -9,7 +9,7 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductFilter from '@/components/products/ProductFilter';
 import { fadeInUp } from '@/lib/animations';
 
-type ProductCategory = 'all' | 'oeufs-frais' | 'oeufs-fecondes' | 'poules' | 'accessoires';
+type ProductCategory = 'all' | 'porc' | 'poisson' | 'transformes';
 
 interface ProductsClientProps {
   initialProducts: Product[];
@@ -24,7 +24,7 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
   );
 
   useEffect(() => {
-    if (categoryParam && ['oeufs-frais', 'oeufs-fecondes', 'poules', 'accessoires'].includes(categoryParam)) {
+    if (categoryParam && ['porc', 'poisson', 'transformes'].includes(categoryParam)) {
       setSelectedCategory(categoryParam as ProductCategory);
     }
   }, [categoryParam]);
@@ -48,8 +48,8 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
       <section className="relative h-[40vh] min-h-[300px] flex items-center">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1569127959161-2b1297b2d9a6?w=1920"
-            alt="Œufs frais bio"
+            src="/images/porc/test4.jpeg"
+            alt="Nos produits de qualité"
             fill
             className="object-cover"
             priority
@@ -70,8 +70,8 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
               Nos Produits
             </h1>
             <p className="text-lg text-warm-200">
-              Découvrez notre gamme complète de produits bio : œufs frais,
-              œufs fécondés, poules pondeuses et accessoires pour votre basse-cour.
+              Découvrez notre gamme de produits de qualité : viande de porc fraîche,
+              poissons d&apos;élevage et produits transformés artisanaux.
             </p>
           </motion.div>
         </div>

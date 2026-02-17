@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Ferme du Vardier - Œufs Bio et Poules Pondeuses à Madagascar',
+    default: 'Ferme du Vardier - Élevage Porcin et Pisciculture à Madagascar',
     template: '%s | Ferme du Vardier',
   },
   icons: {
@@ -28,18 +28,18 @@ export const metadata: Metadata = {
     apple: '/images/logo.jpeg',
   },
   description:
-    'Découvrez nos œufs frais bio et nos poules pondeuses élevées en plein air à Madagascar. Livraison à Antananarivo et environs. Agriculture biologique et durable depuis 2024.',
+    'Découvrez notre élevage porcin et notre pisciculture de qualité à Madagascar. Viande de porc et poissons frais. Livraison à Antananarivo et environs. Élevage responsable depuis 2024.',
   keywords: [
-    'œufs bio',
-    'poules pondeuses',
+    'élevage porcin',
+    'pisciculture',
     'Madagascar',
     'Antananarivo',
     'Ambatolampy',
-    'agriculture biologique',
-    'œufs frais',
-    'ferme avicole',
-    'œufs fécondés',
-    'poules plein air',
+    'viande de porc',
+    'poissons frais',
+    'ferme',
+    'élevage responsable',
+    'qualité',
   ],
   authors: [{ name: 'Ferme du Vardier' }],
   creator: 'Ferme du Vardier',
@@ -58,24 +58,24 @@ export const metadata: Metadata = {
     locale: 'fr_MG',
     url: 'https://fermeduvardier.mg',
     siteName: 'Ferme du Vardier',
-    title: 'Ferme du Vardier - Œufs Bio et Poules Pondeuses',
+    title: 'Ferme du Vardier - Élevage Porcin et Pisciculture',
     description:
-      'Œufs frais bio et poules pondeuses élevées en plein air. Livraison à Antananarivo et environs.',
+      'Viande de porc et poissons frais de qualité. Livraison à Antananarivo et environs.',
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: '/images/porc/test3.jpeg',
         width: 1200,
         height: 630,
-        alt: 'Ferme du Vardier - Poules en liberté',
+        alt: 'Ferme du Vardier - Élevage porcin',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ferme du Vardier - Œufs Bio et Poules Pondeuses',
+    title: 'Ferme du Vardier - Élevage Porcin et Pisciculture',
     description:
-      'Œufs frais bio et poules pondeuses élevées en plein air. Livraison à Antananarivo et environs.',
-    images: ['/images/og-image.jpg'],
+      'Viande de porc et poissons frais de qualité. Livraison à Antananarivo et environs.',
+    images: ['/images/porc/test3.jpeg'],
   },
   robots: {
     index: true,

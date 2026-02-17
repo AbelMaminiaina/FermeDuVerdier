@@ -9,6 +9,9 @@ datasource db {
 
 // Catégories de produits
 enum ProductCategory {
+  porc
+  poisson
+  transformes
   oeufs_frais
   oeufs_fecondes
   poules

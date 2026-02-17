@@ -63,10 +63,9 @@ export function getProductivityColor(productivity: string): string {
 
 export function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    'oeufs-frais': 'Œufs frais',
-    'oeufs-fecondes': 'Œufs fécondés',
-    'poules': 'Poules vivantes',
-    'accessoires': 'Accessoires',
+    'porc': 'Viande de porc',
+    'poisson': 'Poissons',
+    'transformes': 'Produits transformés',
   };
   return labels[category] || category;
 }

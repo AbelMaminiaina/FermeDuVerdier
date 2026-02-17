@@ -17,16 +17,16 @@ import { Button, Input } from '@/components/ui';
 
 const footerLinks = {
   produits: [
-    { name: 'Œufs frais bio', href: '/produits?categorie=oeufs-frais' },
-    { name: 'Œufs fécondés', href: '/produits?categorie=oeufs-fecondes' },
-    { name: 'Poules pondeuses', href: '/produits?categorie=poules' },
-    { name: 'Accessoires', href: '/produits?categorie=accessoires' },
+    { name: 'Viande de porc', href: '/produits?categorie=porc' },
+    { name: 'Poissons frais', href: '/produits?categorie=poisson' },
+    { name: 'Produits transformés', href: '/produits?categorie=transformes' },
+    { name: 'Tous les produits', href: '/produits' },
   ],
   informations: [
     { name: 'Notre histoire', href: '/#histoire' },
-    { name: 'Nos poules', href: '/nos-poules' },
     { name: 'Notre élevage', href: '/notre-elevage' },
     { name: 'Blog & Conseils', href: '/blog' },
+    { name: 'Contact', href: '/contact' },
   ],
   services: [
     { name: 'Livraison', href: '/services#livraison' },
@@ -105,9 +105,9 @@ export function Footer() {
               />
             </Link>
             <p className="text-warm-400 text-sm mb-6">
-              Ferme avicole biologique spécialisée dans la vente d&apos;œufs frais,
-              de poules pondeuses et de produits pour basse-cour. Depuis 2024,
-              nous élevons nos poules avec passion et respect.
+              Ferme spécialisée dans l&apos;élevage porcin et la pisciculture.
+              Depuis 2024, nous élevons nos animaux avec passion et respect
+              pour vous offrir des produits de qualité supérieure.
             </p>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
@@ -234,7 +234,7 @@ export function Footer() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 bg-prairie-700 rounded-full px-3 py-1">
                 <Leaf className="h-5 w-5 text-prairie-300" />
-                <span className="text-sm text-prairie-200">Agriculture Bio</span>
+                <span className="text-sm text-prairie-200">Élevage Responsable</span>
               </div>
             </div>
           </div>

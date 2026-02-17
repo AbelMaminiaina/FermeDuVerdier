@@ -11,15 +11,15 @@ const values = [
     icon: Heart,
     title: 'Bien-être animal',
     description:
-      'Nos poules vivent en totale liberté sur 5 hectares de prairies. Chacune dispose de 10m² minimum pour s\'épanouir naturellement.',
+      'Nos porcs vivent dans des enclos spacieux sur 5 hectares. Chaque animal dispose d\'un espace généreux pour s\'épanouir naturellement.',
     color: 'text-red-500',
     bgColor: 'bg-red-50',
   },
   {
     icon: Leaf,
-    title: 'Agriculture biologique',
+    title: 'Élevage responsable',
     description:
-      'Certification Bio depuis 2012. Alimentation 100% bio, sans OGM ni antibiotiques. Respect des cycles naturels.',
+      'Alimentation de qualité, sans antibiotiques de croissance. Respect du bien-être animal et des cycles naturels.',
     color: 'text-prairie-600',
     bgColor: 'bg-prairie-50',
   },
@@ -35,7 +35,7 @@ const values = [
     icon: Award,
     title: 'Qualité garantie',
     description:
-      'Des œufs ramassés quotidiennement, triés et contrôlés avec soin. Fraîcheur et traçabilité assurées.',
+      'Viande de porc et poissons frais, contrôlés avec soin. Fraîcheur et traçabilité assurées pour tous nos produits.',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
   },
@@ -60,7 +60,7 @@ export function Values() {
             Des valeurs qui nous guident au quotidien
           </h2>
           <p className="text-warm-600">
-            Depuis plus de 15 ans, nous mettons tout en œuvre pour vous offrir
+            Depuis 2024, nous mettons tout en œuvre pour vous offrir
             des produits d&apos;exception, dans le respect de la nature et des animaux.
           </p>
         </motion.div>

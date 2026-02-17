@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn, getCategoryLabel } from '@/lib/utils';
 
-type ProductCategory = 'all' | 'oeufs-frais' | 'oeufs-fecondes' | 'poules' | 'accessoires';
+type ProductCategory = 'all' | 'porc' | 'poisson' | 'transformes';
 
 interface ProductFilterProps {
   selectedCategory: ProductCategory;
@@ -13,10 +13,9 @@ interface ProductFilterProps {
 
 const categories: { value: ProductCategory; label: string }[] = [
   { value: 'all', label: 'Tous' },
-  { value: 'oeufs-frais', label: 'Œufs frais' },
-  { value: 'oeufs-fecondes', label: 'Œufs fécondés' },
-  { value: 'poules', label: 'Poules vivantes' },
-  { value: 'accessoires', label: 'Accessoires' },
+  { value: 'porc', label: 'Viande de porc' },
+  { value: 'poisson', label: 'Poissons' },
+  { value: 'transformes', label: 'Produits transformés' },
 ];
 
 export function ProductFilter({

@@ -20,8 +20,8 @@ export function Story() {
           >
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=800"
-                alt="Varombo, fondateur de la Ferme du Vardier"
+                src="/images/porc/WhatsApp Image 2026-02-17 at 00.43.16.jpeg"
+                alt="Nos installations d'élevage porcin"
                 fill
                 className="object-cover"
               />
@@ -54,22 +54,21 @@ export function Story() {
             <div className="space-y-4 text-warm-600 leading-relaxed">
               <p>
                 Tout a commencé en 2024, lorsque Varombo a décidé de
-                créer cette ferme avec une vision nouvelle : produire
-                des œufs de qualité exceptionnelle tout en respectant les animaux
-                et l&apos;environnement.
+                créer cette ferme avec une vision nouvelle : proposer
+                du porc et du poisson de qualité exceptionnelle tout en respectant
+                les animaux et l&apos;environnement.
               </p>
               <p>
                 Installée à Ambatolampy Tsimahafotsy à Madagascar, la Ferme du Vardier s&apos;étend sur
-                5 hectares de prairies verdoyantes où nos poules vivent en totale
-                liberté. Ici, pas de cages ni d&apos;élevage intensif : chaque poule
-                dispose d&apos;un espace généreux pour picorer, gratter et profiter
-                du grand air.
+                5 hectares où notre élevage porcin et notre pisciculture prospèrent
+                dans des conditions optimales. Nos porcs bénéficient d&apos;enclos spacieux
+                et nos bassins de poissons sont entretenus avec le plus grand soin.
               </p>
               <p>
-                Notre engagement pour l&apos;agriculture biologique n&apos;est pas qu&apos;un
-                label, c&apos;est une philosophie de vie. Nous nourrissons nos poules
-                exclusivement avec des aliments bio, sans OGM ni antibiotiques,
-                pour vous offrir des œufs au goût incomparable.
+                Notre engagement pour un élevage responsable n&apos;est pas qu&apos;un
+                label, c&apos;est une philosophie de vie. Nous nourrissons nos animaux
+                avec des aliments de qualité, sans antibiotiques de croissance,
+                pour vous offrir des produits au goût incomparable.
               </p>
               <p className="font-medium text-warm-800">
                 Aujourd&apos;hui, c&apos;est toute une équipe passionnée qui perpétue
