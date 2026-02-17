@@ -572,7 +572,7 @@ export const products: Product[] = [
     stockQuantity: 20,
     badges: ['populaire'],
     metadata: {
-      quantity: '4 pièces',
+      quantity: 4,
     },
     characteristics: [
       'Lot de 4 pièces',
