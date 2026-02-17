@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn, getCategoryLabel } from '@/lib/utils';
 
-type ProductCategory = 'all' | 'porc' | 'poisson' | 'transformes';
+type ProductCategory = 'all' | 'porc' | 'poulet' | 'poisson' | 'transformes';
 
 interface ProductFilterProps {
   selectedCategory: ProductCategory;
@@ -14,6 +14,7 @@ interface ProductFilterProps {
 const categories: { value: ProductCategory; label: string }[] = [
   { value: 'all', label: 'Tous' },
   { value: 'porc', label: 'Viande de porc' },
+  { value: 'poulet', label: 'Viande de poulet' },
   { value: 'poisson', label: 'Poissons' },
   { value: 'transformes', label: 'Produits transformés' },
 ];

@@ -9,7 +9,7 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductFilter from '@/components/products/ProductFilter';
 import { fadeInUp } from '@/lib/animations';
 
-type ProductCategory = 'all' | 'porc' | 'poisson' | 'transformes';
+type ProductCategory = 'all' | 'porc' | 'poulet' | 'poisson' | 'transformes';
 
 interface ProductsClientProps {
   initialProducts: Product[];
@@ -24,7 +24,7 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
   );
 
   useEffect(() => {
-    if (categoryParam && ['porc', 'poisson', 'transformes'].includes(categoryParam)) {
+    if (categoryParam && ['porc', 'poulet', 'poisson', 'transformes'].includes(categoryParam)) {
       setSelectedCategory(categoryParam as ProductCategory);
     }
   }, [categoryParam]);
@@ -70,7 +70,7 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
               Nos Produits
             </h1>
             <p className="text-lg text-warm-200">
-              Découvrez notre gamme de produits de qualité : viande de porc fraîche,
+              Découvrez notre gamme de produits de qualité : viande de porc et poulet fermier,
               poissons d&apos;élevage et produits transformés artisanaux.
             </p>
           </motion.div>

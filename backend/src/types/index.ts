@@ -19,6 +19,10 @@ export interface Product {
 }
 
 export type ProductCategory =
+  | 'porc'
+  | 'poulet'
+  | 'poisson'
+  | 'transformes'
   | 'oeufs-frais'
   | 'oeufs-fecondes'
   | 'poules'

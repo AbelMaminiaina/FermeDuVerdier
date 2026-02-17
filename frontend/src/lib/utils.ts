@@ -64,6 +64,7 @@ export function getProductivityColor(productivity: string): string {
 export function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
     'porc': 'Viande de porc',
+    'poulet': 'Viande de poulet',
     'poisson': 'Poissons',
     'transformes': 'Produits transformés',
   };
