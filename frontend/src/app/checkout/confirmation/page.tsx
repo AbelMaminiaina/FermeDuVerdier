@@ -199,7 +199,7 @@ function ConfirmationContent() {
 
           {/* Contact info */}
           <div className="bg-warm-100 rounded-xl p-6 mb-8">
-            <h3 className="font-semibold text-warm-800 mb-3">Besoin d'aide ?</h3>
+            <h3 className="font-semibold text-warm-800 mb-3">Besoin d&apos;aide ?</h3>
             <div className="flex items-center gap-2 text-warm-700">
               <Phone className="h-4 w-4" />
               <span>Appelez-nous au </span>
@@ -213,7 +213,7 @@ function ConfirmationContent() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/">
               <Button variant="outline" icon={<Home className="h-4 w-4" />}>
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </Button>
             </Link>
             <Link href="/produits">
