@@ -23,9 +23,9 @@ export const metadata: Metadata = {
     template: '%s | Ferme du Vardier',
   },
   icons: {
-    icon: '/images/logo.jpeg',
-    shortcut: '/images/logo.jpeg',
-    apple: '/images/logo.jpeg',
+    icon: '/images/logo.png',
+    shortcut: '/images/logo.png',
+    apple: '/images/logo.png',
   },
   description:
     'Découvrez notre élevage porcin et notre pisciculture de qualité à Madagascar. Viande de porc et poissons frais. Livraison à Antananarivo et environs. Élevage responsable depuis 2024.',

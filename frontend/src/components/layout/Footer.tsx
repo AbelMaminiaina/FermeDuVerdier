@@ -99,9 +99,9 @@ export function Footer() {
           <div className="lg:col-span-3">
             <Link href="/" className="inline-block mb-4">
               <img
-                src="/images/logo.jpeg"
+                src="/images/logo.png"
                 alt="La Ferme du Vardier"
-                className="h-16 w-auto object-contain bg-white rounded-lg p-1"
+                className="h-16 w-auto object-contain"
               />
             </Link>
             <p className="text-warm-400 text-sm mb-6">

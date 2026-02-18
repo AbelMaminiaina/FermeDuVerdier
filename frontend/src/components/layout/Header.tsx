@@ -93,9 +93,9 @@ export function Header() {
             {/* Logo */}
             <Link href="/" className="flex items-center group">
               <img
-                src="/images/logo.jpeg"
+                src="/images/logo.png"
                 alt="La Ferme du Vardier"
-                className="h-14 w-auto object-contain group-hover:scale-105 transition-transform bg-white rounded-lg p-1"
+                className="h-14 w-auto object-contain group-hover:scale-105 transition-transform"
               />
             </Link>
 
