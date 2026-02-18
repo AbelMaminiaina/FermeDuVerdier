@@ -232,7 +232,7 @@ export function Header() {
       </header>
 
       {/* Spacer */}
-      <div className="h-28" />
+      <div className="h-36" />
 
       {/* Cart drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
