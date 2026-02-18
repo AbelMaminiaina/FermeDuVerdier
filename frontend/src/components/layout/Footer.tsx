@@ -101,7 +101,7 @@ export function Footer() {
               <img
                 src="/images/logo.jpeg"
                 alt="La Ferme du Vardier"
-                className="h-16 w-auto object-contain"
+                className="h-16 w-auto object-contain bg-white rounded-lg p-1"
               />
             </Link>
             <p className="text-warm-400 text-sm mb-6">
