@@ -210,14 +210,16 @@ export default function CartPage() {
               </div>
 
               {/* Checkout button */}
-              <Button
-                fullWidth
-                size="lg"
-                icon={<CreditCard className="h-5 w-5" />}
-                className="mb-4"
-              >
-                Passer commande
-              </Button>
+              <Link href="/checkout">
+                <Button
+                  fullWidth
+                  size="lg"
+                  icon={<CreditCard className="h-5 w-5" />}
+                  className="mb-4"
+                >
+                  Passer commande
+                </Button>
+              </Link>
 
               {/* Trust badges */}
               <div className="space-y-3 pt-4 border-t border-warm-100">
