@@ -95,7 +95,7 @@ export function Header() {
               <img
                 src="/images/logo.png"
                 alt="La Ferme du Vardier"
-                className="h-14 w-auto object-contain group-hover:scale-105 transition-transform"
+                className="h-20 w-auto object-contain group-hover:scale-105 transition-transform"
               />
             </Link>
 
