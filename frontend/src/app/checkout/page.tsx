@@ -559,7 +559,7 @@ export default function CheckoutPage() {
                   <Button
                     onClick={handleSubmitOrder}
                     disabled={!validateCurrentStep() || isLoading}
-                    isLoading={isLoading}
+                    loading={isLoading}
                   >
                     Confirmer la commande
                   </Button>
