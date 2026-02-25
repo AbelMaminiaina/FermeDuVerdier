@@ -26,3 +26,7 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Windows reserved names
+nul
+NUL

@@ -114,6 +114,38 @@ FRONTEND_URL=http://localhost:3000
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ```
 
+## Santé du Projet
+
+**Score global : 6.5/10** - Préoccupations modérées
+
+### Points positifs
+- Architecture claire avec séparation frontend/backend
+- Technologies modernes (TypeScript strict, Next.js 14, Prisma)
+- Infrastructure Docker fonctionnelle (PostgreSQL + Redis)
+- Pipeline CI/CD GitHub Actions (lint + build)
+
+### Points à améliorer
+
+| Priorité | Problème | Action |
+|----------|----------|--------|
+| Critique | Aucun test | Ajouter Jest/Vitest |
+| Critique | Vulnérabilités npm | `npm audit fix` |
+| Critique | APIs admin non protégées | Ajouter middleware auth |
+| Haute | Fichiers .env suivis par git | Mettre à jour .gitignore |
+| Moyenne | Pas d'ESLint backend | Configurer ESLint |
+| Moyenne | Pas de rate limiting | Ajouter express-rate-limit |
+
+### Checklist avant production
+
+- [ ] Corriger les vulnérabilités de sécurité (`npm audit fix`)
+- [ ] Ajouter authentification sur les endpoints admin
+- [ ] Retirer les fichiers .env du suivi git
+- [ ] Écrire des tests unitaires et d'intégration
+- [ ] Configurer ESLint pour le backend
+- [ ] Ajouter rate limiting sur les APIs
+- [ ] Mettre en place la pagination sur les endpoints de liste
+- [ ] Configurer un système de logging (Winston/Pino)
+
 ## Licence
 
 Propriétaire - Ferme du Vardier

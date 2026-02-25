@@ -58,8 +58,8 @@ router.get('/', async (req: Request, res: Response) => {
           ];
         }
 
-        // Filter by stock status
-        if (inStock === 'true') {
+        // Filter by stock status (par défaut, afficher seulement les produits en stock)
+        if (inStock !== 'false') {
           where.inStock = true;
         }
 
@@ -151,6 +151,31 @@ router.get('/:slug/related', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching related products:', error);
     res.status(500).json({ error: 'Failed to fetch related products' });
+  }
+});
+
+// Admin: Update product stock
+router.patch('/:productId/stock', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const { stockQuantity } = req.body;
+
+    if (typeof stockQuantity !== 'number' || stockQuantity < 0) {
+      return res.status(400).json({ error: 'Quantité de stock invalide' });
+    }
+
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        stockQuantity,
+        inStock: stockQuantity > 0,
+      },
+    });
+
+    res.json({ success: true, product });
+  } catch (error) {
+    console.error('Error updating product stock:', error);
+    res.status(500).json({ error: 'Failed to update product stock' });
   }
 });
 

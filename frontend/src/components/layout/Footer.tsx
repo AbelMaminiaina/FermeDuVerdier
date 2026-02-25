@@ -112,12 +112,12 @@ export function Footer() {
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-prairie-500 shrink-0 mt-0.5" />
-                <span>1 Chemin du Vardier<br />Ambatolampy Tsimahafotsy, Madagascar</span>
+                <span>LE 187<br />Ambohitsoa Ambavatonelina</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-prairie-500 shrink-0" />
                 <a href="tel:+261380100101" className="hover:text-white transition-colors">
-                  038 01 001 01
+                  034 30 181 73
                 </a>
               </div>
               <div className="flex items-center gap-2">

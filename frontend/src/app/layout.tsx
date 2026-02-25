@@ -4,6 +4,7 @@ import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ToastProvider } from '@/components/ui/Toast';
+import { SessionProvider } from '@/components/providers/SessionProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -101,13 +102,15 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
       <body className="font-sans" suppressHydrationWarning>
-        <ToastProvider>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </ToastProvider>
+        <SessionProvider>
+          <ToastProvider>
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </ToastProvider>
+        </SessionProvider>
       </body>
     </html>
   );

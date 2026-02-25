@@ -5,12 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession, signOut } from 'next-auth/react';
 import {
   Menu,
   X,
   ShoppingCart,
   Phone,
   ChevronDown,
+  User,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
@@ -39,9 +42,11 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
   const cart = useCart();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     setIsMounted(true);
@@ -82,7 +87,7 @@ export function Header() {
               className="flex items-center gap-1 hover:text-prairie-600 transition-colors"
             >
               <Phone className="h-4 w-4" />
-              <span>038 01 001 01</span>
+              <span>034 30 181 73</span>
             </a>
           </div>
         </div>
@@ -155,6 +160,76 @@ export function Header() {
 
             {/* Right actions */}
             <div className="flex items-center gap-2">
+              {/* User button */}
+              {status === 'loading' ? (
+                <div className="w-8 h-8 rounded-full bg-warm-200 animate-pulse" />
+              ) : session ? (
+                <div
+                  className="relative"
+                  onMouseEnter={() => setIsUserMenuOpen(true)}
+                  onMouseLeave={() => setIsUserMenuOpen(false)}
+                >
+                  <button
+                    className="flex items-center gap-2 p-2 rounded-full hover:bg-prairie-50 transition-colors"
+                    aria-label="Mon compte"
+                  >
+                    {session.user?.image ? (
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || 'User'}
+                        className="w-8 h-8 rounded-full"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-prairie-100 flex items-center justify-center">
+                        <User className="h-4 w-4 text-prairie-600" />
+                      </div>
+                    )}
+                  </button>
+                  <AnimatePresence>
+                    {isUserMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-warm-100 py-2 min-w-[200px] z-50"
+                      >
+                        <div className="px-4 py-2 border-b border-warm-100">
+                          <p className="font-medium text-warm-800 truncate">
+                            {session.user?.name}
+                          </p>
+                          <p className="text-sm text-warm-500 truncate">
+                            {session.user?.email}
+                          </p>
+                        </div>
+                        {(session.user as any)?.role === 'admin' && (
+                          <Link
+                            href="/admin"
+                            className="block px-4 py-2 text-sm text-warm-700 hover:text-prairie-700 hover:bg-prairie-50 transition-colors"
+                          >
+                            Dashboard Admin
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => signOut()}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Se déconnecter
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <Link
+                  href="/connexion"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-prairie-700 hover:bg-prairie-50 rounded-lg transition-colors"
+                >
+                  <User className="h-4 w-4" />
+                  Se connecter
+                </Link>
+              )}
+
               {/* Cart button */}
               <button
                 onClick={() => setIsCartOpen(true)}

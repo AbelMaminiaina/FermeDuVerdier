@@ -198,4 +198,70 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
   }
 });
 
+// Admin: Get all orders
+router.get('/orders', async (req: Request, res: Response) => {
+  try {
+    const orders = await prisma.order.findMany({
+      include: {
+        customer: true,
+        address: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const formattedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+      customerEmail: order.customer.email,
+      status: order.status,
+      total: order.total,
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    }));
+
+    res.json({ orders: formattedOrders });
+  } catch (error) {
+    console.error('Error fetching all orders:', error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+// Admin: Update order status
+router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Statut invalide' });
+    }
+
+    const order = await prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+    });
+
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+
 export default router;
