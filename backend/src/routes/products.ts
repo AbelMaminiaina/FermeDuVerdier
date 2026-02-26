@@ -80,9 +80,12 @@ router.get('/', async (req: Request, res: Response) => {
     );
 
     res.json(result);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    res.status(500).json({
+      error: 'Failed to fetch products',
+      details: error?.message || 'Unknown error'
+    });
   }
 });
 
