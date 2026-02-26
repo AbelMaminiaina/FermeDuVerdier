@@ -40,6 +40,8 @@ router.get('/', async (req: Request, res: Response) => {
             'porc': 'porc',
             'poulet': 'poulet',
             'poisson': 'poisson',
+            'akanga': 'akanga',
+            'caille': 'caille',
             'transformes': 'transformes',
             'oeufs-frais': 'oeufs_frais',
             'oeufs-fecondes': 'oeufs_fecondes',

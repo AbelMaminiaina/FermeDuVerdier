@@ -9,7 +9,7 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductFilter from '@/components/products/ProductFilter';
 import { fadeInUp } from '@/lib/animations';
 
-type ProductCategory = 'all' | 'porc' | 'poulet' | 'poisson' | 'transformes';
+type ProductCategory = 'all' | 'porc' | 'poulet' | 'poisson' | 'akanga' | 'caille';
 
 interface ProductsClientProps {
   initialProducts: Product[];
@@ -24,7 +24,7 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
   );
 
   useEffect(() => {
-    if (categoryParam && ['porc', 'poulet', 'poisson', 'transformes'].includes(categoryParam)) {
+    if (categoryParam && ['porc', 'poulet', 'poisson', 'akanga', 'caille'].includes(categoryParam)) {
       setSelectedCategory(categoryParam as ProductCategory);
     }
   }, [categoryParam]);

@@ -12,6 +12,8 @@ enum ProductCategory {
   porc
   poulet
   poisson
+  akanga
+  caille
   transformes
   oeufs_frais
   oeufs_fecondes
