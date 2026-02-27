@@ -54,7 +54,7 @@ const menuItemVariants = {
     transition: {
       delay: i * 0.05,
       duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   }),
 };
@@ -73,7 +73,7 @@ const submenuVariants = {
     filter: 'blur(0px)',
     transition: {
       duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
       staggerChildren: 0.05,
     },
   },
