@@ -19,6 +19,8 @@ import {
   Bird,
   Egg,
   Sparkles,
+  Truck,
+  Gift,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
@@ -132,38 +134,47 @@ export function Header() {
             : 'bg-gradient-to-b from-white/90 to-transparent py-4'
         )}
       >
-        {/* Top bar */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: isScrolled ? 0 : 1, y: isScrolled ? -20 : 0 }}
-          transition={{ duration: 0.3 }}
-          className={cn(
-            'container mx-auto px-4 mb-2',
-            isScrolled && 'pointer-events-none'
-          )}
-        >
-          <div className="flex justify-end items-center text-sm">
-            <motion.a
+        {/* Top bar - hidden on small mobile */}
+        <div className="hidden sm:block container mx-auto px-4 mb-2">
+          <div className="flex justify-between items-center text-sm">
+            {/* Livraison gratuite */}
+            <motion.div
+              className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-terre-50 to-terre-100/50 text-terre-700"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center gap-1.5">
+                <Truck className="h-4 w-4 text-terre-600" />
+                <Gift className="h-3.5 w-3.5 text-terre-500" />
+              </div>
+              <span className="font-medium">
+                <span className="hidden md:inline">Livraison offerte à 10 km</span>
+                <span className="md:hidden">Livraison offerte</span>
+                {' '}dès <span className="font-bold text-terre-800">50 000 Ar</span>
+              </span>
+            </motion.div>
+
+            {/* Téléphone */}
+            <a
               href="tel:+261343018173"
               className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-prairie-50/80 text-prairie-700 hover:bg-prairie-100 transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
             >
               <Phone className="h-3.5 w-3.5" />
               <span className="font-medium">034 30 181 73</span>
-            </motion.a>
+            </a>
           </div>
-        </motion.div>
+        </div>
 
         {/* Main navigation */}
         <div className="container mx-auto px-4">
-          <nav className="flex items-center justify-between">
+          <nav className="flex items-center justify-between h-14 sm:h-auto">
             {/* Logo */}
-            <Link href="/" className="flex items-center group">
+            <Link href="/" className="flex items-center group relative">
               <motion.img
                 src="/images/logo.png"
                 alt="La Ferme du Vardier"
-                className="h-16 md:h-20 w-auto object-contain"
+                className="h-20 md:h-28 lg:h-32 w-auto object-contain absolute sm:relative top-0 left-0"
                 whileHover={{ scale: 1.05, rotate: -2 }}
                 transition={{ type: "spring", stiffness: 300 }}
               />
@@ -482,7 +493,7 @@ export function Header() {
       </header>
 
       {/* Spacer */}
-      <div className="h-32 md:h-36" />
+      <div className="h-24 sm:h-36 lg:h-40" />
 
       {/* Cart drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
