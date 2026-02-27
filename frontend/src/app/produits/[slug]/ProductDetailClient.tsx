@@ -79,12 +79,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             initial="initial"
             animate="animate"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-lg mb-4">
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-warm-100 shadow-lg mb-4 p-6">
               <Image
                 src={product.images[selectedImage] || '/images/placeholder.jpg'}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority
               />
               {/* Badges */}

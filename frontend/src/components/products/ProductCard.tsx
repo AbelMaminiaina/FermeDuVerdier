@@ -47,13 +47,13 @@ export function ProductCard({ product }: ProductCardProps) {
         initial="rest"
       >
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden bg-warm-50">
-          <motion.div variants={imageHover} className="absolute inset-0">
+        <div className="relative aspect-square overflow-hidden bg-warm-100">
+          <motion.div variants={imageHover} className="absolute inset-0 p-4">
             <Image
               src={product.images[0] || '/images/placeholder.jpg'}
               alt={product.name}
               fill
-              className="object-cover"
+              className="object-contain"
             />
           </motion.div>
 
