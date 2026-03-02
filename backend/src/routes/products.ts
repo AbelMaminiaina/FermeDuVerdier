@@ -184,4 +184,137 @@ router.patch('/:productId/stock', async (req: Request, res: Response) => {
   }
 });
 
+// Generate slug from name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// Admin: Create new product
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const { name, description, category, price, unit, stockQuantity, images } = req.body;
+
+    if (!name || !category || typeof price !== 'number' || price <= 0) {
+      return res.status(400).json({ error: 'Données invalides' });
+    }
+
+    // Generate unique slug
+    let slug = generateSlug(name);
+    const existingProduct = await prisma.product.findUnique({ where: { slug } });
+    if (existingProduct) {
+      slug = `${slug}-${Date.now()}`;
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name,
+        slug,
+        description: description || '',
+        category: category as ProductCategory,
+        price,
+        unit: unit || 'kg',
+        stockQuantity: stockQuantity || 0,
+        inStock: (stockQuantity || 0) > 0,
+        images: images || [],
+      },
+    });
+
+    res.status(201).json({ success: true, product: transformProduct(product) });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+// Admin: Update product
+router.put('/:productId', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const { name, description, category, price, unit, stockQuantity, images } = req.body;
+
+    if (!name || !category || typeof price !== 'number' || price <= 0) {
+      return res.status(400).json({ error: 'Données invalides' });
+    }
+
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({ where: { id: productId } });
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Produit non trouvé' });
+    }
+
+    // Generate new slug if name changed
+    let slug = existingProduct.slug;
+    if (name !== existingProduct.name) {
+      slug = generateSlug(name);
+      const slugExists = await prisma.product.findFirst({
+        where: { slug, id: { not: productId } },
+      });
+      if (slugExists) {
+        slug = `${slug}-${Date.now()}`;
+      }
+    }
+
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        name,
+        slug,
+        description: description || '',
+        category: category as ProductCategory,
+        price,
+        unit: unit || 'kg',
+        stockQuantity: stockQuantity ?? existingProduct.stockQuantity,
+        inStock: (stockQuantity ?? existingProduct.stockQuantity) > 0,
+        images: images || existingProduct.images,
+      },
+    });
+
+    res.json({ success: true, product: transformProduct(product) });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+// Admin: Delete product
+router.delete('/:productId', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({ where: { id: productId } });
+    if (!existingProduct) {
+      return res.status(404).json({ error: 'Produit non trouvé' });
+    }
+
+    // Check if product has orders
+    const orderItems = await prisma.orderItem.findFirst({
+      where: { productId },
+    });
+
+    if (orderItems) {
+      // Soft delete - just mark as out of stock instead of deleting
+      await prisma.product.update({
+        where: { id: productId },
+        data: { inStock: false, stockQuantity: 0 },
+      });
+      return res.json({
+        success: true,
+        message: 'Produit désactivé (conservé car lié à des commandes)'
+      });
+    }
+
+    await prisma.product.delete({ where: { id: productId } });
+    res.json({ success: true, message: 'Produit supprimé' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
 export default router;

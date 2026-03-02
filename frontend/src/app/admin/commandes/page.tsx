@@ -1,18 +1,29 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { formatPrice } from '@/lib/utils';
-import { Eye, Check, Truck, X } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Eye, Check, Truck, X, Search, Filter, Phone, MapPin, FileText, Package, Ban, Printer } from 'lucide-react';
+import { Button, Input } from '@/components/ui';
 
 interface Order {
   id: string;
   orderNumber: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   status: string;
+  subtotal: number;
+  shippingCost: number;
   total: number;
+  deliveryMethod: string;
+  notes?: string;
   createdAt: string;
+  address?: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
   items: Array<{
     name: string;
     quantity: number;
@@ -29,10 +40,19 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'Annulée', color: 'bg-red-100 text-red-800' },
 };
 
+const deliveryLabels: Record<string, string> = {
+  standard: 'Livraison standard',
+  express: 'Livraison express',
+  retrait: 'Retrait sur place',
+};
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -53,6 +73,7 @@ export default function AdminOrdersPage() {
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    setUpdatingStatus(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/checkout/orders/${orderId}/status`,
@@ -63,11 +84,80 @@ export default function AdminOrdersPage() {
         }
       );
       if (response.ok) {
-        fetchOrders();
-        setSelectedOrder(null);
+        await fetchOrders();
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status: newStatus });
+        }
       }
     } catch (error) {
       console.error('Error updating order:', error);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [orders, searchQuery, statusFilter]);
+
+  const orderStats = useMemo(() => {
+    return {
+      total: orders.length,
+      pending: orders.filter((o) => o.status === 'pending').length,
+      processing: orders.filter((o) => ['confirmed', 'processing'].includes(o.status)).length,
+      shipped: orders.filter((o) => o.status === 'shipped').length,
+      delivered: orders.filter((o) => o.status === 'delivered').length,
+    };
+  }, [orders]);
+
+  const handlePrint = (order: Order) => {
+    const printContent = `
+      FERME DU VARDIER - BON DE COMMANDE
+      ===================================
+
+      N° Commande: ${order.orderNumber}
+      Date: ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
+
+      CLIENT
+      ------
+      Nom: ${order.customerName}
+      Email: ${order.customerEmail}
+      ${order.customerPhone ? `Téléphone: ${order.customerPhone}` : ''}
+
+      ADRESSE DE LIVRAISON
+      --------------------
+      ${order.address ? `${order.address.street}
+      ${order.address.postalCode} ${order.address.city}
+      ${order.address.country}` : 'Non spécifiée'}
+
+      Mode de livraison: ${deliveryLabels[order.deliveryMethod] || order.deliveryMethod}
+
+      ARTICLES
+      --------
+      ${order.items.map((item) => `${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`).join('\n      ')}
+
+      Sous-total: ${formatPrice(order.subtotal)}
+      Frais de livraison: ${formatPrice(order.shippingCost)}
+      TOTAL: ${formatPrice(order.total)}
+
+      ${order.notes ? `Notes: ${order.notes}` : ''}
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`<pre style="font-family: monospace; padding: 20px;">${printContent}</pre>`);
+      printWindow.document.close();
+      printWindow.print();
     }
   };
 
@@ -81,11 +171,69 @@ export default function AdminOrdersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-warm-800 mb-8">Gestion des commandes</h1>
+      <h1 className="text-2xl font-bold text-warm-800 mb-6">Gestion des commandes</h1>
 
-      {orders.length === 0 ? (
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-warm-500">Total</p>
+          <p className="text-2xl font-bold text-warm-800">{orderStats.total}</p>
+        </div>
+        <div className="bg-yellow-50 rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-yellow-600">En attente</p>
+          <p className="text-2xl font-bold text-yellow-800">{orderStats.pending}</p>
+        </div>
+        <div className="bg-purple-50 rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-purple-600">En cours</p>
+          <p className="text-2xl font-bold text-purple-800">{orderStats.processing}</p>
+        </div>
+        <div className="bg-indigo-50 rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-indigo-600">Expédiées</p>
+          <p className="text-2xl font-bold text-indigo-800">{orderStats.shipped}</p>
+        </div>
+        <div className="bg-green-50 rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-green-600">Livrées</p>
+          <p className="text-2xl font-bold text-green-800">{orderStats.delivered}</p>
+        </div>
+      </div>
+
+      {/* Search and filters */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
+          <Input
+            type="text"
+            placeholder="Rechercher par n°, nom ou email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="h-5 w-5 text-warm-400" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 focus:border-transparent outline-none"
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="pending">En attente</option>
+            <option value="confirmed">Confirmées</option>
+            <option value="processing">En préparation</option>
+            <option value="shipped">Expédiées</option>
+            <option value="delivered">Livrées</option>
+            <option value="cancelled">Annulées</option>
+          </select>
+        </div>
+      </div>
+
+      {filteredOrders.length === 0 ? (
         <div className="bg-white rounded-xl p-12 text-center">
-          <p className="text-warm-600">Aucune commande pour le moment</p>
+          <p className="text-warm-600">
+            {orders.length === 0
+              ? 'Aucune commande pour le moment'
+              : 'Aucune commande ne correspond à votre recherche'}
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -98,6 +246,9 @@ export default function AdminOrdersPage() {
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-warm-700">
                     Client
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-warm-700">
+                    Livraison
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-warm-700">
                     Statut
@@ -114,8 +265,8 @@ export default function AdminOrdersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-warm-100">
-                {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-warm-50">
+                {filteredOrders.map((order) => (
+                  <tr key={order.id} className={`hover:bg-warm-50 ${order.status === 'cancelled' ? 'opacity-60' : ''}`}>
                     <td className="px-6 py-4 text-sm font-medium text-warm-800">
                       {order.orderNumber}
                     </td>
@@ -124,6 +275,9 @@ export default function AdminOrdersPage() {
                         {order.customerName}
                       </p>
                       <p className="text-sm text-warm-500">{order.customerEmail}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-warm-600">
+                      {deliveryLabels[order.deliveryMethod] || order.deliveryMethod}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -163,88 +317,223 @@ export default function AdminOrdersPage() {
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-warm-100">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-warm-800">
-                  Commande {selectedOrder.orderNumber}
-                </h2>
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="p-2 hover:bg-warm-100 rounded-full"
+                <div>
+                  <h2 className="text-xl font-bold text-warm-800">
+                    Commande {selectedOrder.orderNumber}
+                  </h2>
+                  <p className="text-sm text-warm-500">
+                    {new Date(selectedOrder.createdAt).toLocaleDateString('fr-FR', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePrint(selectedOrder)}
+                    className="p-2 hover:bg-warm-100 rounded-full"
+                    title="Imprimer"
+                  >
+                    <Printer className="h-5 w-5 text-warm-600" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="p-2 hover:bg-warm-100 rounded-full"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="mt-3">
+                <span
+                  className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
+                    statusLabels[selectedOrder.status]?.color || 'bg-gray-100 text-gray-800'
+                  }`}
                 >
-                  <X className="h-5 w-5" />
-                </button>
+                  {statusLabels[selectedOrder.status]?.label || selectedOrder.status}
+                </span>
               </div>
             </div>
 
             <div className="p-6 space-y-6">
               {/* Client info */}
-              <div>
-                <h3 className="font-semibold text-warm-800 mb-2">Client</h3>
-                <p className="text-warm-700">{selectedOrder.customerName}</p>
-                <p className="text-warm-600">{selectedOrder.customerEmail}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold text-warm-800 mb-3 flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Client
+                  </h3>
+                  <div className="space-y-1">
+                    <p className="text-warm-700 font-medium">{selectedOrder.customerName}</p>
+                    <p className="text-warm-600">{selectedOrder.customerEmail}</p>
+                    {selectedOrder.customerPhone && (
+                      <p className="text-warm-600 flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        {selectedOrder.customerPhone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-warm-800 mb-3 flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Adresse de livraison
+                  </h3>
+                  {selectedOrder.address ? (
+                    <div className="space-y-1 text-warm-600">
+                      <p>{selectedOrder.address.street}</p>
+                      <p>{selectedOrder.address.postalCode} {selectedOrder.address.city}</p>
+                      <p>{selectedOrder.address.country}</p>
+                    </div>
+                  ) : (
+                    <p className="text-warm-500 italic">Non spécifiée</p>
+                  )}
+                </div>
               </div>
+
+              {/* Delivery method */}
+              <div className="bg-warm-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-warm-600" />
+                    <span className="font-medium text-warm-700">
+                      {deliveryLabels[selectedOrder.deliveryMethod] || selectedOrder.deliveryMethod}
+                    </span>
+                  </div>
+                  <span className="text-warm-600">
+                    {selectedOrder.shippingCost > 0 ? formatPrice(selectedOrder.shippingCost) : 'Gratuit'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {selectedOrder.notes && (
+                <div>
+                  <h3 className="font-semibold text-warm-800 mb-2 flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Notes
+                  </h3>
+                  <p className="text-warm-600 bg-warm-50 rounded-lg p-3">{selectedOrder.notes}</p>
+                </div>
+              )}
 
               {/* Items */}
               <div>
-                <h3 className="font-semibold text-warm-800 mb-2">Articles</h3>
-                <div className="space-y-2">
+                <h3 className="font-semibold text-warm-800 mb-3">Articles commandés</h3>
+                <div className="space-y-2 bg-warm-50 rounded-lg p-4">
                   {selectedOrder.items.map((item, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center py-2 border-b border-warm-100"
+                      className="flex justify-between items-center py-2 border-b border-warm-200 last:border-0"
                     >
                       <div>
-                        <p className="text-warm-800">{item.name}</p>
-                        <p className="text-sm text-warm-500">Qté: {item.quantity}</p>
+                        <p className="text-warm-800 font-medium">{item.name}</p>
+                        <p className="text-sm text-warm-500">
+                          {formatPrice(item.price)} x {item.quantity}
+                        </p>
                       </div>
-                      <p className="font-medium text-warm-800">
+                      <p className="font-semibold text-warm-800">
                         {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between items-center pt-4 font-bold">
-                  <span>Total</span>
-                  <span className="text-prairie-600">
-                    {formatPrice(selectedOrder.total)}
-                  </span>
+                <div className="mt-4 space-y-2 text-right">
+                  <div className="flex justify-between text-warm-600">
+                    <span>Sous-total</span>
+                    <span>{formatPrice(selectedOrder.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-warm-600">
+                    <span>Frais de livraison</span>
+                    <span>{selectedOrder.shippingCost > 0 ? formatPrice(selectedOrder.shippingCost) : 'Gratuit'}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-prairie-600 pt-2 border-t border-warm-200">
+                    <span>Total</span>
+                    <span>{formatPrice(selectedOrder.total)}</span>
+                  </div>
                 </div>
               </div>
 
               {/* Status actions */}
-              <div>
-                <h3 className="font-semibold text-warm-800 mb-3">Changer le statut</h3>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
-                    icon={<Check className="h-4 w-4" />}
-                  >
-                    Confirmer
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateOrderStatus(selectedOrder.id, 'processing')}
-                  >
-                    En préparation
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateOrderStatus(selectedOrder.id, 'shipped')}
-                    icon={<Truck className="h-4 w-4" />}
-                  >
-                    Expédier
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => updateOrderStatus(selectedOrder.id, 'delivered')}
-                  >
-                    Livrée
-                  </Button>
+              {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && (
+                <div>
+                  <h3 className="font-semibold text-warm-800 mb-3">Changer le statut</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedOrder.status === 'pending' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
+                        icon={<Check className="h-4 w-4" />}
+                        disabled={updatingStatus}
+                      >
+                        Confirmer
+                      </Button>
+                    )}
+                    {['pending', 'confirmed'].includes(selectedOrder.status) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateOrderStatus(selectedOrder.id, 'processing')}
+                        disabled={updatingStatus}
+                      >
+                        En préparation
+                      </Button>
+                    )}
+                    {['confirmed', 'processing'].includes(selectedOrder.status) && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateOrderStatus(selectedOrder.id, 'shipped')}
+                        icon={<Truck className="h-4 w-4" />}
+                        disabled={updatingStatus}
+                      >
+                        Expédier
+                      </Button>
+                    )}
+                    {selectedOrder.status === 'shipped' && (
+                      <Button
+                        size="sm"
+                        onClick={() => updateOrderStatus(selectedOrder.id, 'delivered')}
+                        disabled={updatingStatus}
+                      >
+                        Marquer livrée
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
+                          updateOrderStatus(selectedOrder.id, 'cancelled');
+                        }
+                      }}
+                      icon={<Ban className="h-4 w-4" />}
+                      className="text-red-600 border-red-300 hover:bg-red-50"
+                      disabled={updatingStatus}
+                    >
+                      Annuler
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {selectedOrder.status === 'cancelled' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                  <p className="text-red-700 font-medium">Cette commande a été annulée</p>
+                </div>
+              )}
+
+              {selectedOrder.status === 'delivered' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                  <p className="text-green-700 font-medium">Cette commande a été livrée avec succès</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

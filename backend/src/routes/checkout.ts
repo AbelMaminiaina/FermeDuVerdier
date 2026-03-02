@@ -141,64 +141,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// Get order by number
-router.get('/:orderNumber', async (req: Request, res: Response) => {
-  try {
-    const { orderNumber } = req.params;
-
-    const order = await prisma.order.findUnique({
-      where: { orderNumber },
-      include: {
-        customer: true,
-        address: true,
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: 'Commande non trouvée' });
-    }
-
-    res.json(order);
-  } catch (error) {
-    console.error('Error fetching order:', error);
-    res.status(500).json({ error: 'Failed to fetch order' });
-  }
-});
-
-// Get orders for customer (by email)
-router.get('/customer/:email', async (req: Request, res: Response) => {
-  try {
-    const { email } = req.params;
-
-    const customer = await prisma.customer.findUnique({
-      where: { email },
-      include: {
-        orders: {
-          include: {
-            items: true,
-          },
-          orderBy: { createdAt: 'desc' },
-        },
-      },
-    });
-
-    if (!customer) {
-      return res.json({ orders: [] });
-    }
-
-    res.json({ orders: customer.orders });
-  } catch (error) {
-    console.error('Error fetching customer orders:', error);
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-
-// Admin: Get all orders
+// Admin: Get all orders (MUST be before /:orderNumber)
 router.get('/orders', async (req: Request, res: Response) => {
   try {
     const orders = await prisma.order.findMany({
@@ -224,9 +167,20 @@ router.get('/orders', async (req: Request, res: Response) => {
       orderNumber: order.orderNumber,
       customerName: `${order.customer.firstName} ${order.customer.lastName}`,
       customerEmail: order.customer.email,
+      customerPhone: order.customer.phone,
       status: order.status,
+      subtotal: order.subtotal,
+      shippingCost: order.shippingCost,
       total: order.total,
+      deliveryMethod: order.deliveryMethod,
+      notes: order.notes,
       createdAt: order.createdAt,
+      address: order.address ? {
+        street: order.address.street,
+        city: order.address.city,
+        postalCode: order.address.postalCode,
+        country: order.address.country,
+      } : null,
       items: order.items.map((item) => ({
         name: item.product.name,
         quantity: item.quantity,
@@ -261,6 +215,63 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ error: 'Failed to update order status' });
+  }
+});
+
+// Get orders for customer (by email)
+router.get('/customer/:email', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+
+    const customer = await prisma.customer.findUnique({
+      where: { email },
+      include: {
+        orders: {
+          include: {
+            items: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!customer) {
+      return res.json({ orders: [] });
+    }
+
+    res.json({ orders: customer.orders });
+  } catch (error) {
+    console.error('Error fetching customer orders:', error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+// Get order by number (MUST be LAST - catches all unmatched paths)
+router.get('/:orderNumber', async (req: Request, res: Response) => {
+  try {
+    const { orderNumber } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        customer: true,
+        address: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Commande non trouvée' });
+    }
+
+    res.json(order);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ error: 'Failed to fetch order' });
   }
 });
 

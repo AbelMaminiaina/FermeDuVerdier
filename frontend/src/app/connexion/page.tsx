@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
@@ -14,6 +14,20 @@ function ConnexionContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const error = searchParams.get('error');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCredentialsLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    await signIn('admin-login', {
+      email,
+      password,
+      callbackUrl,
+    });
+    setIsLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-cream-50 py-12">
@@ -92,6 +106,55 @@ function ConnexionContent() {
                 </svg>
                 <span className="font-medium">Continuer avec Facebook</span>
               </button>
+
+              {/* Separator */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-warm-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-warm-500">ou</span>
+                </div>
+              </div>
+
+              {/* Admin login form */}
+              <form onSubmit={handleCredentialsLogin} className="space-y-4">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-warm-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 focus:border-transparent outline-none transition-all"
+                    placeholder="admin@fermeduvardier.mg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-warm-700 mb-1">
+                    Mot de passe
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 focus:border-transparent outline-none transition-all"
+                    placeholder="Votre mot de passe"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 bg-prairie-600 text-white rounded-lg hover:bg-prairie-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Connexion...' : 'Se connecter'}
+                </button>
+              </form>
             </div>
 
             <div className="mt-8 pt-6 border-t border-warm-100 text-center">

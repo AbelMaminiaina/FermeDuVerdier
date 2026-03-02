@@ -20,6 +20,10 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/api/auth/:path*',
+        destination: '/api/auth/:path*',
+      },
+      {
         source: '/api/:path*',
         destination: `${process.env.BACKEND_URL || 'http://localhost:3001'}/api/:path*`,
       },
