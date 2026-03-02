@@ -197,7 +197,7 @@ function generateSlug(name: string): string {
 // Admin: Create new product
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, description, category, price, unit, stockQuantity, images } = req.body;
+    const { name, description, category, price, stockQuantity, images } = req.body;
 
     if (!name || !category || typeof price !== 'number' || price <= 0) {
       return res.status(400).json({ error: 'Données invalides' });
@@ -215,9 +215,9 @@ router.post('/', async (req: Request, res: Response) => {
         name,
         slug,
         description: description || '',
+        shortDescription: description ? description.substring(0, 100) : '',
         category: category as ProductCategory,
         price,
-        unit: unit || 'kg',
         stockQuantity: stockQuantity || 0,
         inStock: (stockQuantity || 0) > 0,
         images: images || [],
@@ -235,7 +235,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:productId', async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
-    const { name, description, category, price, unit, stockQuantity, images } = req.body;
+    const { name, description, category, price, stockQuantity, images } = req.body;
 
     if (!name || !category || typeof price !== 'number' || price <= 0) {
       return res.status(400).json({ error: 'Données invalides' });
@@ -265,9 +265,9 @@ router.put('/:productId', async (req: Request, res: Response) => {
         name,
         slug,
         description: description || '',
+        shortDescription: description ? description.substring(0, 100) : '',
         category: category as ProductCategory,
         price,
-        unit: unit || 'kg',
         stockQuantity: stockQuantity ?? existingProduct.stockQuantity,
         inStock: (stockQuantity ?? existingProduct.stockQuantity) > 0,
         images: images || existingProduct.images,

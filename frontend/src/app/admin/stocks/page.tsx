@@ -22,7 +22,6 @@ interface Product {
   description: string;
   category: string;
   price: number;
-  unit: string;
   stockQuantity: number;
   inStock: boolean;
   images: string[];
@@ -55,7 +54,7 @@ export default function AdminStocksPage() {
 
   // Modal
   const [modal, setModal] = useState<{ mode: 'add' | 'edit'; product?: Product } | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', category: 'poulet', price: 0, unit: 'kg', stockQuantity: 0, images: '' });
+  const [form, setForm] = useState({ name: '', description: '', category: 'poulet', price: 0, stockQuantity: 0, images: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -124,12 +123,11 @@ export default function AdminStocksPage() {
         description: product.description || '',
         category: product.category,
         price: product.price,
-        unit: product.unit || 'kg',
         stockQuantity: product.stockQuantity,
         images: product.images?.join('\n') || '',
       });
     } else {
-      setForm({ name: '', description: '', category: 'poulet', price: 0, unit: 'kg', stockQuantity: 0, images: '' });
+      setForm({ name: '', description: '', category: 'poulet', price: 0, stockQuantity: 0, images: '' });
     }
     setModal({ mode, product });
   };
@@ -320,32 +318,17 @@ export default function AdminStocksPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-sm font-semibold text-warm-700 mb-1">Catégorie</label>
-                      <select
-                        value={form.category}
-                        onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                        className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
-                      >
-                        {Object.entries(CATEGORIES).map(([k, v]) => (
-                          <option key={k} value={k}>{v}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-warm-700 mb-1">Unité</label>
-                      <select
-                        value={form.unit}
-                        onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}
-                        className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
-                      >
-                        <option value="kg">kg</option>
-                        <option value="piece">pièce</option>
-                        <option value="lot">lot</option>
-                        <option value="barquette">barquette</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-warm-700 mb-1">Catégorie</label>
+                    <select
+                      value={form.category}
+                      onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                      className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
+                    >
+                      {Object.entries(CATEGORIES).map(([k, v]) => (
+                        <option key={k} value={k}>{v}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
