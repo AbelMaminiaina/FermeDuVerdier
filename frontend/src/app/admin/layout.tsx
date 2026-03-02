@@ -31,13 +31,23 @@ export default function AdminLayout({
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
+  // Allow login page without authentication
+  const isLoginPage = pathname === '/admin/login';
+
   useEffect(() => {
+    if (isLoginPage) return;
+
     if (status === 'unauthenticated') {
       router.push('/admin/login');
     } else if (status === 'authenticated' && (session?.user as any)?.role !== 'admin') {
       router.push('/');
     }
-  }, [status, session, router]);
+  }, [status, session, router, isLoginPage]);
+
+  // Show login page directly without layout
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
 
   if (status === 'loading') {
     return (
