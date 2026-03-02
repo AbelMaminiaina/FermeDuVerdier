@@ -130,37 +130,33 @@ export function Header() {
         className={cn(
           'fixed top-0 left-0 right-0 z-40 transition-all duration-500',
           isScrolled
-            ? 'bg-white/80 backdrop-blur-xl shadow-lg shadow-warm-900/5 py-2'
-            : 'bg-gradient-to-b from-white/90 to-transparent py-4'
+            ? 'bg-white/80 backdrop-blur-xl shadow-lg shadow-warm-900/5 pt-1 pb-2'
+            : 'bg-gradient-to-b from-white/90 to-transparent pt-2 pb-4'
         )}
       >
         {/* Top bar - hidden on small mobile */}
         <div className="hidden sm:block container mx-auto px-4 mb-2">
           <div className="flex justify-between items-center text-sm">
             {/* Livraison gratuite */}
-            <motion.div
-              className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-terre-50 to-terre-100/50 text-terre-700"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center gap-1.5">
-                <Truck className="h-4 w-4 text-terre-600" />
-                <Gift className="h-3.5 w-3.5 text-terre-500" />
+            <div
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-terre-50 to-terre-100/50 text-terre-700 text-xs">
+              <div className="flex items-center gap-1">
+                <Truck className="h-3.5 w-3.5 text-terre-600" />
+                <Gift className="h-3 w-3 text-terre-500" />
               </div>
               <span className="font-medium">
                 <span className="hidden md:inline">Livraison offerte à 10 km</span>
                 <span className="md:hidden">Livraison offerte</span>
                 {' '}dès <span className="font-bold text-terre-800">50 000 Ar</span>
               </span>
-            </motion.div>
+            </div>
 
             {/* Téléphone */}
             <a
               href="tel:+261343018173"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-prairie-50/80 text-prairie-700 hover:bg-prairie-100 transition-all duration-300"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-prairie-50/80 text-prairie-700 hover:bg-prairie-100 transition-all duration-300 text-xs"
             >
-              <Phone className="h-3.5 w-3.5" />
+              <Phone className="h-3 w-3" />
               <span className="font-medium">034 30 181 73</span>
             </a>
           </div>

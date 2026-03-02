@@ -17,6 +17,7 @@ export function CTASection() {
           src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1920"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover"
         />
       </div>
@@ -96,6 +97,7 @@ export function CTASection() {
                 src="/images/porc/WhatsApp Image 2026-02-17 at 00.43.17.jpeg"
                 alt="Nos porcs à la ferme"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>

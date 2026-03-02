@@ -88,6 +88,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           src={item.image || '/images/placeholder.jpg'}
                           alt={item.name}
                           fill
+                          sizes="80px"
                           className="object-cover"
                         />
                       </div>

@@ -77,6 +77,7 @@ export default function ContactPage() {
             src="/images/porc/WhatsApp Image 2026-02-17 at 00.43.16.jpeg"
             alt="Contactez la Ferme du Vardier"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />

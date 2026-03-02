@@ -67,6 +67,7 @@ export default function NotreElevagePage() {
             src="/images/porc/test3.jpeg"
             alt="Vue de notre élevage porcin"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
@@ -216,6 +217,7 @@ export default function NotreElevagePage() {
                   src={image.src}
                   alt={image.alt}
                   fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
                   className="object-cover hover:scale-105 transition-transform duration-300"
                 />
               </motion.div>

@@ -26,6 +26,7 @@ export default function NosDoulesClient({ chickenBreeds }: NosDoulesClientProps)
             src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=1920"
             alt="Nos poules en liberté"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />
@@ -75,6 +76,7 @@ export default function NosDoulesClient({ chickenBreeds }: NosDoulesClientProps)
                     src={chicken.image}
                     alt={chicken.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {!chicken.available && (
@@ -156,6 +158,7 @@ export default function NosDoulesClient({ chickenBreeds }: NosDoulesClientProps)
                   src={selectedChicken.image}
                   alt={selectedChicken.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                 />
               </div>

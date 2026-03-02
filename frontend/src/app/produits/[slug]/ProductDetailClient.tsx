@@ -84,6 +84,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 src={product.images[selectedImage] || '/images/placeholder.jpg'}
                 alt={product.name}
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-contain"
                 priority
               />
@@ -113,6 +114,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                       src={image}
                       alt={`${product.name} - Image ${index + 1}`}
                       fill
+                      sizes="80px"
                       className="object-cover"
                     />
                   </button>

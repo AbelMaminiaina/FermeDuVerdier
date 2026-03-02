@@ -90,6 +90,7 @@ export function Testimonials() {
                       src={current.avatar || '/images/team/avatar-placeholder.jpg'}
                       alt={current.name}
                       fill
+                      sizes="64px"
                       className="object-cover"
                     />
                   </div>

@@ -51,6 +51,7 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
             src="/images/porc/test4.jpeg"
             alt="Nos produits de qualité"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />

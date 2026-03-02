@@ -109,6 +109,7 @@ export default function BlogPostPage() {
           src={post.coverImage}
           alt={post.title}
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />
@@ -134,6 +135,7 @@ export default function BlogPostPage() {
                       src={post.author.avatar}
                       alt={post.author.name}
                       fill
+                      sizes="32px"
                       className="object-cover"
                     />
                   </div>
@@ -229,6 +231,7 @@ export default function BlogPostPage() {
                     src={post.author.avatar}
                     alt={post.author.name}
                     fill
+                    sizes="48px"
                     className="object-cover"
                   />
                 </div>
@@ -262,6 +265,7 @@ export default function BlogPostPage() {
                             src={relatedPost.coverImage}
                             alt={relatedPost.title}
                             fill
+                            sizes="64px"
                             className="object-cover"
                           />
                         </div>

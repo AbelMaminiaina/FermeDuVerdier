@@ -32,6 +32,7 @@ export default function ServicesPage() {
             src="https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=1920"
             alt="Nos services"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />

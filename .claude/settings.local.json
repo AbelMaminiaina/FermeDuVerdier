@@ -3,7 +3,8 @@
     "allow": [
       "Bash(curl:*)",
       "Bash(docker-compose up:*)",
-      "Bash(npm run db:generate:*)"
+      "Bash(npm run db:generate:*)",
+      "Bash(taskkill:*)"
     ]
   }
 }

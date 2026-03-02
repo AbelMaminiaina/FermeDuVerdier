@@ -23,6 +23,7 @@ export function Story() {
                 src="/images/porc/WhatsApp Image 2026-02-17 at 00.43.16.jpeg"
                 alt="Nos installations d'élevage porcin"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>
@@ -84,6 +85,7 @@ export function Story() {
                   src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
                   alt="Pierre"
                   fill
+                  sizes="64px"
                   className="object-cover"
                 />
               </div>
