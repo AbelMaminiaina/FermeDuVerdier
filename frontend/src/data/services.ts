@@ -33,74 +33,83 @@ Les œufs sont transportés dans des emballages isothermes pour garantir leur co
     available: true,
   },
   {
-    id: 'gardiennage',
-    title: 'Gardiennage de Poules',
-    slug: 'gardiennage',
-    description: 'Partez en vacances l\'esprit tranquille ! Nous gardons vos poules à la ferme pendant votre absence et prenons soin d\'elles comme des nôtres.',
-    longDescription: `Vous avez des poules et vous souhaitez partir en vacances ? Notre service de gardiennage est fait pour vous !
+    id: 'elevage-bio',
+    title: 'Élevage Bio',
+    slug: 'elevage-bio',
+    description: 'Nos animaux sont élevés selon les principes de l\'agriculture biologique, avec une alimentation 100% naturelle et sans produits chimiques.',
+    longDescription: `À la Ferme du Vardier, nous pratiquons un élevage biologique respectueux des animaux et de l'environnement.
 
-**Ce que nous offrons :**
-- Hébergement dans nos installations sécurisées
-- Alimentation bio de qualité
-- Surveillance quotidienne de la santé
-- Récupération des œufs pendant votre absence
-- Rapport de séjour à votre retour
+**Notre engagement bio :**
+- Alimentation 100% naturelle et sans OGM
+- Aucun antibiotique préventif
+- Aucun produit chimique de synthèse
+- Respect du cycle naturel des animaux
+- Traçabilité complète de nos produits
 
-**Comment ça marche ?**
-1. Réservez votre séjour minimum 1 semaine avant
-2. Déposez vos poules la veille ou le jour du départ
-3. Nous nous occupons de tout pendant votre absence
-4. Récupérez vos poules à votre retour (et les œufs !)
+**Nos pratiques :**
+- Porcs nourris avec des céréales locales et des légumes de saison
+- Volailles élevées avec des aliments certifiés
+- Poissons nourris naturellement dans nos bassins
+- Rotation des pâturages pour préserver les sols
 
-**Tarifs :**
-- 5 000 Ar/jour/poule (alimentation incluse)
-- Dépose et reprise gratuites à la ferme
-- Possibilité de transport à domicile (+30 000 Ar)`,
-    icon: 'Home',
+**Les avantages du bio :**
+- Viande plus savoureuse et nutritive
+- Meilleur bien-être animal
+- Impact environnemental réduit
+- Soutien à l'agriculture locale`,
+    icon: 'Leaf',
     features: [
-      'Soins quotidiens professionnels',
-      'Alimentation bio incluse',
-      'Hébergement sécurisé',
-      'Récupération des œufs',
-      'Rapport de santé au retour',
-      'Disponible toute l\'année',
+      'Alimentation 100% naturelle',
+      'Sans antibiotiques préventifs',
+      'Sans produits chimiques',
+      'Traçabilité complète',
+      'Respect du bien-être animal',
+      'Agriculture durable',
     ],
-    pricing: '5 000 Ar/jour/poule',
+    pricing: 'Qualité garantie',
     available: true,
   },
   {
-    id: 'location',
-    title: 'Location de Matériel',
-    slug: 'location',
-    description: 'Besoin d\'une couveuse ou d\'un poulailler temporaire ? Louez notre matériel professionnel pour vos projets ponctuels.',
-    longDescription: `Notre service de location vous permet d'accéder à du matériel professionnel sans investissement important.
+    id: 'plein-air',
+    title: 'Élevage en Plein Air',
+    slug: 'plein-air',
+    description: 'Nos animaux vivent en liberté dans de grands espaces naturels. Un élevage en plein air pour des animaux en bonne santé et heureux.',
+    longDescription: `À la Ferme du Vardier, nos animaux bénéficient d'un élevage en plein air, gage de qualité et de bien-être animal.
 
-**Matériel disponible à la location :**
+**Nos installations plein air :**
 
-*Couveuses automatiques :*
-- Couveuse 24 œufs : 10 000 Ar/jour ou 50 000 Ar/semaine
-- Couveuse 48 œufs : 15 000 Ar/jour ou 80 000 Ar/semaine
-- Éleveuse poussinière : 8 000 Ar/jour ou 40 000 Ar/semaine
+*Pour nos porcs :*
+- Grands enclos extérieurs avec abris naturels
+- Accès permanent à l'air frais et au soleil
+- Espace de fouissage et de jeu
+- Bains de boue naturels pour leur confort
 
-*Poulaillers temporaires :*
-- Poulailler mobile 4 poules : 20 000 Ar/jour ou 100 000 Ar/semaine
-- Enclos grillagé 6m² : 10 000 Ar/jour ou 50 000 Ar/semaine
+*Pour nos volailles :*
+- Parcours herbeux de plus de 10m² par animal
+- Perchoirs et abris naturels
+- Accès libre à l'extérieur toute la journée
+- Protection contre les prédateurs
 
-**Conditions :**
-- Caution demandée (restituée au retour du matériel en bon état)
-- Formation à l'utilisation incluse
-- Livraison possible (frais selon distance)
-- Réservation minimum 48h à l'avance`,
-    icon: 'Package',
+*Pour nos poissons :*
+- Bassins naturels avec eau de source
+- Environnement oxygéné et propre
+- Alimentation naturelle complétée
+
+**Les bienfaits du plein air :**
+- Animaux moins stressés et en meilleure santé
+- Viande plus ferme et savoureuse
+- Système immunitaire renforcé naturellement
+- Respect du comportement naturel des animaux`,
+    icon: 'Sun',
     features: [
-      'Couveuses automatiques',
-      'Poulaillers temporaires',
-      'Enclos et parcs',
-      'Formation à l\'utilisation',
-      'Livraison possible',
-      'Tarifs à la journée ou semaine',
+      'Grands espaces naturels',
+      'Animaux en liberté',
+      'Bien-être animal optimal',
+      'Viande de meilleure qualité',
+      'Santé naturelle renforcée',
+      'Environnement sain',
     ],
-    pricing: 'À partir de 8 000 Ar/jour',
+    pricing: 'Qualité supérieure',
     available: true,
   },
   {

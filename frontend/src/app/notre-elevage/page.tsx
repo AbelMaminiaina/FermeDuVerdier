@@ -49,12 +49,13 @@ const methods = [
 ];
 
 const galleryImages = [
-  { src: '/images/porc/WhatsApp Image 2026-02-17 at 00.43.16.jpeg', alt: 'Vue d\'ensemble de nos installations porcines' },
-  { src: '/images/porc/WhatsApp Image 2026-02-17 at 00.43.17.jpeg', alt: 'Nos porcs en train de manger' },
-  { src: '/images/porc/test3.jpeg', alt: 'Vue aérienne de la porcherie' },
-  { src: '/images/porc/test4.jpeg', alt: 'Porcs dans leur enclos' },
-  { src: 'https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=600', alt: 'Bassins de pisciculture' },
-  { src: 'https://images.unsplash.com/photo-1498654200943-1088dd4438ae?w=600', alt: 'Poissons frais' },
+  { src: '/images/porc/test4.jpeg', alt: 'Nos porcs' },
+  { src: '/images/caille/caille1.jpeg', alt: 'Nos cailles' },
+  { src: '/images/akanga/Akanga1.jpeg', alt: 'Nos pintades (Akanga)' },
+  { src: '/images/chickens/Akoho1.jpeg', alt: 'Nos poulets (Akoho)' },
+  { src: '/images/chickens/Akoho2.jpeg', alt: 'Nos poulets en plein air' },
+  { src: '/images/chickens/Akoho3.jpeg', alt: 'Élevage de poulets' },
+  { src: '/images/poisson/poisson1.jpg', alt: 'Nos poissons frais' },
 ];
 
 export default function NotreElevagePage() {
@@ -210,7 +211,7 @@ export default function NotreElevagePage() {
                 key={index}
                 variants={fadeInUp}
                 className={`relative overflow-hidden rounded-xl ${
-                  index === 0 || index === 5 ? 'row-span-2 aspect-[3/4]' : 'aspect-square'
+                  index === 0 || index === 6 ? 'row-span-2 aspect-[3/4]' : 'aspect-square'
                 }`}
               >
                 <Image
@@ -218,7 +219,7 @@ export default function NotreElevagePage() {
                   alt={image.alt}
                   fill
                   sizes="(max-width: 768px) 50vw, 33vw"
-                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  className={`${index === galleryImages.length - 1 ? 'object-contain bg-warm-100' : 'object-cover'} hover:scale-105 transition-transform duration-300`}
                 />
               </motion.div>
             ))}
