@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable standalone output for Docker deployment
+  output: 'standalone',
   // Ensure compatibility with older browsers including Safari
   transpilePackages: ['framer-motion', 'lucide-react'],
   images: {

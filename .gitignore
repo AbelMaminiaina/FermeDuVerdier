@@ -20,6 +20,12 @@ yarn-error.log*
 .env
 .env.local
 .env*.local
+.env.production
+
+# Production
+certbot/
+backups/*.sql
+nginx/ssl/
 
 # Vercel
 .vercel
