@@ -53,7 +53,7 @@ case $ACTION in
         echo "  Deployment Complete!"
         echo "==========================================${NC}"
         echo ""
-        echo "Application: http://167.86.111.192"
+        echo "Application: http://167.86.111.192:8080"
         echo ""
         echo "Commands:"
         echo "  ./deploy.sh logs    - View logs"
