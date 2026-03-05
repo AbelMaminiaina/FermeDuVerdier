@@ -1,6 +1,9 @@
 # Backend Dockerfile - Ferme du Vardier
 FROM node:20-alpine AS base
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
@@ -23,8 +26,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/prisma ./prisma
 COPY . .
 
-# Build TypeScript
-RUN npm run build
+# Build TypeScript (without db push)
+RUN npm run build:docker
 
 # Production image
 FROM base AS runner
