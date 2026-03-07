@@ -305,7 +305,17 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
       include: {
         orders: {
           include: {
-            items: true,
+            address: true,
+            items: {
+              include: {
+                product: {
+                  select: {
+                    name: true,
+                    slug: true,
+                  },
+                },
+              },
+            },
           },
           orderBy: { createdAt: 'desc' },
         },
@@ -316,7 +326,30 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
       return res.json({ orders: [] });
     }
 
-    res.json({ orders: customer.orders });
+    // Format orders with product names
+    const formattedOrders = customer.orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      subtotal: order.subtotal,
+      shippingCost: order.shippingCost,
+      total: order.total,
+      deliveryMethod: order.deliveryMethod,
+      createdAt: order.createdAt,
+      address: order.address ? {
+        street: order.address.street,
+        city: order.address.city,
+        postalCode: order.address.postalCode,
+        country: order.address.country,
+      } : null,
+      items: order.items.map((item) => ({
+        name: item.product.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    }));
+
+    res.json({ orders: formattedOrders });
   } catch (error) {
     console.error('Error fetching customer orders:', error);
     res.status(500).json({ error: 'Failed to fetch orders' });

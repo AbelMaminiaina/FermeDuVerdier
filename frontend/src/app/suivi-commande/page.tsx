@@ -1,21 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import {
-  Search,
   Package,
   Clock,
   CheckCircle,
   Truck,
-  Home,
   MapPin,
   Phone,
-  AlertCircle,
   XCircle,
+  ChevronRight,
+  ShoppingBag,
+  User,
+  X,
 } from 'lucide-react';
-import { Button, Input } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { fadeInUp } from '@/lib/animations';
 import { formatPrice } from '@/lib/utils';
 
@@ -28,9 +30,6 @@ interface OrderItem {
 interface Order {
   id: string;
   orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone?: string;
   status: string;
   subtotal: number;
   shippingCost: number;
@@ -51,42 +50,42 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
     label: 'En attente',
     color: 'text-yellow-700',
     bgColor: 'bg-yellow-100',
-    icon: <Clock className="h-6 w-6" />,
-    description: 'Votre commande est en attente de confirmation. Nous vérifions la disponibilité des produits.',
+    icon: <Clock className="h-5 w-5" />,
+    description: 'Votre commande est en attente de confirmation.',
   },
   confirmed: {
     label: 'Confirmée',
     color: 'text-blue-700',
     bgColor: 'bg-blue-100',
-    icon: <CheckCircle className="h-6 w-6" />,
-    description: 'Votre commande a été confirmée et sera bientôt préparée.',
+    icon: <CheckCircle className="h-5 w-5" />,
+    description: 'Votre commande a été confirmée.',
   },
   processing: {
     label: 'En préparation',
     color: 'text-purple-700',
     bgColor: 'bg-purple-100',
-    icon: <Package className="h-6 w-6" />,
-    description: 'Votre commande est en cours de préparation par notre équipe.',
+    icon: <Package className="h-5 w-5" />,
+    description: 'Votre commande est en cours de préparation.',
   },
   shipped: {
     label: 'Expédiée',
     color: 'text-indigo-700',
     bgColor: 'bg-indigo-100',
-    icon: <Truck className="h-6 w-6" />,
-    description: 'Votre commande a été expédiée et est en route vers vous.',
+    icon: <Truck className="h-5 w-5" />,
+    description: 'Votre commande est en route.',
   },
   delivered: {
     label: 'Livrée',
     color: 'text-green-700',
     bgColor: 'bg-green-100',
-    icon: <CheckCircle className="h-6 w-6" />,
-    description: 'Votre commande a été livrée avec succès. Merci pour votre confiance !',
+    icon: <CheckCircle className="h-5 w-5" />,
+    description: 'Commande livrée avec succès.',
   },
   cancelled: {
     label: 'Annulée',
     color: 'text-red-700',
     bgColor: 'bg-red-100',
-    icon: <XCircle className="h-6 w-6" />,
+    icon: <XCircle className="h-5 w-5" />,
     description: 'Cette commande a été annulée.',
   },
 };
@@ -99,276 +98,328 @@ const deliveryLabels: Record<string, string> = {
 
 const statusSteps = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
 
-export default function SuiviCommandePage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [searched, setSearched] = useState(false);
+export default function MesCommandesPage() {
+  const { data: session, status: authStatus } = useSession();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  const searchOrder = async () => {
-    if (!searchQuery.trim()) {
-      setError('Veuillez entrer un numéro de commande');
-      return;
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchOrders(session.user.email);
+    } else if (authStatus !== 'loading') {
+      setLoading(false);
     }
+  }, [session, authStatus]);
 
-    setLoading(true);
-    setError('');
-    setSearched(true);
-
+  const fetchOrders = async (email: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || '/api'}/checkout/${searchQuery.trim().toUpperCase()}`
+        `${process.env.NEXT_PUBLIC_API_URL || '/api'}/checkout/customer/${encodeURIComponent(email)}`
       );
-
       if (response.ok) {
         const data = await response.json();
-        setOrder({
-          id: data.id,
-          orderNumber: data.orderNumber,
-          customerName: `${data.customer.firstName} ${data.customer.lastName}`,
-          customerEmail: data.customer.email,
-          customerPhone: data.customer.phone,
-          status: data.status,
-          subtotal: data.subtotal,
-          shippingCost: data.shippingCost,
-          total: data.total,
-          deliveryMethod: data.deliveryMethod,
-          createdAt: data.createdAt,
-          address: data.address,
-          items: data.items.map((item: { product: { name: string }; quantity: number; price: number }) => ({
-            name: item.product.name,
+        const formattedOrders = (data.orders || []).map((order: any) => ({
+          id: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          subtotal: order.subtotal,
+          shippingCost: order.shippingCost,
+          total: order.total,
+          deliveryMethod: order.deliveryMethod,
+          createdAt: order.createdAt,
+          address: order.address,
+          items: order.items?.map((item: any) => ({
+            name: item.product?.name || item.name || 'Produit',
             quantity: item.quantity,
             price: item.price,
-          })),
-        });
-      } else {
-        setOrder(null);
-        setError('Commande non trouvée. Vérifiez le numéro de commande.');
+          })) || [],
+        }));
+        setOrders(formattedOrders);
       }
-    } catch (err) {
-      console.error('Error fetching order:', err);
-      setOrder(null);
-      setError('Erreur lors de la recherche. Veuillez réessayer.');
+    } catch (error) {
+      console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      searchOrder();
-    }
-  };
+  const currentStepIndex = (status: string) => statusSteps.indexOf(status);
 
-  const currentStatus = order ? statusConfig[order.status] : null;
-  const currentStepIndex = order ? statusSteps.indexOf(order.status) : -1;
+  // Non connecté
+  if (authStatus !== 'loading' && !session) {
+    return (
+      <div className="min-h-screen bg-cream-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto text-center">
+            <div className="w-20 h-20 rounded-full bg-warm-100 flex items-center justify-center mx-auto mb-6">
+              <User className="h-10 w-10 text-warm-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-warm-800 mb-4">
+              Connectez-vous pour voir vos commandes
+            </h1>
+            <p className="text-warm-600 mb-8">
+              Accédez à l&apos;historique de toutes vos commandes et suivez leur statut en temps réel.
+            </p>
+            <Link href="/connexion">
+              <Button size="lg">Se connecter</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Chargement
+  if (loading || authStatus === 'loading') {
+    return (
+      <div className="min-h-screen bg-cream-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-prairie-600"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream-50 py-12">
       <div className="container mx-auto px-4">
         <motion.div
-          className="max-w-3xl mx-auto"
+          className="max-w-4xl mx-auto"
           variants={fadeInUp}
           initial="initial"
           animate="animate"
         >
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-prairie-100 flex items-center justify-center mx-auto mb-4">
-              <Package className="h-8 w-8 text-prairie-600" />
-            </div>
+          <div className="mb-8">
             <h1 className="text-3xl font-display font-bold text-warm-800 mb-2">
-              Suivi de commande
+              Mes commandes
             </h1>
             <p className="text-warm-600">
-              Entrez votre numéro de commande pour suivre son état
+              Retrouvez l&apos;historique de toutes vos commandes
             </p>
           </div>
 
-          {/* Search box */}
-          <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
-                <Input
-                  type="text"
-                  placeholder="Ex: FDV-XXXXXX-XXXXX"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="pl-10 uppercase"
-                />
+          {/* Liste des commandes */}
+          {orders.length === 0 ? (
+            <div className="bg-white rounded-xl p-12 text-center">
+              <div className="w-20 h-20 rounded-full bg-warm-100 flex items-center justify-center mx-auto mb-6">
+                <ShoppingBag className="h-10 w-10 text-warm-400" />
               </div>
-              <Button onClick={searchOrder} loading={loading} className="shrink-0">
-                Rechercher
-              </Button>
+              <h2 className="text-xl font-semibold text-warm-800 mb-2">
+                Aucune commande
+              </h2>
+              <p className="text-warm-600 mb-6">
+                Vous n&apos;avez pas encore passé de commande.
+              </p>
+              <Link href="/produits">
+                <Button>Découvrir nos produits</Button>
+              </Link>
             </div>
-            {error && (
-              <div className="mt-4 flex items-center gap-2 text-red-600">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-sm">{error}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Order details */}
-          {order && currentStatus && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
-              {/* Status card */}
-              <div className={`rounded-xl p-6 ${currentStatus.bgColor}`}>
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-full bg-white ${currentStatus.color}`}>
-                    {currentStatus.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h2 className={`text-xl font-bold ${currentStatus.color}`}>
-                        {currentStatus.label}
-                      </h2>
-                      <span className="text-sm text-warm-600">
-                        {new Date(order.createdAt).toLocaleDateString('fr-FR', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </span>
-                    </div>
-                    <p className={`${currentStatus.color} opacity-80`}>
-                      {currentStatus.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Progress steps */}
-                {order.status !== 'cancelled' && (
-                  <div className="mt-6 pt-6 border-t border-white/30">
-                    <div className="flex justify-between">
-                      {statusSteps.map((step, index) => {
-                        const isCompleted = index <= currentStepIndex;
-                        const isCurrent = index === currentStepIndex;
-                        return (
-                          <div key={step} className="flex flex-col items-center flex-1">
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                                ${isCompleted ? 'bg-white text-prairie-600' : 'bg-white/40 text-warm-500'}`}
-                            >
-                              {isCompleted ? <CheckCircle className="h-5 w-5" /> : index + 1}
-                            </div>
-                            <span className={`text-xs mt-2 text-center hidden sm:block
-                              ${isCurrent ? 'font-semibold' : ''} ${currentStatus.color}`}>
-                              {statusConfig[step].label}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Order info */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <h3 className="font-semibold text-warm-800 mb-4">
-                  Commande {order.orderNumber}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  {/* Delivery info */}
-                  <div>
-                    <div className="flex items-center gap-2 text-warm-600 mb-2">
-                      <Truck className="h-4 w-4" />
-                      <span className="text-sm font-medium">Livraison</span>
-                    </div>
-                    <p className="text-warm-800">
-                      {deliveryLabels[order.deliveryMethod] || order.deliveryMethod}
-                    </p>
-                  </div>
-
-                  {/* Address */}
-                  {order.address && (
-                    <div>
-                      <div className="flex items-center gap-2 text-warm-600 mb-2">
-                        <MapPin className="h-4 w-4" />
-                        <span className="text-sm font-medium">Adresse</span>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((order, index) => {
+                const status = statusConfig[order.status] || statusConfig.pending;
+                return (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => setSelectedOrder(order)}
+                    className="bg-white rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      {/* Infos commande */}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="font-semibold text-warm-800">
+                            {order.orderNumber}
+                          </span>
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${status.bgColor} ${status.color}`}>
+                            {status.icon}
+                            {status.label}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-warm-600">
+                          <span>
+                            {new Date(order.createdAt).toLocaleDateString('fr-FR', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                            })}
+                          </span>
+                          <span>•</span>
+                          <span>{order.items.length} article{order.items.length > 1 ? 's' : ''}</span>
+                          <span>•</span>
+                          <span>{deliveryLabels[order.deliveryMethod] || order.deliveryMethod}</span>
+                        </div>
                       </div>
-                      <p className="text-warm-800 text-sm">
-                        {order.address.street}<br />
-                        {order.address.postalCode} {order.address.city}
-                      </p>
+
+                      {/* Prix et flèche */}
+                      <div className="flex items-center gap-4">
+                        <span className="text-lg font-bold text-prairie-600">
+                          {formatPrice(order.total)}
+                        </span>
+                        <ChevronRight className="h-5 w-5 text-warm-400 group-hover:text-prairie-600 transition-colors" />
+                      </div>
                     </div>
-                  )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Modal détail commande */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto"
+            onClick={() => setSelectedOrder(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-xl w-full max-w-2xl my-4 max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header modal */}
+              <div className="sticky top-0 bg-white border-b border-warm-100 p-4 sm:p-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-warm-800">
+                    {selectedOrder.orderNumber}
+                  </h2>
+                  <p className="text-sm text-warm-600">
+                    {new Date(selectedOrder.createdAt).toLocaleDateString('fr-FR', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="p-2 hover:bg-warm-100 rounded-full transition-colors"
+                >
+                  <X className="h-5 w-5 text-warm-600" />
+                </button>
+              </div>
+
+              <div className="p-4 sm:p-6 space-y-6">
+                {/* Statut avec progression */}
+                {(() => {
+                  const status = statusConfig[selectedOrder.status] || statusConfig.pending;
+                  const stepIndex = currentStepIndex(selectedOrder.status);
+                  return (
+                    <div className={`rounded-xl p-4 sm:p-6 ${status.bgColor}`}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`p-2 rounded-full bg-white ${status.color}`}>
+                          {status.icon}
+                        </div>
+                        <div>
+                          <h3 className={`font-bold ${status.color}`}>{status.label}</h3>
+                          <p className={`text-sm ${status.color} opacity-80`}>{status.description}</p>
+                        </div>
+                      </div>
+
+                      {/* Barre de progression */}
+                      {selectedOrder.status !== 'cancelled' && (
+                        <div className="flex justify-between mt-4">
+                          {statusSteps.map((step, index) => {
+                            const isCompleted = index <= stepIndex;
+                            const isCurrent = index === stepIndex;
+                            return (
+                              <div key={step} className="flex flex-col items-center flex-1">
+                                <div
+                                  className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium
+                                    ${isCompleted ? 'bg-white text-prairie-600' : 'bg-white/40 text-warm-500'}`}
+                                >
+                                  {isCompleted ? <CheckCircle className="h-4 w-4" /> : index + 1}
+                                </div>
+                                <span className={`text-[10px] sm:text-xs mt-1 text-center ${isCurrent ? 'font-semibold' : ''} ${status.color}`}>
+                                  <span className="hidden sm:inline">{statusConfig[step].label}</span>
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Livraison */}
+                <div className="flex items-center gap-3 p-4 bg-warm-50 rounded-xl">
+                  <Truck className="h-5 w-5 text-warm-600" />
+                  <div>
+                    <p className="font-medium text-warm-800">
+                      {deliveryLabels[selectedOrder.deliveryMethod] || selectedOrder.deliveryMethod}
+                    </p>
+                    {selectedOrder.address && (
+                      <p className="text-sm text-warm-600">
+                        {selectedOrder.address.street}, {selectedOrder.address.postalCode} {selectedOrder.address.city}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                {/* Items */}
-                <div className="border-t border-warm-100 pt-4">
-                  <h4 className="font-medium text-warm-800 mb-3">Articles commandés</h4>
-                  <div className="space-y-2">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span className="text-warm-600">
-                          {item.name} x{item.quantity}
+                {/* Articles */}
+                <div>
+                  <h4 className="font-semibold text-warm-800 mb-3">Articles commandés</h4>
+                  <div className="space-y-2 bg-warm-50 rounded-xl p-4">
+                    {selectedOrder.items.map((item, index) => (
+                      <div key={index} className="flex justify-between text-sm py-2 border-b border-warm-200 last:border-0">
+                        <span className="text-warm-700">
+                          {item.name} <span className="text-warm-500">x{item.quantity}</span>
                         </span>
-                        <span className="text-warm-800 font-medium">
+                        <span className="font-medium text-warm-800">
                           {formatPrice(item.price * item.quantity)}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-t border-warm-100 mt-4 pt-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-warm-600">Sous-total</span>
-                      <span>{formatPrice(order.subtotal)}</span>
+                  {/* Totaux */}
+                  <div className="mt-4 space-y-2 text-sm">
+                    <div className="flex justify-between text-warm-600">
+                      <span>Sous-total</span>
+                      <span>{formatPrice(selectedOrder.subtotal)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-warm-600">Livraison</span>
-                      <span>{order.shippingCost > 0 ? formatPrice(order.shippingCost) : 'Gratuit'}</span>
+                    <div className="flex justify-between text-warm-600">
+                      <span>Livraison</span>
+                      <span>{selectedOrder.shippingCost > 0 ? formatPrice(selectedOrder.shippingCost) : 'Gratuit'}</span>
                     </div>
-                    <div className="flex justify-between font-bold text-prairie-600">
+                    <div className="flex justify-between text-lg font-bold text-prairie-600 pt-2 border-t border-warm-200">
                       <span>Total</span>
-                      <span>{formatPrice(order.total)}</span>
+                      <span>{formatPrice(selectedOrder.total)}</span>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Contact */}
-              <div className="bg-warm-100 rounded-xl p-6">
-                <h3 className="font-semibold text-warm-800 mb-3">Une question ?</h3>
-                <div className="flex items-center gap-2 text-warm-700">
-                  <Phone className="h-4 w-4" />
-                  <span>Appelez-nous au </span>
-                  <a href="tel:+261380100101" className="font-medium text-prairie-600 hover:underline">
-                    038 01 001 01
-                  </a>
+                {/* Contact */}
+                <div className="bg-warm-100 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-warm-700">
+                    <Phone className="h-4 w-4" />
+                    <span>Une question ? </span>
+                    <a href="tel:+261380100101" className="font-medium text-prairie-600 hover:underline">
+                      038 01 001 01
+                    </a>
+                  </div>
                 </div>
               </div>
             </motion.div>
-          )}
-
-          {/* No order found */}
-          {searched && !order && !loading && !error && (
-            <div className="bg-white rounded-xl p-8 text-center">
-              <AlertCircle className="h-12 w-12 text-warm-400 mx-auto mb-4" />
-              <p className="text-warm-600">Aucune commande trouvée</p>
-            </div>
-          )}
-
-          {/* Back to home */}
-          <div className="mt-8 text-center">
-            <Link href="/">
-              <Button variant="outline" icon={<Home className="h-4 w-4" />}>
-                Retour à l&apos;accueil
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
