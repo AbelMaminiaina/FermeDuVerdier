@@ -9,10 +9,10 @@ import {
   Phone,
   Smartphone,
   CreditCard,
-  Home,
   ShoppingBag,
   Copy,
   MessageCircle,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fadeInUp } from '@/lib/animations';
@@ -211,9 +211,9 @@ function ConfirmationContent() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/">
-              <Button variant="outline" icon={<Home className="h-4 w-4" />}>
-                Retour à l&apos;accueil
+            <Link href={`/suivi-commande?order=${orderNumber}`}>
+              <Button variant="outline" icon={<Package className="h-4 w-4" />}>
+                Suivre ma commande
               </Button>
             </Link>
             <Link href="/produits">
