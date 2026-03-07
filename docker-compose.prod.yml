@@ -53,6 +53,11 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-fermeduvardier}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fermeduvardier}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       FRONTEND_URL: ${FRONTEND_URL:-http://167.86.111.192}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
     depends_on:
       postgres:
         condition: service_healthy
