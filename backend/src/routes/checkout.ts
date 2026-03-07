@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/prisma.js';
 import { DeliveryMethod } from '@prisma/client';
+import { sendOrderConfirmationEmail } from '../services/emailService.js';
 
 const router = Router();
 
@@ -89,6 +90,32 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
+    // Check stock availability for all items
+    const productIds = validatedData.items.map(item => item.productId);
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true, stockQuantity: true },
+    });
+
+    const productMap = new Map(products.map(p => [p.id, p]));
+    let allInStock = true;
+    const stockUpdates: { id: string; newQuantity: number }[] = [];
+
+    for (const item of validatedData.items) {
+      const product = productMap.get(item.productId);
+      if (!product || product.stockQuantity < item.quantity) {
+        allInStock = false;
+        break;
+      }
+      stockUpdates.push({
+        id: item.productId,
+        newQuantity: product.stockQuantity - item.quantity,
+      });
+    }
+
+    // Stock disponible = processing, sinon = pending
+    const orderStatus = allInStock ? 'processing' : 'pending';
+
     // Create order
     const order = await prisma.order.create({
       data: {
@@ -96,6 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
         customerId: customer.id,
         addressId: address.id,
         deliveryMethod: validatedData.deliveryMethod as DeliveryMethod,
+        status: orderStatus,
         subtotal,
         shippingCost,
         total,
@@ -113,13 +141,62 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    console.log('Order created:', order.orderNumber);
+    // Si stock disponible, décrémenter les quantités
+    if (allInStock) {
+      await Promise.all(
+        stockUpdates.map(update =>
+          prisma.product.update({
+            where: { id: update.id },
+            data: {
+              stockQuantity: update.newQuantity,
+              inStock: update.newQuantity > 0,
+            },
+          })
+        )
+      );
+      console.log('Commande en préparation:', order.orderNumber);
+    } else {
+      console.log('Commande en attente (stock insuffisant):', order.orderNumber);
+    }
+
+    // Envoyer l'email avec la facture
+    const emailData = {
+      orderNumber: order.orderNumber,
+      customerName: `${validatedData.customer.firstName} ${validatedData.customer.lastName}`,
+      customerEmail: validatedData.customer.email,
+      customerPhone: validatedData.customer.phone,
+      address: {
+        street: validatedData.shippingAddress.street,
+        city: validatedData.shippingAddress.city,
+        postalCode: validatedData.shippingAddress.postalCode,
+        country: validatedData.shippingAddress.country || 'Madagascar',
+      },
+      deliveryMethod: validatedData.deliveryMethod,
+      items: validatedData.items.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      subtotal,
+      shippingCost,
+      total,
+      status: orderStatus,
+      createdAt: new Date(),
+    };
+
+    // Envoi asynchrone (ne bloque pas la réponse)
+    sendOrderConfirmationEmail(emailData).catch(err =>
+      console.error('Failed to send email:', err)
+    );
 
     res.json({
       success: true,
-      message: 'Commande créée avec succès',
+      message: allInStock
+        ? 'Commande confirmée et en préparation'
+        : 'Commande en attente de stock',
       orderId: order.id,
       orderNumber: order.orderNumber,
+      status: orderStatus,
       total,
     });
   } catch (error) {

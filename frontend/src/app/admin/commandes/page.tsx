@@ -313,9 +313,9 @@ export default function AdminOrdersPage() {
 
       {/* Order Detail Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-6xl w-full">
-            <div className="p-6 border-b border-warm-100">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl w-full max-w-6xl my-2 md:my-4 max-h-[95vh] md:max-h-[90vh] flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-warm-100 shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-warm-800">
@@ -359,9 +359,9 @@ export default function AdminOrdersPage() {
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
               {/* Client info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <h3 className="font-semibold text-warm-800 mb-3 flex items-center gap-2">
                     <Package className="h-4 w-4" />
@@ -461,9 +461,9 @@ export default function AdminOrdersPage() {
 
               {/* Status actions */}
               {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && (
-                <div>
+                <div className="pb-2">
                   <h3 className="font-semibold text-warm-800 mb-3">Changer le statut</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
                     {selectedOrder.status === 'pending' && (
                       <Button
                         size="sm"
@@ -514,7 +514,7 @@ export default function AdminOrdersPage() {
                         }
                       }}
                       icon={<Ban className="h-4 w-4" />}
-                      className="text-red-600 border-red-300 hover:bg-red-50"
+                      className="text-red-600 border-red-300 hover:bg-red-50 col-span-2 sm:col-span-1"
                       disabled={updatingStatus}
                     >
                       Annuler

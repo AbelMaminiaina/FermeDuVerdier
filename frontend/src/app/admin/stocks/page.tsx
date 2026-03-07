@@ -179,15 +179,16 @@ export default function AdminStocksPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-warm-800">Gestion des stocks</h1>
-        <Button onClick={() => openModal('add')} icon={<Plus className="h-4 w-4" />}>
-          Ajouter
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-warm-800">Gestion des stocks</h1>
+        <Button onClick={() => openModal('add')} icon={<Plus className="h-4 w-4" />} className="shrink-0">
+          <span className="hidden sm:inline">Ajouter</span>
+          <span className="sm:hidden">+</span>
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {[
           { label: 'Total', value: stats.total, bg: 'bg-white' },
           { label: 'En stock', value: stats.inStock, bg: 'bg-green-50 text-green-700' },
@@ -202,8 +203,8 @@ export default function AdminStocksPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+        <div className="relative flex-1 sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-warm-400" />
           <Input
             placeholder="Rechercher..."
@@ -226,7 +227,8 @@ export default function AdminStocksPage() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[600px]">
           <thead className="bg-warm-50">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold text-warm-700">Produit</th>
@@ -284,6 +286,7 @@ export default function AdminStocksPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {filtered.length === 0 && (
           <p className="p-8 text-center text-warm-500">Aucun produit trouvé</p>
         )}
@@ -291,8 +294,8 @@ export default function AdminStocksPage() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 md:p-4">
-          <div className="bg-white rounded-2xl w-full max-w-5xl h-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-2 md:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-5xl my-2 md:my-4 max-h-[95vh] md:max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 border-b">
               <h2 className="text-lg md:text-xl font-bold text-warm-800">
@@ -304,7 +307,7 @@ export default function AdminStocksPage() {
             </div>
 
             {/* Content */}
-            <div className="px-4 py-4 md:px-6 md:py-5">
+            <div className="px-4 py-4 md:px-6 md:py-5 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 {/* Left column */}
                 <div className="space-y-4">
@@ -355,14 +358,65 @@ export default function AdminStocksPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-warm-700 mb-1">Images (URLs, une par ligne)</label>
-                    <textarea
-                      value={form.images}
-                      onChange={e => setForm(f => ({ ...f, images: e.target.value }))}
-                      rows={3}
-                      className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none resize-none font-mono text-sm"
-                      placeholder="https://example.com/image.jpg"
-                    />
+                    <label className="block text-sm font-semibold text-warm-700 mb-1">Images</label>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-warm-300 rounded-lg cursor-pointer hover:border-prairie-500 hover:bg-prairie-50 transition-colors">
+                          <Plus className="h-5 w-5 text-warm-500" />
+                          <span className="text-sm text-warm-600">Parcourir les fichiers</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={(e) => {
+                              const files = e.target.files;
+                              if (files) {
+                                Array.from(files).forEach(file => {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    const base64 = event.target?.result as string;
+                                    setForm(f => ({
+                                      ...f,
+                                      images: f.images ? f.images + '\n' + base64 : base64
+                                    }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                });
+                              }
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
+                      </div>
+                      <textarea
+                        value={form.images}
+                        onChange={e => setForm(f => ({ ...f, images: e.target.value }))}
+                        rows={3}
+                        className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none resize-none font-mono text-xs"
+                        placeholder="URLs des images (une par ligne) ou utilisez le bouton ci-dessus"
+                      />
+                      {form.images && (
+                        <div className="flex flex-wrap gap-2">
+                          {form.images.split('\n').filter(Boolean).slice(0, 4).map((img, i) => (
+                            <div key={i} className="w-16 h-16 rounded-lg overflow-hidden bg-warm-100 relative">
+                              <Image
+                                src={img}
+                                alt=""
+                                fill
+                                className="object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                              />
+                            </div>
+                          ))}
+                          {form.images.split('\n').filter(Boolean).length > 4 && (
+                            <div className="w-16 h-16 rounded-lg bg-warm-200 flex items-center justify-center text-sm text-warm-600">
+                              +{form.images.split('\n').filter(Boolean).length - 4}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -380,9 +434,9 @@ export default function AdminStocksPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 px-4 py-3 md:px-6 md:py-4 border-t bg-warm-50 rounded-b-2xl">
-              <Button variant="outline" onClick={() => setModal(null)}>Annuler</Button>
-              <Button onClick={saveProduct} loading={saving} disabled={!form.name || form.price <= 0}>
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 px-4 py-3 md:px-6 md:py-4 border-t bg-warm-50 rounded-b-2xl shrink-0">
+              <Button variant="outline" onClick={() => setModal(null)} className="w-full sm:w-auto">Annuler</Button>
+              <Button onClick={saveProduct} loading={saving} disabled={!form.name || form.price <= 0} className="w-full sm:w-auto">
                 {modal.mode === 'edit' ? 'Enregistrer' : 'Créer'}
               </Button>
             </div>
