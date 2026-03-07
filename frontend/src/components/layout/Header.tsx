@@ -21,6 +21,7 @@ import {
   Sparkles,
   Truck,
   Gift,
+  Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
@@ -316,6 +317,13 @@ export function Header() {
                             {session.user?.email}
                           </p>
                         </div>
+                        <Link
+                          href="/suivi-commande"
+                          className="flex items-center gap-3 px-4 py-3 text-sm text-warm-700 hover:text-prairie-700 hover:bg-prairie-50 transition-colors"
+                        >
+                          <Package className="h-4 w-4" />
+                          Mes commandes
+                        </Link>
                         {(session.user as any)?.role === 'admin' && (
                           <Link
                             href="/admin"
@@ -463,6 +471,22 @@ export function Header() {
                     )}
                   </motion.div>
                 ))}
+
+                {/* Suivi commande - toujours visible */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                >
+                  <Link
+                    href="/suivi-commande"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium text-warm-700 hover:text-prairie-700 hover:bg-prairie-50 transition-all duration-300"
+                  >
+                    <Package className="h-5 w-5 text-prairie-600" />
+                    Suivi de commande
+                  </Link>
+                </motion.div>
 
                 {/* Mobile login button */}
                 {!session && (
