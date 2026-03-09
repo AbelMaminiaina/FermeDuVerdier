@@ -66,7 +66,6 @@ console.log('[NextAuth] Config:', { nextAuthUrl, useSecureCookies, cookieDomain 
 const handler = NextAuth({
   providers,
   debug: process.env.NODE_ENV === 'development',
-  trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
