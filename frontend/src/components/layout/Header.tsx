@@ -424,9 +424,9 @@ export function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-warm-100/50 overflow-hidden"
+              className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-warm-100/50 overflow-hidden max-h-[70vh] overflow-y-auto"
             >
-              <nav className="container mx-auto px-4 py-6 space-y-2">
+              <nav className="container mx-auto px-4 py-4 pb-safe space-y-2" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
                 {navigation.map((item, index) => (
                   <motion.div
                     key={item.name}

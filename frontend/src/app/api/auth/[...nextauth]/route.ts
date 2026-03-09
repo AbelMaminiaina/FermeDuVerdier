@@ -56,14 +56,17 @@ providers.push(
   })
 );
 
-const useSecureCookies = process.env.NEXTAUTH_URL?.startsWith('https://');
-const cookieDomain = process.env.NEXTAUTH_URL
-  ? new URL(process.env.NEXTAUTH_URL).hostname
-  : undefined;
+const nextAuthUrl = process.env.NEXTAUTH_URL || 'https://fermeduvardier.com';
+const useSecureCookies = nextAuthUrl.startsWith('https://');
+const cookieDomain = nextAuthUrl.includes('localhost') ? undefined : new URL(nextAuthUrl).hostname;
+
+// Debug log
+console.log('[NextAuth] Config:', { nextAuthUrl, useSecureCookies, cookieDomain });
 
 const handler = NextAuth({
   providers,
   debug: process.env.NODE_ENV === 'development',
+  trustHost: true,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
