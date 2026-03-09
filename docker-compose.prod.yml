@@ -52,7 +52,7 @@ services:
       PORT: 3001
       DATABASE_URL: postgresql://${POSTGRES_USER:-fermeduvardier}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fermeduvardier}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      FRONTEND_URL: ${FRONTEND_URL:-http://167.86.111.192}
+      FRONTEND_URL: ${FRONTEND_URL:-https://fermeduvardier.com}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_SECURE: ${SMTP_SECURE:-false}
@@ -74,13 +74,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://167.86.111.192/api}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://fermeduvardier.com/api}
     container_name: fermeduvardier-frontend
     restart: always
     environment:
       NODE_ENV: production
       BACKEND_URL: http://backend:3001
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://167.86.111.192}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-https://fermeduvardier.com}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@fermeduvardier.mg}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
