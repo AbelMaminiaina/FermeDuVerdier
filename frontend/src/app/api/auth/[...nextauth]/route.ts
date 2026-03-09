@@ -56,6 +56,11 @@ providers.push(
   })
 );
 
+const useSecureCookies = process.env.NEXTAUTH_URL?.startsWith('https://');
+const cookieDomain = process.env.NEXTAUTH_URL
+  ? new URL(process.env.NEXTAUTH_URL).hostname
+  : undefined;
+
 const handler = NextAuth({
   providers,
   debug: process.env.NODE_ENV === 'development',
@@ -81,6 +86,56 @@ const handler = NextAuth({
     strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: useSecureCookies ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+        domain: cookieDomain,
+      },
+    },
+    callbackUrl: {
+      name: useSecureCookies ? '__Secure-next-auth.callback-url' : 'next-auth.callback-url',
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+        domain: cookieDomain,
+      },
+    },
+    csrfToken: {
+      name: useSecureCookies ? '__Host-next-auth.csrf-token' : 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+      },
+    },
+    pkceCodeVerifier: {
+      name: useSecureCookies ? '__Secure-next-auth.pkce.code_verifier' : 'next-auth.pkce.code_verifier',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+        maxAge: 60 * 15, // 15 minutes
+      },
+    },
+    state: {
+      name: useSecureCookies ? '__Secure-next-auth.state' : 'next-auth.state',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+        maxAge: 60 * 15, // 15 minutes
+      },
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
