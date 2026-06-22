@@ -48,54 +48,19 @@ const navigation = [
 ];
 
 const menuItemVariants = {
-  hidden: { opacity: 0, y: -10 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.05,
-      duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
-  }),
+  hidden: { opacity: 1 },
+  visible: { opacity: 1 },
 };
 
 const submenuVariants = {
-  hidden: {
-    opacity: 0,
-    y: 15,
-    scale: 0.95,
-    filter: 'blur(10px)',
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
-    transition: {
-      duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-      staggerChildren: 0.05,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: 10,
-    scale: 0.95,
-    filter: 'blur(5px)',
-    transition: {
-      duration: 0.2,
-    },
-  },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15 } },
+  exit: { opacity: 0, transition: { duration: 0.1 } },
 };
 
 const submenuItemVariants = {
-  hidden: { opacity: 0, x: -10 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.2 },
-  },
+  hidden: { opacity: 1 },
+  visible: { opacity: 1 },
 };
 
 export function Header() {
@@ -168,106 +133,63 @@ export function Header() {
           <nav className="flex items-center justify-between h-14 sm:h-auto">
             {/* Logo */}
             <Link href="/" className="flex items-center group relative">
-              <motion.img
+              <img
                 src="/images/logo.png"
                 alt="La Ferme du Vardier"
                 className="h-14 md:h-16 lg:h-20 w-auto object-contain"
-                whileHover={{ scale: 1.05, rotate: -2 }}
-                transition={{ type: "spring", stiffness: 300 }}
               />
             </Link>
 
             {/* Desktop navigation */}
             <div className="hidden lg:flex items-center gap-1">
-              {navigation.map((item, index) => (
-                <motion.div
+              {navigation.map((item) => (
+                <div
                   key={item.name}
                   className="relative"
                   onMouseEnter={() => item.submenu && setOpenSubmenu(item.name)}
                   onMouseLeave={() => setOpenSubmenu(null)}
-                  custom={index}
-                  initial="hidden"
-                  animate="visible"
-                  variants={menuItemVariants}
                 >
                   <Link
                     href={item.href}
                     className={cn(
-                      'relative px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1.5 transition-all duration-300',
+                      'relative px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-1.5 transition-colors',
                       pathname === item.href
-                        ? 'text-prairie-700'
+                        ? 'text-prairie-700 bg-prairie-50'
                         : 'text-warm-600 hover:text-prairie-700'
                     )}
                   >
-                    {/* Active indicator */}
-                    {pathname === item.href && (
-                      <motion.div
-                        layoutId="activeNav"
-                        className="absolute inset-0 bg-gradient-to-r from-prairie-50 to-prairie-100/50 rounded-xl -z-10"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
                     <span>{item.name}</span>
                     {item.submenu && (
-                      <motion.div
-                        animate={{ rotate: openSubmenu === item.name ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </motion.div>
+                      <ChevronDown className={cn("h-4 w-4 transition-transform", openSubmenu === item.name && "rotate-180")} />
                     )}
                   </Link>
 
                   {/* Mega Menu */}
-                  {item.submenu && (
-                    <AnimatePresence>
-                      {openSubmenu === item.name && (
-                        <motion.div
-                          variants={submenuVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-3 p-2 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-warm-900/10 border border-warm-100/50 min-w-[280px]"
-                        >
-                          {/* Arrow */}
-                          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-l border-t border-warm-100/50" />
-
-                          <div className="relative grid gap-1">
-                            {item.submenu.map((subitem, subIndex) => {
-                              const IconComponent = subitem.icon;
-                              return (
-                                <motion.div
-                                  key={subitem.name}
-                                  variants={submenuItemVariants}
-                                  custom={subIndex}
-                                >
-                                  <Link
-                                    href={subitem.href}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-warm-700 hover:bg-gradient-to-r hover:from-prairie-50 hover:to-transparent transition-all duration-300 group"
-                                  >
-                                    <motion.div
-                                      className={cn(
-                                        "p-2 rounded-lg bg-warm-50 group-hover:scale-110 transition-transform duration-300",
-                                        subitem.color
-                                      )}
-                                      whileHover={{ rotate: [0, -10, 10, 0] }}
-                                      transition={{ duration: 0.4 }}
-                                    >
-                                      <IconComponent className="h-4 w-4" />
-                                    </motion.div>
-                                    <span className="font-medium group-hover:text-prairie-700 transition-colors">
-                                      {subitem.name}
-                                    </span>
-                                  </Link>
-                                </motion.div>
-                              );
-                            })}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                  {item.submenu && openSubmenu === item.name && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2">
+                      <div className="relative p-2 bg-white rounded-2xl shadow-xl border border-warm-100 min-w-[280px]">
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-l border-t border-warm-100" />
+                        <div className="grid gap-1">
+                          {item.submenu.map((subitem) => {
+                            const IconComponent = subitem.icon;
+                            return (
+                              <Link
+                                key={subitem.name}
+                                href={subitem.href}
+                                className="flex items-center gap-3 px-4 py-3 rounded-xl text-warm-700 hover:bg-prairie-50 transition-colors"
+                              >
+                                <div className={cn("p-2 rounded-lg bg-warm-50", subitem.color)}>
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+                                <span className="font-medium">{subitem.name}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -282,11 +204,9 @@ export function Header() {
                   onMouseEnter={() => setIsUserMenuOpen(true)}
                   onMouseLeave={() => setIsUserMenuOpen(false)}
                 >
-                  <motion.button
+                  <button
                     className="flex items-center gap-2 p-2 rounded-full hover:bg-prairie-50 transition-colors"
                     aria-label="Mon compte"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     {session.user?.image ? (
                       <img
@@ -299,7 +219,7 @@ export function Header() {
                         <User className="h-4 w-4 text-white" />
                       </div>
                     )}
-                  </motion.button>
+                  </button>
                   <AnimatePresence>
                     {isUserMenuOpen && (
                       <motion.div
@@ -345,73 +265,41 @@ export function Header() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <Link href="/connexion">
-                  <motion.div
-                    className="hidden sm:flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-prairie-500 to-prairie-600 rounded-xl shadow-lg shadow-prairie-500/25 hover:shadow-xl hover:shadow-prairie-500/30 transition-all duration-300"
-                    whileHover={{ scale: 1.02, y: -1 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <User className="h-4 w-4" />
-                    Connexion
-                  </motion.div>
+                <Link
+                  href="/connexion"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-prairie-500 to-prairie-600 rounded-xl shadow-lg shadow-prairie-500/25 hover:shadow-xl hover:shadow-prairie-500/30 transition-all duration-300"
+                >
+                  <User className="h-4 w-4" />
+                  Connexion
                 </Link>
               )}
 
               {/* Cart button */}
-              <motion.button
+              <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative p-2.5 rounded-xl bg-warm-50 hover:bg-prairie-50 transition-colors"
                 aria-label="Panier"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 <ShoppingCart className="h-5 w-5 text-warm-700" />
-                <AnimatePresence>
-                  {itemCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-1 -right-1 bg-gradient-to-r from-terre-500 to-terre-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg"
-                    >
-                      {itemCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-terre-500 to-terre-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg">
+                    {itemCount}
+                  </span>
+                )}
+              </button>
 
               {/* Mobile menu button */}
-              <motion.button
+              <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2.5 rounded-xl bg-warm-50 hover:bg-prairie-50 transition-colors"
                 aria-label="Menu"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                <AnimatePresence mode="wait">
-                  {isMobileMenuOpen ? (
-                    <motion.div
-                      key="close"
-                      initial={{ rotate: -90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <X className="h-5 w-5 text-warm-700" />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="menu"
-                      initial={{ rotate: 90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Menu className="h-5 w-5 text-warm-700" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
+                {isMobileMenuOpen ? (
+                  <X className="h-5 w-5 text-warm-700" />
+                ) : (
+                  <Menu className="h-5 w-5 text-warm-700" />
+                )}
+              </button>
             </div>
           </nav>
         </div>
