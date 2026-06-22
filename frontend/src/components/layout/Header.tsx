@@ -171,7 +171,7 @@ export function Header() {
               <motion.img
                 src="/images/logo.png"
                 alt="La Ferme du Vardier"
-                className="h-20 md:h-28 lg:h-32 w-auto object-contain absolute sm:relative top-0 left-0"
+                className="h-14 md:h-16 lg:h-20 w-auto object-contain"
                 whileHover={{ scale: 1.05, rotate: -2 }}
                 transition={{ type: "spring", stiffness: 300 }}
               />
@@ -513,7 +513,7 @@ export function Header() {
       </header>
 
       {/* Spacer */}
-      <div className="h-24 sm:h-36 lg:h-40" />
+      <div className="h-20 sm:h-24 lg:h-28" />
 
       {/* Cart drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
