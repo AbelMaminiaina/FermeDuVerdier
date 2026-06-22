@@ -84,7 +84,7 @@ async function main() {
       description: 'Poulet fermier malgache (Akoho Gasy) élevé en plein air à la Ferme du Vardier. Chair ferme et savoureuse, idéal pour les plats traditionnels.',
       shortDescription: 'Poulet fermier malgache entier, élevé en plein air.',
       price: 25000,
-      images: ['/images/chickens/Akoho1.jpeg', '/images/chickens/akoho2.jpeg'],
+      images: ['/images/chickens/Akoho1.jpeg', '/images/chickens/Akoho2.jpeg'],
       inStock: true,
       stockQuantity: 30,
       badges: ['plein_air', 'populaire'] as ProductBadge[],
