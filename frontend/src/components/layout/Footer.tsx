@@ -115,12 +115,6 @@ export function Footer() {
                 <span>LE 187<br />Ambohitsoa Ambavatonelina</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="h-5 w-5 text-prairie-500 shrink-0" />
-                <a href="tel:+261380100101" className="hover:text-white transition-colors">
-                  034 30 181 73
-                </a>
-              </div>
-              <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-prairie-500 shrink-0" />
                 <a href="mailto:contact@fermeduvardier.mg" className="hover:text-white transition-colors">
                   contact@fermeduvardier.mg

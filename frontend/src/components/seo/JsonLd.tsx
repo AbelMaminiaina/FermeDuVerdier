@@ -19,7 +19,7 @@ export function OrganizationJsonLd() {
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+261-34-00-000-00',
+      email: 'contact@fermeduvardier.com',
       contactType: 'customer service',
       availableLanguage: ['French', 'Malagasy'],
     },
@@ -49,7 +49,6 @@ export function LocalBusinessJsonLd() {
     description:
       'Ferme d\'élevage à Madagascar proposant viande de porc, poulets fermiers Akoho Gasy, pintades Akanga, cailles et poissons tilapia frais.',
     url: 'https://fermeduvardier.com',
-    telephone: '+261-34-00-000-00',
     email: 'contact@fermeduvardier.com',
     address: {
       '@type': 'PostalAddress',

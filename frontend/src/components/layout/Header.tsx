@@ -117,14 +117,6 @@ export function Header() {
               </span>
             </div>
 
-            {/* Téléphone */}
-            <a
-              href="tel:+261343018173"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-prairie-50/80 text-prairie-700 hover:bg-prairie-100 transition-all duration-300 text-xs"
-            >
-              <Phone className="h-3 w-3" />
-              <span className="font-medium">034 30 181 73</span>
-            </a>
           </div>
         </div>
 
