@@ -5,6 +5,11 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ToastProvider } from '@/components/ui/Toast';
 import { SessionProvider } from '@/components/providers/SessionProvider';
+import {
+  OrganizationJsonLd,
+  LocalBusinessJsonLd,
+  WebsiteJsonLd,
+} from '@/components/seo/JsonLd';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,7 +25,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Ferme du Vardier - Élevage Porcin et Pisciculture à Madagascar',
+    default: 'Ferme du Vardier - Élevage de Qualité à Madagascar | Porc, Poulet, Pintade, Poisson',
     template: '%s | Ferme du Vardier',
   },
   icons: {
@@ -29,18 +34,31 @@ export const metadata: Metadata = {
     apple: '/images/logo.png',
   },
   description:
-    'Découvrez notre élevage porcin et notre pisciculture de qualité à Madagascar. Viande de porc et poissons frais. Livraison à Antananarivo et environs. Élevage responsable depuis 2024.',
+    'Ferme du Vardier à Madagascar : élevage de porcs, poulets fermiers Akoho Gasy, pintades Akanga, cailles et tilapia frais. Livraison à Antananarivo. Produits locaux de qualité supérieure.',
   keywords: [
-    'élevage porcin',
-    'pisciculture',
-    'Madagascar',
-    'Antananarivo',
-    'Ambatolampy',
-    'viande de porc',
-    'poissons frais',
-    'ferme',
+    'ferme du vardier',
+    'ferme du verdier',
+    'ferme vardier',
+    'ferme verdier',
+    'vardier',
+    'verdier',
+    'ferme madagascar',
+    'ferme de madagascar',
+    'élevage porcin madagascar',
+    'poulet fermier madagascar',
+    'akoho gasy',
+    'pintade akanga',
+    'caille madagascar',
+    'tilapia frais',
+    'viande de porc antananarivo',
+    'poisson frais madagascar',
     'élevage responsable',
-    'qualité',
+    'produits fermiers madagascar',
+    'livraison viande antananarivo',
+    'volaille fermière',
+    'pisciculture madagascar',
+    'ferme élevage madagascar',
+    'achat viande madagascar',
   ],
   authors: [{ name: 'Ferme du Vardier' }],
   creator: 'Ferme du Vardier',
@@ -50,33 +68,33 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://fermeduvardier.mg'),
+  metadataBase: new URL('https://fermeduvardier.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'fr_MG',
-    url: 'https://fermeduvardier.mg',
+    url: 'https://fermeduvardier.com',
     siteName: 'Ferme du Vardier',
-    title: 'Ferme du Vardier - Élevage Porcin et Pisciculture',
+    title: 'Ferme du Vardier - Élevage de Qualité à Madagascar',
     description:
-      'Viande de porc et poissons frais de qualité. Livraison à Antananarivo et environs.',
+      'Porcs, poulets Akoho Gasy, pintades Akanga, cailles et tilapia frais. Livraison à Antananarivo.',
     images: [
       {
-        url: '/images/porc/test3.jpeg',
+        url: '/images/logo.png',
         width: 1200,
         height: 630,
-        alt: 'Ferme du Vardier - Élevage porcin',
+        alt: 'Ferme du Vardier - Élevage de qualité à Madagascar',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ferme du Vardier - Élevage Porcin et Pisciculture',
+    title: 'Ferme du Vardier - Élevage de Qualité à Madagascar',
     description:
-      'Viande de porc et poissons frais de qualité. Livraison à Antananarivo et environs.',
-    images: ['/images/porc/test3.jpeg'],
+      'Porcs, poulets Akoho Gasy, pintades Akanga, cailles et tilapia frais. Livraison à Antananarivo.',
+    images: ['/images/logo.png'],
   },
   robots: {
     index: true,
@@ -101,6 +119,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
+      <head>
+        <OrganizationJsonLd />
+        <LocalBusinessJsonLd />
+        <WebsiteJsonLd />
+      </head>
       <body className="font-sans" suppressHydrationWarning>
         <SessionProvider>
           <ToastProvider>
