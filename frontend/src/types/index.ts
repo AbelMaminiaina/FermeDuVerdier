@@ -26,7 +26,9 @@ export type ProductCategory =
   | 'oeufs-frais'
   | 'oeufs-fecondes'
   | 'poules'
-  | 'accessoires';
+  | 'accessoires'
+  | 'akanga'
+  | 'caille';
 
 export type ProductBadge = 'bio' | 'plein_air' | 'nouveau' | 'promo' | 'populaire';
 
