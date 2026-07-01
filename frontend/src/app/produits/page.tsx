@@ -3,7 +3,6 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
 import { API_BASE_URL } from '@/lib/api/config';
 import ProductsClient from './ProductsClient';
-import { products as localProducts } from '@/data/products';
 
 export const metadata: Metadata = {
   title: 'Nos Produits - Viande, Volaille et Poisson Frais',
@@ -38,35 +37,22 @@ async function getProducts() {
   const apiUrl = `${API_BASE_URL}/products`;
   console.log('[SSR] Fetching products from:', apiUrl);
 
-  try {
-    const res = await fetch(apiUrl, {
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+  const res = await fetch(apiUrl, {
+    cache: 'no-store',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
 
-    if (!res.ok) {
-      console.error('[SSR] Fetch failed:', res.status, res.statusText);
-      throw new Error('Failed to fetch');
-    }
-
-    const data = await res.json();
-    console.log('[SSR] Products fetched:', data.products?.length || 0);
-
-    // Si le backend retourne des produits, les utiliser
-    if (data.products && data.products.length > 0) {
-      return data;
-    }
-
-    // Sinon, utiliser les données locales
-    console.log('[SSR] Using local products as fallback');
-    return { products: localProducts, total: localProducts.length };
-  } catch (error) {
-    console.error('[SSR] Error fetching products, using local data:', error);
-    // Utiliser les données locales en cas d'erreur
-    return { products: localProducts, total: localProducts.length };
+  if (!res.ok) {
+    console.error('[SSR] Fetch failed:', res.status, res.statusText);
+    throw new Error('Failed to fetch products');
   }
+
+  const data = await res.json();
+  console.log('[SSR] Products fetched:', data.products?.length || 0);
+
+  return data;
 }
 
 export default async function ProductsPage() {

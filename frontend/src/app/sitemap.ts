@@ -1,7 +1,27 @@
 import { MetadataRoute } from 'next';
-import { products } from '@/data/products';
+import { API_BASE_URL } from '@/lib/api/config';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+interface Product {
+  slug: string;
+  updatedAt: string;
+}
+
+async function getProducts(): Promise<Product[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/products`, {
+      next: { revalidate: 3600 }, // Revalidate every hour
+    });
+    if (!res.ok) {
+      return [];
+    }
+    const data = await res.json();
+    return data.products || [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://fermeduvardier.com';
 
   // Pages statiques
@@ -68,7 +88,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Pages produits dynamiques
+  // Pages produits dynamiques depuis l'API
+  const products = await getProducts();
   const productPages: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${baseUrl}/produits/${product.slug}`,
     lastModified: new Date(product.updatedAt),

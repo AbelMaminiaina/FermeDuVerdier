@@ -3,40 +3,27 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
 import { API_BASE_URL } from '@/lib/api/config';
 import ProductDetailClient from './ProductDetailClient';
-import { getProductBySlug, getRelatedProducts as getLocalRelatedProducts } from '@/data/products';
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 async function getProduct(slug: string) {
   noStore();
-  try {
-    const res = await fetch(`${API_BASE_URL}/products/${slug}`);
-    if (!res.ok) {
-      // Fallback vers les données locales
-      const localProduct = getProductBySlug(slug);
-      return localProduct || null;
-    }
-    return res.json();
-  } catch (error) {
-    console.error('Error fetching product, using local data:', error);
-    // Fallback vers les données locales
-    const localProduct = getProductBySlug(slug);
-    return localProduct || null;
+  const res = await fetch(`${API_BASE_URL}/products/${slug}`);
+  if (!res.ok) {
+    return null;
   }
+  return res.json();
 }
 
-async function getRelatedProducts(slug: string, productId: string) {
+async function getRelatedProducts(slug: string) {
   noStore();
   try {
     const res = await fetch(`${API_BASE_URL}/products/${slug}/related?limit=4`);
     if (!res.ok) {
-      // Fallback vers les données locales
-      return getLocalRelatedProducts(productId, 4);
+      return [];
     }
     return res.json();
-  } catch (error) {
-    console.error('Error fetching related products, using local data:', error);
-    // Fallback vers les données locales
-    return getLocalRelatedProducts(productId, 4);
+  } catch {
+    return [];
   }
 }
 
@@ -108,7 +95,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedProducts = await getRelatedProducts(slug, product.id);
+  const relatedProducts = await getRelatedProducts(slug);
 
   const breadcrumbItems = [
     { name: 'Accueil', url: 'https://fermeduvardier.com' },
