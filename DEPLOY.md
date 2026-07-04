@@ -2,6 +2,28 @@
 
 Deploiement sur VPS Contabo avec Docker.
 
+## Commandes rapides (Contabo)
+
+### Connexion SSH
+```bash
+ssh root@167.86.111.192
+```
+
+### Deploiement rapide (git pull + seed)
+```bash
+cd /opt/FermeDuVardier && git pull && cd backend && docker compose exec backend npx prisma db seed
+```
+
+### Commandes individuelles
+```bash
+cd /opt/FermeDuVardier        # Aller dans le projet
+git pull                       # Recuperer les modifications
+cd backend                     # Aller dans backend
+docker compose exec backend npx prisma db seed   # Executer le seed
+```
+
+---
+
 ## Prerequisites sur le VPS
 
 ### 1. Installer Docker et Docker Compose
