@@ -386,7 +386,7 @@ async function main() {
       description: 'Découvrez les fameux œufs bleus ! L\'Araucana est une race chilienne unique.',
       shortDescription: 'Les fameux œufs bleus pour votre basse-cour.',
       price: 18000,
-      images: ['https://images.unsplash.com/photo-1518492104633-130d0cc84637?w=600'],
+      images: [],
       inStock: false,
       stockQuantity: 0,
       badges: ['nouveau'] as ProductBadge[],
