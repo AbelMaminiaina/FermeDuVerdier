@@ -15,9 +15,7 @@ import {
   ChevronLeft,
   Store,
   Check,
-  Phone,
   Smartphone,
-  LogIn,
 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { formatPrice, getShippingCost } from '@/lib/utils';
@@ -190,54 +188,6 @@ export default function CheckoutPage() {
       setIsLoading(false);
     }
   };
-
-  // Afficher écran de chargement
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-cream-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-prairie-600"></div>
-      </div>
-    );
-  }
-
-  // Demander connexion si non connecté
-  if (status === 'unauthenticated') {
-    return (
-      <div className="min-h-screen bg-cream-50 py-12">
-        <div className="container mx-auto px-4">
-          <motion.div
-            className="max-w-md mx-auto text-center"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-          >
-            <div className="bg-white rounded-xl p-8 shadow-sm">
-              <div className="w-20 h-20 rounded-full bg-prairie-100 flex items-center justify-center mx-auto mb-6">
-                <LogIn className="h-10 w-10 text-prairie-600" />
-              </div>
-              <h1 className="text-2xl font-display font-bold text-warm-800 mb-4">
-                Connexion requise
-              </h1>
-              <p className="text-warm-600 mb-8">
-                Veuillez vous connecter pour finaliser votre commande.
-                Votre panier sera conservé.
-              </p>
-              <Link href={`/connexion?callbackUrl=${encodeURIComponent('/checkout')}`}>
-                <Button size="lg" fullWidth icon={<LogIn className="h-5 w-5" />}>
-                  Se connecter
-                </Button>
-              </Link>
-              <Link href="/panier" className="block mt-4">
-                <Button variant="ghost" fullWidth>
-                  Retour au panier
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   if (cart.items.length === 0) {
     return (
