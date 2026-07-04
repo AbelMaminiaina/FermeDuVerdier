@@ -14,12 +14,27 @@ ssh root@167.86.111.192
 cd /opt/FermeDuVardier && git pull && cd backend && docker compose exec backend npx prisma db seed
 ```
 
+### Deploiement frontend (rebuild)
+```bash
+cd /opt/FermeDuVardier && git pull && docker compose -f docker-compose.prod.yml up -d --build frontend
+```
+
+### Deploiement complet (tout reconstruire)
+```bash
+cd /opt/FermeDuVardier && git pull && docker compose -f docker-compose.prod.yml up -d --build
+```
+
 ### Commandes individuelles
 ```bash
 cd /opt/FermeDuVardier        # Aller dans le projet
 git pull                       # Recuperer les modifications
 cd backend                     # Aller dans backend
 docker compose exec backend npx prisma db seed   # Executer le seed
+```
+
+### Voir les services disponibles
+```bash
+docker compose -f docker-compose.prod.yml config --services
 ```
 
 ---
