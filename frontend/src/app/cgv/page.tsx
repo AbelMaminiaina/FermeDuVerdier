@@ -185,7 +185,7 @@ export default function CGVPage() {
             Pour toute question relative à ces CGV :<br />
             <strong>Ferme du Vardier</strong><br />
             1 Chemin du Vardier, Ambatolampy Tsimahafotsy, Madagascar<br />
-            Email : contact@fermeduvardier.mg<br />
+            Email : contact@fermeduvardier.com<br />
             Téléphone : 038 01 001 01
           </p>
 

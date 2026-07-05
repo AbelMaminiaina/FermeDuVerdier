@@ -4,7 +4,8 @@
       "Bash(curl:*)",
       "Bash(docker-compose up:*)",
       "Bash(npm run db:generate:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(ssh-keygen:*)"
     ]
   }
 }

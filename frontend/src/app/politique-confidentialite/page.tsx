@@ -25,7 +25,7 @@ export default function PolitiqueConfidentialitePage() {
             Le responsable du traitement des données est :<br />
             <strong>Ferme du Vardier</strong><br />
             1 Chemin du Vardier, Ambatolampy Tsimahafotsy, Madagascar<br />
-            Email : contact@fermeduvardier.mg<br />
+            Email : contact@fermeduvardier.com<br />
             Téléphone : 038 01 001 01
           </p>
 
@@ -92,7 +92,7 @@ export default function PolitiqueConfidentialitePage() {
             <li><strong>Droit de retrait du consentement :</strong> retirer votre consentement à tout moment</li>
           </ul>
           <p>
-            Pour exercer ces droits, contactez-nous à : contact@fermeduvardier.mg
+            Pour exercer ces droits, contactez-nous à : contact@fermeduvardier.com
           </p>
 
           <h2>8. Cookies</h2>

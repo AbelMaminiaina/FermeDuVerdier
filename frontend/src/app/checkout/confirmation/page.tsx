@@ -13,6 +13,7 @@ import {
   Copy,
   MessageCircle,
   Package,
+  Banknote,
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fadeInUp } from '@/lib/animations';
@@ -67,6 +68,17 @@ const paymentInstructions: Record<string, { name: string; steps: string[]; numbe
       'Entrez les informations de votre carte bancaire',
       'Confirmez le paiement',
       'Vous recevrez une confirmation par email',
+    ],
+  },
+  cash: {
+    name: 'Paiement à l\'arrivée',
+    color: 'bg-green-600',
+    number: '',
+    steps: [
+      'Votre commande est enregistrée',
+      'Nous vous contacterons pour confirmer la livraison',
+      'Préparez le montant exact en espèces',
+      'Payez au livreur à la réception de votre commande',
     ],
   },
 };
@@ -130,6 +142,8 @@ function ConfirmationContent() {
               <div className={`w-12 h-12 ${instructions.color} rounded-lg flex items-center justify-center`}>
                 {paymentMethod === 'stripe' ? (
                   <CreditCard className="h-6 w-6 text-white" />
+                ) : paymentMethod === 'cash' ? (
+                  <Banknote className="h-6 w-6 text-white" />
                 ) : (
                   <Smartphone className="h-6 w-6 text-white" />
                 )}
@@ -171,7 +185,7 @@ function ConfirmationContent() {
           </div>
 
           {/* WhatsApp contact */}
-          {paymentMethod !== 'stripe' && (
+          {paymentMethod !== 'stripe' && paymentMethod !== 'cash' && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
               <div className="flex items-start gap-4">
                 <MessageCircle className="h-6 w-6 text-green-600 shrink-0 mt-1" />

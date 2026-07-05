@@ -355,7 +355,7 @@ Parking gratuit sur place (100 places)
 
 L'entrée est libre mais l'inscription nous aide à organiser la journée :
 - Par téléphone : 038 01 001 01
-- Par email : contact@fermeduvardier.mg
+- Par email : contact@fermeduvardier.com
 
 Nous avons hâte de vous accueillir !`,
     coverImage: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=800',

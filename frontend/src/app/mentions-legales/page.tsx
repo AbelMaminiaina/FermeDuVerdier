@@ -24,7 +24,7 @@ export default function MentionsLegalesPage() {
             STAT : 12345 67 890 1 23456<br />
             Siège social : 1 Chemin du Vardier, Ambatolampy Tsimahafotsy, Madagascar<br />
             Téléphone : 038 01 001 01<br />
-            Email : contact@fermeduvardier.mg
+            Email : contact@fermeduvardier.com
           </p>
           <p>
             Directeur de la publication : Varombo Fitoky
@@ -60,7 +60,7 @@ export default function MentionsLegalesPage() {
           </p>
           <p>
             Pour exercer ces droits, vous pouvez nous contacter :<br />
-            - Par email : contact@fermeduvardier.mg<br />
+            - Par email : contact@fermeduvardier.com<br />
             - Par courrier : Ferme du Vardier, 1 Chemin du Vardier, Ambatolampy Tsimahafotsy, Madagascar
           </p>
           <p>

@@ -155,10 +155,10 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium text-warm-800">Email</div>
                     <a
-                      href="mailto:contact@fermeduvardier.mg"
+                      href="mailto:contact@fermeduvardier.com"
                       className="text-prairie-600 hover:text-prairie-700"
                     >
-                      contact@fermeduvardier.mg
+                      contact@fermeduvardier.com
                     </a>
                   </div>
                 </div>
