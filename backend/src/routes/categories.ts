@@ -28,7 +28,7 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// Get active categories only (for frontend)
+// Get active categories only (for frontend) - sorted by stock availability
 router.get('/active', async (_req: Request, res: Response) => {
   try {
     const categories = await prisma.category.findMany({
@@ -36,7 +36,41 @@ router.get('/active', async (_req: Request, res: Response) => {
       orderBy: { order: 'asc' },
     });
 
-    res.json(categories);
+    // Map slug to enum value for counting
+    const slugToEnum: Record<string, string> = {
+      'porc': 'porc',
+      'poulet': 'poulet',
+      'poisson': 'poisson',
+      'akanga': 'akanga',
+      'caille': 'caille',
+      'transformes': 'transformes',
+      'oeufs-frais': 'oeufs_frais',
+      'oeufs-fecondes': 'oeufs_fecondes',
+      'poules': 'poules',
+      'accessoires': 'accessoires',
+    };
+
+    // Get stock counts for each category
+    const categoriesWithStock = await Promise.all(
+      categories.map(async (cat) => {
+        const enumValue = slugToEnum[cat.slug];
+        const inStockCount = enumValue
+          ? await prisma.product.count({
+              where: { category: enumValue as any, inStock: true },
+            })
+          : 0;
+        return { ...cat, inStockCount };
+      })
+    );
+
+    // Sort: categories with stock first, then by order
+    categoriesWithStock.sort((a, b) => {
+      if (a.inStockCount > 0 && b.inStockCount === 0) return -1;
+      if (a.inStockCount === 0 && b.inStockCount > 0) return 1;
+      return a.order - b.order;
+    });
+
+    res.json(categoriesWithStock);
   } catch (error: any) {
     console.error('Error fetching active categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });

@@ -70,7 +70,10 @@ router.get('/', async (req: Request, res: Response) => {
 
         const products = await prisma.product.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy: [
+            { inStock: 'desc' },  // En stock en premier
+            { createdAt: 'desc' },
+          ],
         });
 
         const transformedProducts = products.map(transformProduct);
