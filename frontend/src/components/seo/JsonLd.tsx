@@ -13,7 +13,8 @@ export function OrganizationJsonLd() {
       'Élevage de qualité à Madagascar - Porcs, poulets fermiers, pintades, cailles et poissons frais. Produits locaux de la ferme directement chez vous.',
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Antananarivo',
+      streetAddress: 'Lot IF 210',
+      addressLocality: 'Ambatofotsy Ambohimalaza',
       addressRegion: 'Analamanga',
       addressCountry: 'MG',
     },
@@ -52,10 +53,10 @@ export function LocalBusinessJsonLd() {
     email: 'contact@fermeduvardier.com',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Vardier',
-      addressLocality: 'Antananarivo',
+      streetAddress: 'Lot IF 210',
+      addressLocality: 'Ambatofotsy Ambohimalaza',
       addressRegion: 'Analamanga',
-      postalCode: '101',
+      postalCode: '103',
       addressCountry: 'MG',
     },
     geo: {

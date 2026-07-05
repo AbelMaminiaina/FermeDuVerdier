@@ -126,8 +126,8 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium text-warm-800">Adresse</div>
                     <div className="text-warm-600 text-sm">
-                      1 Chemin du Vardier<br />
-                      Ambatolampy Tsimahafotsy<br />
+                      Lot IF 210<br />
+                      Ambatofotsy Ambohimalaza<br />
                       Madagascar
                     </div>
                   </div>
