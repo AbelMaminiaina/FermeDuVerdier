@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   X,
+  Folder,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from 'next-auth/react';
@@ -19,6 +20,7 @@ const adminNavigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Commandes', href: '/admin/commandes', icon: ShoppingCart },
   { name: 'Stocks', href: '/admin/stocks', icon: Package },
+  { name: 'Catégories', href: '/admin/categories', icon: Folder },
 ];
 
 export default function AdminLayout({

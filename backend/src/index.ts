@@ -5,6 +5,7 @@ import chickensRouter from './routes/chickens.js';
 import contactRouter from './routes/contact.js';
 import checkoutRouter from './routes/checkout.js';
 import newsletterRouter from './routes/newsletter.js';
+import categoriesRouter from './routes/categories.js';
 import { connectRedis, redis, isRedisAvailable } from './lib/redis.js';
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/api/chickens', chickensRouter);
 app.use('/api/contact', contactRouter);
 app.use('/api/checkout', checkoutRouter);
 app.use('/api/newsletter', newsletterRouter);
+app.use('/api/categories', categoriesRouter);
 
 // Health check with Redis status
 app.get('/api/health', async (_req, res) => {

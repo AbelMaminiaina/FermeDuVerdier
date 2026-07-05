@@ -7,7 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Catégories de produits
+// Catégories de produits (table dynamique)
+model Category {
+  id          String    @id @default(uuid())
+  name        String    // Nom affiché (ex: "Œufs frais")
+  slug        String    @unique // Identifiant URL (ex: "oeufs-frais")
+  description String?
+  image       String?
+  order       Int       @default(0) // Ordre d'affichage
+  isActive    Boolean   @default(true)
+
+  products    Product[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+// Ancien enum conservé pour compatibilité migration
 enum ProductCategory {
   porc
   poulet
@@ -35,7 +53,9 @@ model Product {
   id               String           @id @default(uuid())
   name             String
   slug             String           @unique
-  category         ProductCategory
+  category         ProductCategory  // Gardé pour compatibilité
+  categoryId       String?          // Nouvelle relation
+  categoryRef      Category?        @relation(fields: [categoryId], references: [id])
   description      String
   shortDescription String
   price            Int              // Prix en Ariary
