@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
 import { ProductCategory } from '@prisma/client';
-import { withCache, CACHE_TTL, CACHE_KEYS } from '../lib/cache.js';
+import { withCache, CACHE_TTL, CACHE_KEYS, invalidateProductCache } from '../lib/cache.js';
 
 const router = Router();
 
@@ -60,10 +60,13 @@ router.get('/', async (req: Request, res: Response) => {
           ];
         }
 
-        // Filter by stock status (par défaut, afficher seulement les produits en stock)
-        if (inStock !== 'false') {
+        // Filter by stock status (afficher tous les produits par défaut, y compris épuisés)
+        if (inStock === 'true') {
           where.inStock = true;
+        } else if (inStock === 'false') {
+          where.inStock = false;
         }
+        // Si inStock n'est pas spécifié, afficher tous les produits
 
         const products = await prisma.product.findMany({
           where,
@@ -177,6 +180,7 @@ router.patch('/:productId/stock', async (req: Request, res: Response) => {
       },
     });
 
+    await invalidateProductCache();
     res.json({ success: true, product });
   } catch (error) {
     console.error('Error updating product stock:', error);
@@ -224,6 +228,7 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
+    await invalidateProductCache();
     res.status(201).json({ success: true, product: transformProduct(product) });
   } catch (error) {
     console.error('Error creating product:', error);
@@ -274,6 +279,7 @@ router.put('/:productId', async (req: Request, res: Response) => {
       },
     });
 
+    await invalidateProductCache();
     res.json({ success: true, product: transformProduct(product) });
   } catch (error) {
     console.error('Error updating product:', error);
@@ -303,6 +309,7 @@ router.delete('/:productId', async (req: Request, res: Response) => {
         where: { id: productId },
         data: { inStock: false, stockQuantity: 0 },
       });
+      await invalidateProductCache();
       return res.json({
         success: true,
         message: 'Produit désactivé (conservé car lié à des commandes)'
@@ -310,6 +317,7 @@ router.delete('/:productId', async (req: Request, res: Response) => {
     }
 
     await prisma.product.delete({ where: { id: productId } });
+    await invalidateProductCache();
     res.json({ success: true, message: 'Produit supprimé' });
   } catch (error) {
     console.error('Error deleting product:', error);

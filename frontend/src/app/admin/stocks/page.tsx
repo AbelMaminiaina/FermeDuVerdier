@@ -63,7 +63,7 @@ export default function AdminStocksPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API_URL}/products?inStock=false`);
+      const res = await fetch(`${API_URL}/products`);
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || []);
