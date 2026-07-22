@@ -633,14 +633,14 @@ export default function AdminStocksPage() {
                   </div>
                   <p className="text-warm-600">
                     Voulez-vous désactiver{' '}
-                    <span className="font-semibold text-warm-800">"{deleteModal.product.name}"</span> ?
+                    <span className="font-semibold text-warm-800">&quot;{deleteModal.product.name}&quot;</span> ?
                   </p>
                 </>
               ) : (
                 <>
                   <p className="text-warm-600">
                     Voulez-vous vraiment supprimer{' '}
-                    <span className="font-semibold text-warm-800">"{deleteModal.product.name}"</span> ?
+                    <span className="font-semibold text-warm-800">&quot;{deleteModal.product.name}&quot;</span> ?
                   </p>
                   <p className="text-sm text-warm-500 mt-2">
                     Cette action est irréversible.
@@ -714,12 +714,12 @@ export default function AdminStocksPage() {
                   Ce produit est lié à {editRestrictionModal.ordersCount} commande{editRestrictionModal.ordersCount > 1 ? 's' : ''}
                 </p>
                 <p className="text-blue-700 text-sm">
-                  Pour garantir l'intégrité des historiques de commandes, ce produit ne peut plus être modifié.
+                  Pour garantir l&apos;intégrité des historiques de commandes, ce produit ne peut plus être modifié.
                 </p>
               </div>
 
               <p className="text-warm-600 mb-2">
-                <span className="font-semibold text-warm-800">"{editRestrictionModal.product.name}"</span>
+                <span className="font-semibold text-warm-800">&quot;{editRestrictionModal.product.name}&quot;</span>
               </p>
               <p className="text-sm text-warm-500">
                 Vous pouvez créer un nouveau produit basé sur celui-ci.

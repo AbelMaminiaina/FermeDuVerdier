@@ -432,18 +432,18 @@ export default function AdminCategoriesPage() {
                       Cette catégorie contient {deleteModal.category._count?.products} produit{(deleteModal.category._count?.products || 0) > 1 ? 's' : ''}
                     </p>
                     <p className="text-amber-700 text-sm">
-                      Vous devez d'abord déplacer ou supprimer les produits de cette catégorie avant de pouvoir la supprimer.
+                      Vous devez d&apos;abord déplacer ou supprimer les produits de cette catégorie avant de pouvoir la supprimer.
                     </p>
                   </div>
                   <p className="text-warm-600">
-                    <span className="font-semibold text-warm-800">"{deleteModal.category.name}"</span>
+                    <span className="font-semibold text-warm-800">&quot;{deleteModal.category.name}&quot;</span>
                   </p>
                 </>
               ) : (
                 <>
                   <p className="text-warm-600">
                     Voulez-vous vraiment supprimer la catégorie{' '}
-                    <span className="font-semibold text-warm-800">"{deleteModal.category.name}"</span> ?
+                    <span className="font-semibold text-warm-800">&quot;{deleteModal.category.name}&quot;</span> ?
                   </p>
                   <p className="text-sm text-warm-500 mt-2">
                     Cette action est irréversible.
