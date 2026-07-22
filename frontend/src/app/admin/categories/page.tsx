@@ -11,6 +11,9 @@ import {
   Eye,
   EyeOff,
   Package,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 
@@ -38,6 +41,21 @@ export default function AdminCategoriesPage() {
   const [form, setForm] = useState({ name: '', description: '', image: '', isActive: true });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Delete confirmation modal
+  const [deleteModal, setDeleteModal] = useState<{ category: Category } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Toast notification
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   useEffect(() => {
     fetchCategories();
@@ -113,26 +131,50 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // Delete category
-  const deleteCategory = async (id: string, name: string, productCount: number) => {
+  // Open delete modal
+  const openDeleteModal = (category: Category) => {
+    setDeleteModal({ category });
+  };
+
+  // Confirm delete category
+  const confirmDelete = async () => {
+    if (!deleteModal) return;
+
+    const { category } = deleteModal;
+    const productCount = category._count?.products || 0;
+
+    // Check if category has products
     if (productCount > 0) {
-      alert(`Impossible de supprimer "${name}" : ${productCount} produit(s) dans cette catégorie.`);
+      setToast({
+        type: 'error',
+        message: `Impossible de supprimer : ${productCount} produit(s) lié(s)`
+      });
+      setDeleteModal(null);
       return;
     }
 
-    if (!confirm(`Supprimer la catégorie "${name}" ?`)) return;
-
+    setDeleting(true);
     try {
-      const res = await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/categories/${category.id}`, { method: 'DELETE' });
       const data = await res.json();
 
       if (res.ok) {
-        setCategories(prev => prev.filter(c => c.id !== id));
+        setCategories(prev => prev.filter(c => c.id !== category.id));
+        setToast({
+          type: 'success',
+          message: `"${category.name}" supprimée avec succès`
+        });
       } else {
-        alert(data.error || 'Erreur lors de la suppression');
+        setToast({
+          type: 'error',
+          message: data.error || 'Erreur lors de la suppression'
+        });
       }
     } catch (e) {
-      console.error('Error:', e);
+      setToast({ type: 'error', message: 'Erreur de connexion au serveur' });
+    } finally {
+      setDeleting(false);
+      setDeleteModal(null);
     }
   };
 
@@ -259,7 +301,7 @@ export default function AdminCategoriesPage() {
                         <Edit2 className="h-4 w-4 text-prairie-600" />
                       </button>
                       <button
-                        onClick={() => deleteCategory(category.id, category.name, category._count?.products || 0)}
+                        onClick={() => openDeleteModal(category)}
                         className="p-2 hover:bg-red-50 rounded"
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
@@ -356,6 +398,114 @@ export default function AdminCategoriesPage() {
                 {modal.mode === 'edit' ? 'Enregistrer' : 'Créer'}
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            {/* Icon */}
+            <div className="pt-6 pb-2 flex justify-center">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                (deleteModal.category._count?.products || 0) > 0 ? 'bg-amber-100' : 'bg-red-100'
+              }`}>
+                {(deleteModal.category._count?.products || 0) > 0 ? (
+                  <AlertTriangle className="h-8 w-8 text-amber-600" />
+                ) : (
+                  <Trash2 className="h-8 w-8 text-red-600" />
+                )}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-4 text-center">
+              <h3 className="text-xl font-bold text-warm-800 mb-2">
+                {(deleteModal.category._count?.products || 0) > 0 ? 'Suppression impossible' : 'Confirmer la suppression'}
+              </h3>
+
+              {(deleteModal.category._count?.products || 0) > 0 ? (
+                <>
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                    <p className="text-amber-800 font-medium mb-1">
+                      Cette catégorie contient {deleteModal.category._count?.products} produit{(deleteModal.category._count?.products || 0) > 1 ? 's' : ''}
+                    </p>
+                    <p className="text-amber-700 text-sm">
+                      Vous devez d'abord déplacer ou supprimer les produits de cette catégorie avant de pouvoir la supprimer.
+                    </p>
+                  </div>
+                  <p className="text-warm-600">
+                    <span className="font-semibold text-warm-800">"{deleteModal.category.name}"</span>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-warm-600">
+                    Voulez-vous vraiment supprimer la catégorie{' '}
+                    <span className="font-semibold text-warm-800">"{deleteModal.category.name}"</span> ?
+                  </p>
+                  <p className="text-sm text-warm-500 mt-2">
+                    Cette action est irréversible.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 px-6 py-4 bg-warm-50">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteModal(null)}
+                disabled={deleting}
+                className="flex-1"
+              >
+                {(deleteModal.category._count?.products || 0) > 0 ? 'Fermer' : 'Annuler'}
+              </Button>
+              {(deleteModal.category._count?.products || 0) === 0 && (
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  {deleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Suppression...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      Supprimer
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+          <div className={`flex items-center gap-3 px-5 py-4 rounded-xl shadow-lg ${
+            toast.type === 'success'
+              ? 'bg-green-600 text-white'
+              : 'bg-red-600 text-white'
+          }`}>
+            {toast.type === 'success' ? (
+              <CheckCircle className="h-5 w-5 shrink-0" />
+            ) : (
+              <XCircle className="h-5 w-5 shrink-0" />
+            )}
+            <span className="font-medium">{toast.message}</span>
+            <button
+              onClick={() => setToast(null)}
+              className="ml-2 p-1 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}

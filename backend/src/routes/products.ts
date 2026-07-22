@@ -10,6 +10,7 @@ function transformProduct(p: any) {
   return {
     ...p,
     category: p.category.replace('_', '-'),
+    isActive: p.isActive ?? true,
     metadata: {
       race: p.race,
       eggColor: p.eggColor,
@@ -23,10 +24,10 @@ function transformProduct(p: any) {
 // Get all products with filters
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { category, search, inStock } = req.query;
+    const { category, search, inStock, includeInactive } = req.query;
 
     // Build cache key based on query params
-    const cacheKey = `${CACHE_KEYS.PRODUCTS}:list:${category || 'all'}:${search || ''}:${inStock || ''}`;
+    const cacheKey = `${CACHE_KEYS.PRODUCTS}:list:${category || 'all'}:${search || ''}:${inStock || ''}:${includeInactive || ''}`;
 
     const result = await withCache(
       cacheKey,
@@ -66,7 +67,11 @@ router.get('/', async (req: Request, res: Response) => {
         } else if (inStock === 'false') {
           where.inStock = false;
         }
-        // Si inStock n'est pas spécifié, afficher tous les produits
+
+        // Filter by active status (masquer les produits inactifs par défaut)
+        if (includeInactive !== 'true') {
+          where.isActive = true;
+        }
 
         const products = await prisma.product.findMany({
           where,
@@ -287,6 +292,55 @@ router.put('/:productId', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+// Toggle product visibility (isActive)
+router.patch('/:productId/visibility', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const { isActive } = req.body;
+
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: { isActive: isActive ?? false },
+    });
+
+    await invalidateProductCache();
+    res.json({
+      success: true,
+      isActive: product.isActive,
+      message: product.isActive ? 'Produit visible dans le catalogue' : 'Produit masqué du catalogue'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Check if product has orders (for delete warning)
+router.get('/:productId/has-orders', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+
+    const orderItem = await prisma.orderItem.findFirst({
+      where: { productId },
+      include: {
+        order: {
+          select: { orderNumber: true, createdAt: true }
+        }
+      }
+    });
+
+    const ordersCount = await prisma.orderItem.count({
+      where: { productId }
+    });
+
+    res.json({
+      hasOrders: !!orderItem,
+      ordersCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 

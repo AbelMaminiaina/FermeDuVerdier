@@ -9,8 +9,6 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductFilter from '@/components/products/ProductFilter';
 import { fadeInUp } from '@/lib/animations';
 
-type ProductCategory = 'all' | 'porc' | 'poulet' | 'poisson' | 'akanga' | 'caille';
-
 interface ProductsClientProps {
   initialProducts: Product[];
 }
@@ -19,25 +17,31 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get('categorie');
 
-  const [selectedCategory, setSelectedCategory] = useState<ProductCategory>(
-    (categoryParam as ProductCategory) || 'all'
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    categoryParam || 'all'
   );
 
   useEffect(() => {
-    if (categoryParam && ['porc', 'poulet', 'poisson', 'akanga', 'caille'].includes(categoryParam)) {
-      setSelectedCategory(categoryParam as ProductCategory);
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
     }
   }, [categoryParam]);
 
   const filteredProducts = useMemo(() => {
     if (selectedCategory === 'all') return initialProducts;
-    return initialProducts.filter((p) => p.category === selectedCategory);
+    // Gérer les deux formats de catégorie (avec tirets et underscores)
+    return initialProducts.filter((p) =>
+      p.category === selectedCategory ||
+      p.category.replace(/-/g, '_') === selectedCategory.replace(/-/g, '_')
+    );
   }, [selectedCategory, initialProducts]);
 
   const productCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     initialProducts.forEach((p) => {
-      counts[p.category] = (counts[p.category] || 0) + 1;
+      // Normaliser le slug de catégorie (tirets)
+      const slug = p.category.replace(/_/g, '-');
+      counts[slug] = (counts[slug] || 0) + 1;
     });
     return counts;
   }, [initialProducts]);
@@ -79,8 +83,6 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
       </section>
 
       <div className="container mx-auto px-4 py-12">
-        {/* Header removed - now in hero */}
-
         {/* Filters */}
         <motion.div
           className="flex justify-center mb-8"

@@ -62,13 +62,21 @@ export function getProductivityColor(productivity: string): string {
 }
 
 export function getCategoryLabel(category: string): string {
+  // Normaliser la catégorie (remplacer tirets par underscores)
+  const normalized = category.replace(/-/g, '_');
   const labels: Record<string, string> = {
-    'porc': 'Viande de porc',
-    'poulet': 'Viande de poulet',
-    'poisson': 'Poissons',
+    'porc': 'Porc',
+    'poulet': 'Poulet',
+    'poisson': 'Poisson',
+    'akanga': 'Akanga (Pintade)',
+    'caille': 'Caille',
     'transformes': 'Produits transformés',
+    'oeufs_frais': 'Oeufs frais',
+    'oeufs_fecondes': 'Oeufs fécondés',
+    'poules': 'Poules',
+    'accessoires': 'Accessoires',
   };
-  return labels[category] || category;
+  return labels[normalized] || labels[category] || category;
 }
 
 export function getBadgeLabel(badge: string): string {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -22,45 +22,39 @@ import {
   Truck,
   Gift,
   Package,
+  LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
+import { useCategories, Category } from '@/hooks/useCategories';
 import CartDrawer from '../cart/CartDrawer';
 
-const navigation = [
+// Mapping des icônes par slug de catégorie
+const categoryIcons: Record<string, { icon: LucideIcon; color: string }> = {
+  'porc': { icon: Beef, color: 'text-rose-500' },
+  'poulet': { icon: Bird, color: 'text-orange-500' },
+  'poisson': { icon: Fish, color: 'text-blue-500' },
+  'akanga': { icon: Bird, color: 'text-amber-600' },
+  'caille': { icon: Bird, color: 'text-yellow-600' },
+  'transformes': { icon: Package, color: 'text-purple-500' },
+  'oeufs-frais': { icon: Egg, color: 'text-amber-500' },
+  'oeufs-fecondes': { icon: Egg, color: 'text-orange-400' },
+  'poules': { icon: Bird, color: 'text-red-500' },
+  'accessoires': { icon: Package, color: 'text-gray-500' },
+};
+
+const staticNavigation = [
   { name: 'Accueil', href: '/' },
-  {
-    name: 'Produits',
-    href: '/produits',
-    submenu: [
-      { name: 'Tous les produits', href: '/produits', icon: Sparkles, color: 'text-purple-500' },
-      { name: 'Viande de porc', href: '/produits?categorie=porc', icon: Beef, color: 'text-rose-500' },
-      { name: 'Poissons frais', href: '/produits?categorie=poisson', icon: Fish, color: 'text-blue-500' },
-      { name: 'Poulet', href: '/produits?categorie=poulet', icon: Bird, color: 'text-orange-500' },
-      { name: 'Akanga', href: '/produits?categorie=akanga', icon: Bird, color: 'text-amber-600' },
-      { name: 'Caille', href: '/produits?categorie=caille', icon: Bird, color: 'text-yellow-600' },
-    ],
-  },
   { name: 'Notre Élevage', href: '/notre-elevage' },
   { name: 'Services', href: '/services' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
 ];
 
-const menuItemVariants = {
-  hidden: { opacity: 1 },
-  visible: { opacity: 1 },
-};
-
 const submenuVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.15 } },
   exit: { opacity: 0, transition: { duration: 0.1 } },
-};
-
-const submenuItemVariants = {
-  hidden: { opacity: 1 },
-  visible: { opacity: 1 },
 };
 
 export function Header() {
@@ -73,6 +67,35 @@ export function Header() {
   const pathname = usePathname();
   const cart = useCart();
   const { data: session, status } = useSession();
+  const { categories } = useCategories();
+
+  // Construire le menu de navigation avec les catégories dynamiques
+  const navigation = useMemo(() => {
+    const produitsSubmenu = [
+      { name: 'Tous les produits', href: '/produits', icon: Sparkles, color: 'text-purple-500' },
+      ...categories
+        .filter(c => c.isActive)
+        .map(c => ({
+          name: c.name,
+          href: `/produits?categorie=${c.slug}`,
+          icon: categoryIcons[c.slug]?.icon || Package,
+          color: categoryIcons[c.slug]?.color || 'text-gray-500',
+        })),
+    ];
+
+    return [
+      { name: 'Accueil', href: '/' },
+      {
+        name: 'Produits',
+        href: '/produits',
+        submenu: produitsSubmenu,
+      },
+      { name: 'Notre Élevage', href: '/notre-elevage' },
+      { name: 'Services', href: '/services' },
+      { name: 'Blog', href: '/blog' },
+      { name: 'Contact', href: '/contact' },
+    ];
+  }, [categories]);
 
   useEffect(() => {
     setIsMounted(true);
