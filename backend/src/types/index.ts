@@ -3,7 +3,7 @@ export interface Product {
   id: string;
   name: string;
   slug: string;
-  category: ProductCategory;
+  category: string;
   description: string;
   shortDescription: string;
   price: number;
@@ -17,16 +17,6 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
 }
-
-export type ProductCategory =
-  | 'porc'
-  | 'poulet'
-  | 'poisson'
-  | 'transformes'
-  | 'oeufs-frais'
-  | 'oeufs-fecondes'
-  | 'poules'
-  | 'accessoires';
 
 export type ProductBadge = 'bio' | 'plein-air' | 'nouveau' | 'promo' | 'populaire';
 

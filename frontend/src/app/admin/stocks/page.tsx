@@ -243,9 +243,12 @@ export default function AdminStocksPage() {
       if (res.ok) {
         await fetchProducts();
         setModal(null);
+      } else {
+        const data = await res.json().catch(() => null);
+        setToast({ type: 'error', message: data?.error || 'Erreur lors de l\'enregistrement du produit' });
       }
     } catch (e) {
-      console.error('Error:', e);
+      setToast({ type: 'error', message: 'Erreur lors de l\'enregistrement du produit' });
     } finally {
       setSaving(false);
     }

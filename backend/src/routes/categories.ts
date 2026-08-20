@@ -3,19 +3,8 @@ import prisma from '../lib/prisma.js';
 
 const router = Router();
 
-// Map slug to enum value for counting
-const slugToEnum: Record<string, string> = {
-  'porc': 'porc',
-  'poulet': 'poulet',
-  'poisson': 'poisson',
-  'akanga': 'akanga',
-  'caille': 'caille',
-  'transformes': 'transformes',
-  'oeufs-frais': 'oeufs_frais',
-  'oeufs-fecondes': 'oeufs_fecondes',
-  'poules': 'poules',
-  'accessoires': 'accessoires',
-};
+// Product.category is stored with underscores (historical), Category.slug uses dashes
+const slugToProductCategory = (slug: string) => slug.replace(/-/g, '_');
 
 // Get all categories
 router.get('/', async (_req: Request, res: Response) => {
@@ -24,15 +13,12 @@ router.get('/', async (_req: Request, res: Response) => {
       orderBy: { order: 'asc' },
     });
 
-    // Count products using the category enum field
+    // Count products using the category field
     const categoriesWithCount = await Promise.all(
       categories.map(async (cat) => {
-        const enumValue = slugToEnum[cat.slug];
-        const productCount = enumValue
-          ? await prisma.product.count({
-              where: { category: enumValue as any },
-            })
-          : 0;
+        const productCount = await prisma.product.count({
+          where: { category: slugToProductCategory(cat.slug) },
+        });
         return {
           ...cat,
           _count: { products: productCount }
@@ -64,12 +50,9 @@ router.get('/active', async (_req: Request, res: Response) => {
     // Get stock counts for each category
     const categoriesWithStock = await Promise.all(
       categories.map(async (cat) => {
-        const enumValue = slugToEnum[cat.slug];
-        const inStockCount = enumValue
-          ? await prisma.product.count({
-              where: { category: enumValue as any, inStock: true },
-            })
-          : 0;
+        const inStockCount = await prisma.product.count({
+          where: { category: slugToProductCategory(cat.slug), inStock: true },
+        });
         return { ...cat, inStockCount };
       })
     );
@@ -218,13 +201,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Catégorie non trouvée' });
     }
 
-    // Check if category has products using the enum field
-    const enumValue = slugToEnum[existing.slug];
-    const productCount = enumValue
-      ? await prisma.product.count({
-          where: { category: enumValue as any },
-        })
-      : 0;
+    // Check if category has products
+    const productCount = await prisma.product.count({
+      where: { category: slugToProductCategory(existing.slug) },
+    });
 
     if (productCount > 0) {
       return res.status(400).json({

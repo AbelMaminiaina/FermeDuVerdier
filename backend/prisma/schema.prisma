@@ -25,20 +25,6 @@ model Category {
   @@map("categories")
 }
 
-// Ancien enum conservé pour compatibilité migration
-enum ProductCategory {
-  porc
-  poulet
-  poisson
-  akanga
-  caille
-  transformes
-  oeufs_frais
-  oeufs_fecondes
-  poules
-  accessoires
-}
-
 // Badges des produits
 enum ProductBadge {
   bio
@@ -53,7 +39,7 @@ model Product {
   id               String           @id @default(uuid())
   name             String
   slug             String           @unique
-  category         ProductCategory  // Gardé pour compatibilité
+  category         String           // Slug de catégorie (underscores), libre — voir table Category
   categoryId       String?          // Nouvelle relation
   categoryRef      Category?        @relation(fields: [categoryId], references: [id])
   description      String

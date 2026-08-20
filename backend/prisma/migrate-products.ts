@@ -1,4 +1,4 @@
-import { PrismaClient, ProductCategory, ProductBadge } from '@prisma/client';
+import { PrismaClient, ProductBadge } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -64,7 +64,7 @@ async function main() {
     create: {
       name: 'Porc Entier Mort',
       slug: 'porc-entier-mort',
-      category: 'porc' as ProductCategory,
+      category: 'porc',
       description: 'Porc entier déjà abattu, élevé dans nos enclos spacieux à la Ferme du Vardier. Vendu au kg, idéal pour les grandes occasions, mariages et événements familiaux.',
       shortDescription: 'Porc entier mort de notre élevage, vendu au kg.',
       price: 12000,
@@ -82,7 +82,7 @@ async function main() {
     {
       name: 'Akoho Gasy (Poulet Entier)',
       slug: 'akoho-gasy-poulet-entier',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Poulet fermier malgache (Akoho Gasy) élevé en plein air à la Ferme du Vardier. Chair ferme et savoureuse, idéal pour les plats traditionnels.',
       shortDescription: 'Poulet fermier malgache entier, élevé en plein air.',
       price: 25000,
@@ -96,7 +96,7 @@ async function main() {
     {
       name: 'Poule Soie Mâle',
       slug: 'poule-soie-male',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Coq Soie élevé à la Ferme du Vardier. Race ornementale au plumage soyeux unique, très apprécié pour son caractère docile et son apparence exceptionnelle.',
       shortDescription: 'Coq Soie, race ornementale au plumage soyeux.',
       price: 40000,
@@ -110,7 +110,7 @@ async function main() {
     {
       name: 'Brahma Femelle',
       slug: 'brahma-femelle',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Poule Brahma femelle, une race majestueuse et robuste élevée à la Ferme du Vardier. Excellente pondeuse et volaille d\'ornement très appréciée.',
       shortDescription: 'Poule Brahma femelle, race noble et majestueuse.',
       price: 35000,
@@ -124,7 +124,7 @@ async function main() {
     {
       name: 'Caille Entière',
       slug: 'caille-entiere',
-      category: 'caille' as ProductCategory,
+      category: 'caille',
       description: 'Caille fermière élevée à la Ferme du Vardier. Viande délicate et raffinée, parfaite pour les repas gastronomiques.',
       shortDescription: 'Caille fermière entière, viande délicate.',
       price: 15000,
@@ -138,7 +138,7 @@ async function main() {
     {
       name: 'Akanga (Pintade)',
       slug: 'akanga-pintade',
-      category: 'akanga' as ProductCategory,
+      category: 'akanga',
       description: 'Pintade (Akanga) élevée en plein air à la Ferme du Vardier. Viande goûteuse et savoureuse, entre le poulet et le gibier.',
       shortDescription: 'Pintade fermière entière, viande savoureuse.',
       price: 35000,
@@ -152,7 +152,7 @@ async function main() {
     {
       name: 'Œufs Fécondés - Boîte de 6',
       slug: 'oeufs-fecondes-boite-6',
-      category: 'oeufs_fecondes' as ProductCategory,
+      category: 'oeufs_fecondes',
       description: 'Œufs fécondés de notre élevage, prêts pour l\'incubation. Idéal pour démarrer votre propre élevage de poules.',
       shortDescription: 'Œufs fécondés pour incubation, boîte de 6.',
       price: 18000,

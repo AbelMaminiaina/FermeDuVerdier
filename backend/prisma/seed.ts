@@ -1,4 +1,4 @@
-import { PrismaClient, ProductCategory, ProductBadge } from '@prisma/client';
+import { PrismaClient, ProductBadge } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +21,7 @@ async function main() {
     {
       name: 'Porc Entier Mort',
       slug: 'porc-entier-mort',
-      category: 'porc' as ProductCategory,
+      category: 'porc',
       description: 'Porc entier déjà abattu, élevé dans nos enclos spacieux à la Ferme du Vardier. Vendu au kg, idéal pour les grandes occasions, mariages et événements familiaux.',
       shortDescription: 'Porc entier mort de notre élevage, vendu au kg.',
       price: 12000,
@@ -35,7 +35,7 @@ async function main() {
     {
       name: 'Demi Porc',
       slug: 'demi-porc',
-      category: 'porc' as ProductCategory,
+      category: 'porc',
       description: 'Demi-porc de notre élevage, parfait pour les familles ou les petits restaurants.',
       shortDescription: 'Demi-porc frais, idéal pour les familles.',
       price: 420000,
@@ -50,7 +50,7 @@ async function main() {
     {
       name: 'Tilapia - Lot de 5kg',
       slug: 'tilapia-lot-5kg',
-      category: 'poisson' as ProductCategory,
+      category: 'poisson',
       description: 'Lot économique de 5kg de tilapia frais de Madagascar. Idéal pour les familles et les restaurants.',
       shortDescription: 'Lot économique de tilapia malgache.',
       price: 90000,
@@ -65,7 +65,7 @@ async function main() {
     {
       name: 'Tilapia Entier (pièce)',
       slug: 'tilapia-entier-piece',
-      category: 'poisson' as ProductCategory,
+      category: 'poisson',
       description: 'Tilapia entier de Madagascar, prêt à cuisiner. Parfait pour griller ou braiser à la malgache.',
       shortDescription: 'Tilapia entier frais, prêt à cuisiner.',
       price: 12000,
@@ -80,7 +80,7 @@ async function main() {
     {
       name: 'Akoho Gasy (Poulet Entier)',
       slug: 'akoho-gasy-poulet-entier',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Poulet fermier malgache (Akoho Gasy) élevé en plein air à la Ferme du Vardier. Chair ferme et savoureuse, idéal pour les plats traditionnels.',
       shortDescription: 'Poulet fermier malgache entier, élevé en plein air.',
       price: 25000,
@@ -94,7 +94,7 @@ async function main() {
     {
       name: 'Poule Soie Mâle',
       slug: 'poule-soie-male',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Coq Soie élevé à la Ferme du Vardier. Race ornementale au plumage soyeux unique, très apprécié pour son caractère docile et son apparence exceptionnelle.',
       shortDescription: 'Coq Soie, race ornementale au plumage soyeux.',
       price: 40000,
@@ -108,7 +108,7 @@ async function main() {
     {
       name: 'Brahma Femelle',
       slug: 'brahma-femelle',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Poule Brahma femelle, une race majestueuse et robuste élevée à la Ferme du Vardier. Excellente pondeuse et volaille d\'ornement très appréciée.',
       shortDescription: 'Poule Brahma femelle, race noble et majestueuse.',
       price: 35000,
@@ -122,7 +122,7 @@ async function main() {
     {
       name: 'Caille Entière',
       slug: 'caille-entiere',
-      category: 'caille' as ProductCategory,
+      category: 'caille',
       description: 'Caille fermière élevée à la Ferme du Vardier. Viande délicate et raffinée, parfaite pour les repas gastronomiques.',
       shortDescription: 'Caille fermière entière, viande délicate.',
       price: 15000,
@@ -136,7 +136,7 @@ async function main() {
     {
       name: 'Akanga (Pintade)',
       slug: 'akanga-pintade',
-      category: 'akanga' as ProductCategory,
+      category: 'akanga',
       description: 'Pintade (Akanga) élevée en plein air à la Ferme du Vardier. Viande goûteuse et savoureuse, entre le poulet et le gibier.',
       shortDescription: 'Pintade fermière entière, viande savoureuse.',
       price: 35000,
@@ -151,7 +151,7 @@ async function main() {
     {
       name: 'Poulet Entier Fermier',
       slug: 'poulet-entier-fermier',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Poulet fermier élevé en plein air à la Ferme du Vardier. Chair ferme et savoureuse, idéal pour les rôtis du dimanche.',
       shortDescription: 'Poulet fermier entier élevé en plein air.',
       price: 35000,
@@ -165,7 +165,7 @@ async function main() {
     {
       name: 'Cuisses de Poulet (1kg)',
       slug: 'cuisses-de-poulet-1kg',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Cuisses de poulet fermier, parfaites pour grillades ou braisées.',
       shortDescription: 'Cuisses de poulet fermier tendres et juteuses.',
       price: 22000,
@@ -179,7 +179,7 @@ async function main() {
     {
       name: 'Filets de Poulet (1kg)',
       slug: 'filets-de-poulet-1kg',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Filets de poulet fermier, viande maigre et tendre pour tous vos plats.',
       shortDescription: 'Filets de poulet maigres et tendres.',
       price: 28000,
@@ -193,7 +193,7 @@ async function main() {
     {
       name: 'Ailes de Poulet (1kg)',
       slug: 'ailes-de-poulet-1kg',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Ailes de poulet fermier, parfaites pour les apéritifs et les grillades.',
       shortDescription: 'Ailes de poulet croustillantes pour apéritifs.',
       price: 18000,
@@ -207,7 +207,7 @@ async function main() {
     {
       name: 'Lot de 5 Poulets Fermiers',
       slug: 'lot-5-poulets-fermiers',
-      category: 'poulet' as ProductCategory,
+      category: 'poulet',
       description: 'Lot économique de 5 poulets fermiers entiers. Parfait pour les grandes familles ou les événements.',
       shortDescription: 'Lot économique de 5 poulets fermiers.',
       price: 160000,
@@ -223,7 +223,7 @@ async function main() {
     {
       name: 'Lard Fumé (500g)',
       slug: 'lard-fume-500g',
-      category: 'transformes' as ProductCategory,
+      category: 'transformes',
       description: 'Lard fumé artisanalement sur bois de fruit.',
       shortDescription: 'Lard fumé artisanal pour cuisine.',
       price: 18000,
@@ -238,7 +238,7 @@ async function main() {
     {
       name: 'Œufs d\'Été - Boîte de 6',
       slug: 'oeufs-ete-boite-6',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Nos œufs d\'été proviennent de poules élevées en plein air à la Ferme du Vardier. Fraîcheur garantie et qualité exceptionnelle.',
       shortDescription: 'Œufs frais de saison, boîte de 6.',
       price: 15000,
@@ -252,7 +252,7 @@ async function main() {
     {
       name: 'Œufs Bio - Boîte de 6',
       slug: 'oeufs-bio-boite-6',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Nos œufs bio proviennent de poules élevées en plein air, nourries exclusivement avec des aliments certifiés agriculture biologique.',
       shortDescription: 'Œufs frais de poules élevées en plein air, certifiés bio.',
       price: 20000,
@@ -266,7 +266,7 @@ async function main() {
     {
       name: 'Œufs Bio - Boîte de 12',
       slug: 'oeufs-bio-boite-12',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Notre boîte familiale de 12 œufs bio, idéale pour les familles ou les amateurs de pâtisserie.',
       shortDescription: 'Format familial de nos délicieux œufs bio.',
       price: 38000,
@@ -281,7 +281,7 @@ async function main() {
     {
       name: 'Plateau 30 œufs Plein Air',
       slug: 'plateau-30-oeufs-plein-air',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Le plateau idéal pour les grandes familles ou les professionnels.',
       shortDescription: 'Grand plateau de 30 œufs pour les familles nombreuses.',
       price: 81000,
@@ -295,7 +295,7 @@ async function main() {
     {
       name: 'Œufs Extra-Frais du Jour - Boîte de 6',
       slug: 'oeufs-extra-frais-jour-6',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Œufs ramassés le matin même, livrés dans la journée. Fraîcheur maximale garantie.',
       shortDescription: 'Œufs ramassés le matin même pour une fraîcheur optimale.',
       price: 18000,
@@ -309,7 +309,7 @@ async function main() {
     {
       name: 'Œufs Gros Calibre - Boîte de 12',
       slug: 'oeufs-gros-calibre-12',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Sélection de nos plus gros œufs, calibre XL. Parfaits pour la pâtisserie et les omelettes généreuses.',
       shortDescription: 'Œufs calibre XL pour pâtisserie et cuisine.',
       price: 42000,
@@ -323,7 +323,7 @@ async function main() {
     {
       name: 'Œufs de Marans - Boîte de 6',
       slug: 'oeufs-marans-6',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Œufs de nos poules Marans, célèbres pour leur coquille chocolat. Un délice visuel et gustatif.',
       shortDescription: 'Œufs chocolat de nos Marans, rares et savoureux.',
       price: 25000,
@@ -337,7 +337,7 @@ async function main() {
     {
       name: 'Œufs Bleus Araucana - Boîte de 6',
       slug: 'oeufs-bleus-araucana-6',
-      category: 'oeufs_frais' as ProductCategory,
+      category: 'oeufs_frais',
       description: 'Œufs naturellement bleu-vert de nos Araucanas. Une curiosité de la nature à déguster.',
       shortDescription: 'Œufs bleus naturels, une expérience unique.',
       price: 28000,
@@ -352,7 +352,7 @@ async function main() {
     {
       name: 'Œufs Fécondés - Boîte de 6',
       slug: 'oeufs-fecondes-boite-6',
-      category: 'oeufs_fecondes' as ProductCategory,
+      category: 'oeufs_fecondes',
       description: 'Œufs fécondés de notre élevage, prêts pour l\'incubation. Idéal pour démarrer votre propre élevage de poules.',
       shortDescription: 'Œufs fécondés pour incubation, boîte de 6.',
       price: 18000,
@@ -366,7 +366,7 @@ async function main() {
     {
       name: 'Œufs fécondés Marans',
       slug: 'oeufs-fecondes-marans',
-      category: 'oeufs_fecondes' as ProductCategory,
+      category: 'oeufs_fecondes',
       description: 'Œufs fécondés de notre lignée de Marans noire cuivrée, célèbre pour ses œufs extra-roux.',
       shortDescription: 'Œufs fécondés pour faire naître vos propres Marans.',
       price: 15500,
@@ -381,7 +381,7 @@ async function main() {
     {
       name: 'Œufs fécondés Sussex',
       slug: 'oeufs-fecondes-sussex',
-      category: 'oeufs_fecondes' as ProductCategory,
+      category: 'oeufs_fecondes',
       description: 'Œufs fécondés de Sussex herminée, une race anglaise réputée pour sa docilité.',
       shortDescription: 'Œufs fécondés Sussex, idéal pour débutants.',
       price: 13500,
@@ -396,7 +396,7 @@ async function main() {
     {
       name: 'Œufs fécondés Araucana',
       slug: 'oeufs-fecondes-araucana',
-      category: 'oeufs_fecondes' as ProductCategory,
+      category: 'oeufs_fecondes',
       description: 'Découvrez les fameux œufs bleus ! L\'Araucana est une race chilienne unique.',
       shortDescription: 'Les fameux œufs bleus pour votre basse-cour.',
       price: 18000,
@@ -412,7 +412,7 @@ async function main() {
     {
       name: 'Poule Rousse Pondeuse',
       slug: 'poule-rousse-pondeuse',
-      category: 'poules' as ProductCategory,
+      category: 'poules',
       description: 'Notre poule rousse fermière est une valeur sûre ! Pondeuse exceptionnelle.',
       shortDescription: 'La poule pondeuse par excellence, productive et docile.',
       price: 81000,
@@ -427,7 +427,7 @@ async function main() {
     {
       name: 'Poule Sussex Herminée',
       slug: 'poule-sussex-herminee',
-      category: 'poules' as ProductCategory,
+      category: 'poules',
       description: 'La Sussex herminée est une magnifique poule au plumage blanc avec le camail noir.',
       shortDescription: 'Élégante poule anglaise au plumage blanc et noir.',
       price: 112500,
@@ -442,7 +442,7 @@ async function main() {
     {
       name: 'Poule Marans Noire Cuivrée',
       slug: 'poule-marans-noire-cuivree',
-      category: 'poules' as ProductCategory,
+      category: 'poules',
       description: 'La Marans est LA poule française par excellence, célèbre pour ses œufs "extra-roux".',
       shortDescription: 'La reine des œufs extra-roux, plumage noir cuivré.',
       price: 135000,
@@ -457,7 +457,7 @@ async function main() {
     {
       name: 'Poule Araucana',
       slug: 'poule-araucana',
-      category: 'poules' as ProductCategory,
+      category: 'poules',
       description: 'L\'Araucana vous surprendra avec ses œufs naturellement bleu-vert !',
       shortDescription: 'La poule aux œufs bleus, originaire du Chili.',
       price: 157500,
@@ -472,7 +472,7 @@ async function main() {
     {
       name: 'Poule Soie Blanche',
       slug: 'poule-soie-blanche',
-      category: 'poules' as ProductCategory,
+      category: 'poules',
       description: 'La poule Soie est irrésistible avec son plumage duveteux qui ressemble à de la soie !',
       shortDescription: 'Adorable poule d\'ornement au plumage soyeux.',
       price: 180000,
@@ -488,7 +488,7 @@ async function main() {
     {
       name: 'Poulailler Bois 4-6 Poules',
       slug: 'poulailler-bois-4-6-poules',
-      category: 'accessoires' as ProductCategory,
+      category: 'accessoires',
       description: 'Poulailler en bois traité autoclave, parfait pour 4 à 6 poules.',
       shortDescription: 'Poulailler robuste en bois pour 4 à 6 poules.',
       price: 850000,
@@ -502,7 +502,7 @@ async function main() {
     {
       name: 'Aliment Poules Pondeuses Bio 20kg',
       slug: 'aliment-poules-pondeuses-bio-20kg',
-      category: 'accessoires' as ProductCategory,
+      category: 'accessoires',
       description: 'Aliment complet bio pour poules pondeuses, formulé pour une ponte optimale.',
       shortDescription: 'Aliment complet bio pour une ponte optimale.',
       price: 112000,
@@ -516,7 +516,7 @@ async function main() {
     {
       name: 'Abreuvoir Automatique 5L',
       slug: 'abreuvoir-automatique-5l',
-      category: 'accessoires' as ProductCategory,
+      category: 'accessoires',
       description: 'Abreuvoir à réserve de 5 litres avec niveau constant.',
       shortDescription: 'Abreuvoir pratique à remplissage facile.',
       price: 58000,
@@ -529,7 +529,7 @@ async function main() {
     {
       name: 'Mangeoire Anti-Gaspillage 10kg',
       slug: 'mangeoire-anti-gaspillage-10kg',
-      category: 'accessoires' as ProductCategory,
+      category: 'accessoires',
       description: 'Mangeoire avec grille anti-gaspillage qui empêche les poules de gratter.',
       shortDescription: 'Mangeoire grande capacité anti-gaspillage.',
       price: 135000,

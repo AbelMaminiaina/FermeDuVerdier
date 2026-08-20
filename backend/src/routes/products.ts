@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
-import { ProductCategory } from '@prisma/client';
 import { withCache, CACHE_TTL, CACHE_KEYS, invalidateProductCache } from '../lib/cache.js';
 
 const router = Router();
@@ -35,21 +34,9 @@ router.get('/', async (req: Request, res: Response) => {
       async () => {
         const where: any = {};
 
-        // Filter by category
+        // Filter by category (slugs are dash-separated, stored values use underscores)
         if (category && category !== 'all') {
-          const categoryMap: Record<string, ProductCategory> = {
-            'porc': 'porc',
-            'poulet': 'poulet',
-            'poisson': 'poisson',
-            'akanga': 'akanga',
-            'caille': 'caille',
-            'transformes': 'transformes',
-            'oeufs-frais': 'oeufs_frais',
-            'oeufs-fecondes': 'oeufs_fecondes',
-            'poules': 'poules',
-            'accessoires': 'accessoires',
-          };
-          where.category = categoryMap[category as string] || category;
+          where.category = (category as string).replace(/-/g, '_');
         }
 
         // Filter by search term
@@ -196,6 +183,17 @@ router.patch('/:productId/stock', async (req: Request, res: Response) => {
   }
 });
 
+// A product's category must match an existing entry in the dynamic categories table
+// (categories are managed freely from /admin/categories; slugs use dashes there, but are
+// stored on Product with underscores for historical reasons).
+async function isValidProductCategory(category: unknown): Promise<boolean> {
+  if (typeof category !== 'string' || !category) return false;
+  const match = await prisma.category.findFirst({
+    where: { slug: category.replace(/_/g, '-') },
+  });
+  return Boolean(match);
+}
+
 // Generate slug from name
 function generateSlug(name: string): string {
   return name
@@ -215,6 +213,12 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Données invalides' });
     }
 
+    if (!(await isValidProductCategory(category))) {
+      return res.status(400).json({
+        error: `Catégorie "${category}" introuvable. Créez-la d'abord dans la gestion des catégories.`,
+      });
+    }
+
     // Generate unique slug
     let slug = generateSlug(name);
     const existingProduct = await prisma.product.findUnique({ where: { slug } });
@@ -228,7 +232,7 @@ router.post('/', async (req: Request, res: Response) => {
         slug,
         description: description || '',
         shortDescription: description ? description.substring(0, 100) : '',
-        category: category as ProductCategory,
+        category,
         price,
         stockQuantity: stockQuantity || 0,
         inStock: (stockQuantity || 0) > 0,
@@ -252,6 +256,12 @@ router.put('/:productId', async (req: Request, res: Response) => {
 
     if (!name || !category || typeof price !== 'number' || price <= 0) {
       return res.status(400).json({ error: 'Données invalides' });
+    }
+
+    if (!(await isValidProductCategory(category))) {
+      return res.status(400).json({
+        error: `Catégorie "${category}" introuvable. Créez-la d'abord dans la gestion des catégories.`,
+      });
     }
 
     // Check if product exists
@@ -279,7 +289,7 @@ router.put('/:productId', async (req: Request, res: Response) => {
         slug,
         description: description || '',
         shortDescription: description ? description.substring(0, 100) : '',
-        category: category as ProductCategory,
+        category,
         price,
         stockQuantity: stockQuantity ?? existingProduct.stockQuantity,
         inStock: (stockQuantity ?? existingProduct.stockQuantity) > 0,
