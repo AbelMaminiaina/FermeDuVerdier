@@ -155,6 +155,43 @@ export default function AdminStocksPage() {
   // Edit restriction modal for products with orders
   const [editRestrictionModal, setEditRestrictionModal] = useState<{ product: Product; ordersCount: number } | null>(null);
 
+  // Image-only edit modal (allowed even when the product has orders)
+  const [imageModal, setImageModal] = useState<{ product: Product } | null>(null);
+  const [imageForm, setImageForm] = useState('');
+  const [savingImages, setSavingImages] = useState(false);
+
+  const openImageModal = (product: Product) => {
+    setImageForm(product.images?.join('\n') || '');
+    setImageModal({ product });
+    setEditRestrictionModal(null);
+  };
+
+  const saveProductImages = async () => {
+    if (!imageModal) return;
+    setSavingImages(true);
+    const images = imageForm.split('\n').map(s => s.trim()).filter(Boolean);
+
+    try {
+      const res = await fetch(`${API_URL}/products/${imageModal.product.id}/images`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ images }),
+      });
+      if (res.ok) {
+        setProducts(prev => prev.map(p => p.id === imageModal.product.id ? { ...p, images } : p));
+        setToast({ type: 'success', message: 'Photo mise à jour' });
+        setImageModal(null);
+      } else {
+        const data = await res.json().catch(() => null);
+        setToast({ type: 'error', message: data?.error || 'Erreur lors de la mise à jour de la photo' });
+      }
+    } catch (e) {
+      setToast({ type: 'error', message: 'Erreur de connexion au serveur' });
+    } finally {
+      setSavingImages(false);
+    }
+  };
+
   // Open modal
   const openModal = async (mode: 'add' | 'edit', product?: Product) => {
     if (mode === 'edit' && product) {
@@ -517,10 +554,33 @@ export default function AdminStocksPage() {
                   <div>
                     <label className="block text-sm font-semibold text-warm-700 mb-1">Images</label>
                     <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-warm-300 rounded-lg cursor-pointer hover:border-prairie-500 hover:bg-prairie-50 transition-colors">
+                      <div className="flex flex-wrap gap-2">
+                        {form.images.split('\n').filter(Boolean).map((img, i) => (
+                          <div key={i} className="w-20 h-20 rounded-lg overflow-hidden bg-warm-100 relative group">
+                            <Image
+                              src={img}
+                              alt=""
+                              fill
+                              className="object-cover"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const imgs = form.images.split('\n').filter(Boolean);
+                                imgs.splice(i, 1);
+                                setForm(f => ({ ...f, images: imgs.join('\n') }));
+                              }}
+                              className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow"
+                              title="Supprimer cette photo"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                        <label className="w-20 h-20 shrink-0 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-warm-300 rounded-lg cursor-pointer hover:border-prairie-500 hover:bg-prairie-50 transition-colors">
                           <Plus className="h-5 w-5 text-warm-500" />
-                          <span className="text-sm text-warm-600">Parcourir les fichiers</span>
+                          <span className="text-[10px] text-warm-600">Ajouter</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -549,30 +609,10 @@ export default function AdminStocksPage() {
                       <textarea
                         value={form.images}
                         onChange={e => setForm(f => ({ ...f, images: e.target.value }))}
-                        rows={3}
+                        rows={2}
                         className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none resize-none font-mono text-xs"
-                        placeholder="URLs des images (une par ligne) ou utilisez le bouton ci-dessus"
+                        placeholder="Ou collez des URLs d'images (une par ligne)"
                       />
-                      {form.images && (
-                        <div className="flex flex-wrap gap-2">
-                          {form.images.split('\n').filter(Boolean).slice(0, 4).map((img, i) => (
-                            <div key={i} className="w-16 h-16 rounded-lg overflow-hidden bg-warm-100 relative">
-                              <Image
-                                src={img}
-                                alt=""
-                                fill
-                                className="object-cover"
-                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                              />
-                            </div>
-                          ))}
-                          {form.images.split('\n').filter(Boolean).length > 4 && (
-                            <div className="w-16 h-16 rounded-lg bg-warm-200 flex items-center justify-center text-sm text-warm-600">
-                              +{form.images.split('\n').filter(Boolean).length - 4}
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -595,6 +635,88 @@ export default function AdminStocksPage() {
               <Button variant="outline" onClick={() => setModal(null)} className="w-full sm:w-auto">Annuler</Button>
               <Button onClick={saveProduct} loading={saving} disabled={!form.name || form.price <= 0} className="w-full sm:w-auto">
                 {modal.mode === 'edit' ? 'Enregistrer' : 'Créer'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image-only Edit Modal */}
+      {imageModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-2 md:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-lg my-2 md:my-4 max-h-[95vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 border-b">
+              <h2 className="text-lg md:text-xl font-bold text-warm-800">
+                Modifier la photo &mdash; {imageModal.product.name}
+              </h2>
+              <button onClick={() => setImageModal(null)} className="p-2 hover:bg-warm-100 rounded-lg">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="px-4 py-4 md:px-6 md:py-5 overflow-y-auto flex-1 space-y-2">
+              <div className="flex flex-wrap gap-2">
+                {imageForm.split('\n').filter(Boolean).map((img, i) => (
+                  <div key={i} className="w-20 h-20 rounded-lg overflow-hidden bg-warm-100 relative group">
+                    <Image
+                      src={img}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const imgs = imageForm.split('\n').filter(Boolean);
+                        imgs.splice(i, 1);
+                        setImageForm(imgs.join('\n'));
+                      }}
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow"
+                      title="Supprimer cette photo"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <label className="w-20 h-20 shrink-0 flex flex-col items-center justify-center gap-1 border-2 border-dashed border-warm-300 rounded-lg cursor-pointer hover:border-prairie-500 hover:bg-prairie-50 transition-colors">
+                  <Plus className="h-5 w-5 text-warm-500" />
+                  <span className="text-[10px] text-warm-600">Ajouter</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files) {
+                        Array.from(files).forEach(file => {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const base64 = event.target?.result as string;
+                            setImageForm(f => (f ? f + '\n' + base64 : base64));
+                          };
+                          reader.readAsDataURL(file);
+                        });
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              </div>
+              <textarea
+                value={imageForm}
+                onChange={e => setImageForm(e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none resize-none font-mono text-xs"
+                placeholder="Ou collez des URLs d'images (une par ligne)"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 px-4 py-3 md:px-6 md:py-4 border-t bg-warm-50 rounded-b-2xl shrink-0">
+              <Button variant="outline" onClick={() => setImageModal(null)} className="w-full sm:w-auto">Annuler</Button>
+              <Button onClick={saveProductImages} loading={savingImages} className="w-full sm:w-auto">
+                Enregistrer la photo
               </Button>
             </div>
           </div>
@@ -731,6 +853,13 @@ export default function AdminStocksPage() {
 
             {/* Actions */}
             <div className="flex flex-col gap-2 px-6 py-4 bg-warm-50">
+              <button
+                onClick={() => openImageModal(editRestrictionModal.product)}
+                className="w-full px-4 py-2.5 bg-warm-700 hover:bg-warm-800 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Edit2 className="h-4 w-4" />
+                Modifier uniquement la photo
+              </button>
               <button
                 onClick={() => duplicateProduct(editRestrictionModal.product)}
                 className="w-full px-4 py-2.5 bg-prairie-600 hover:bg-prairie-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"

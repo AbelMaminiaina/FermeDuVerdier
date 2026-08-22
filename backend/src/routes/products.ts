@@ -305,6 +305,30 @@ router.put('/:productId', async (req: Request, res: Response) => {
   }
 });
 
+// Admin: Update product images only (allowed even if product has orders,
+// since changing the photo doesn't affect order history integrity)
+router.patch('/:productId/images', async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const { images } = req.body;
+
+    if (!Array.isArray(images) || !images.every((img) => typeof img === 'string')) {
+      return res.status(400).json({ error: 'Images invalides' });
+    }
+
+    const product = await prisma.product.update({
+      where: { id: productId },
+      data: { images },
+    });
+
+    await invalidateProductCache();
+    res.json({ success: true, product: transformProduct(product) });
+  } catch (error) {
+    console.error('Error updating product images:', error);
+    res.status(500).json({ error: 'Failed to update product images' });
+  }
+});
+
 // Toggle product visibility (isActive)
 router.patch('/:productId/visibility', async (req: Request, res: Response) => {
   try {
