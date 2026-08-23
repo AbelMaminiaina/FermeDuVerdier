@@ -65,7 +65,7 @@ export default function NotreElevagePage() {
       <section className="relative h-[60vh] min-h-[400px] flex items-center">
         <div className="absolute inset-0">
           <Image
-            src="/images/porc/test3.jpeg"
+            src="/images/porc/Accueil.jpeg"
             alt="Vue de notre élevage porcin"
             fill
             sizes="100vw"
@@ -251,7 +251,7 @@ export default function NotreElevagePage() {
                   <div className="w-10 h-10 rounded-full bg-prairie-600 flex items-center justify-center">
                     <MapPin className="h-5 w-5" />
                   </div>
-                  <span>1 Chemin du Vardier, Ambatolampy Tsimahafotsy, Madagascar</span>
+                  <span>LE 187, Ambohitsoa Ambavatonelina, Madagascar</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-prairie-600 flex items-center justify-center">

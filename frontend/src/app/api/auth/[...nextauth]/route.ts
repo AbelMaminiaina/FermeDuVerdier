@@ -37,7 +37,7 @@ providers.push(
       password: { label: 'Mot de passe', type: 'password' },
     },
     async authorize(credentials) {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@fermeduvardier.mg';
+      const adminEmail = process.env.ADMIN_EMAIL || 'fermeduvardier@gmail.com';
       const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
       if (

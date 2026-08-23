@@ -68,7 +68,7 @@ docker compose version
 sudo apt install git -y
 ```
 
-### 3. Configurer le Firewall
+### 3. Confi  le Firewall
 
 ```bash
 sudo ufw allow 22/tcp   # SSH
@@ -108,6 +108,12 @@ nano .env.production
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
 | `ADMIN_PASSWORD` | Mot de passe admin |
 
+> **Attention :** la commande `cp .env.production.example .env.production` ne doit être lancée
+> qu'**une seule fois**, à la toute première installation. La relancer plus tard écrase les
+> vrais secrets de production avec les valeurs vides du template. Voir
+> [Travailler à plusieurs sans écraser le `.env`](#travailler-à-plusieurs-sans-écraser-le-env)
+> ci-dessous.
+
 ### 3. Lancer le deploiement
 
 ```bash
@@ -119,6 +125,7 @@ chmod +x deploy.sh
 ```
 
 ### 4. Configurer SSL (Let's Encrypt)
+
 
 ```bash
 # Assurez-vous que votre domaine pointe vers le VPS
@@ -156,6 +163,41 @@ mkdir -p backups
 # Acceder au shell PostgreSQL
 ./deploy.sh shell-db
 ```
+
+## Travailler à plusieurs sans écraser le `.env`
+
+`.env.production` ne vit **que sur le VPS** : il est dans `.gitignore` (comme `.env`,
+`.env.local`, etc.), donc `git pull` / `git push` ne le touchent jamais et personne ne peut
+le committer par accident. Le risque réel vient d'ailleurs, quand plusieurs personnes
+déploient sur le même serveur :
+
+1. **Ne jamais réutiliser `cp .env.production.example .env.production`** une fois le serveur
+   configuré — ça remplace les vrais secrets par les valeurs vides du template. Cette commande
+   ne sert qu'à l'installation initiale (étape 2 ci-dessus).
+2. **Une nouvelle variable d'environnement à ajouter ?** Mettez-la à jour dans
+   `.env.production.example` (versionné dans git, visible par toute l'équipe), puis sur le VPS
+   lancez :
+   ```bash
+   ./deploy.sh env-diff
+   ```
+   Ça liste uniquement les clés présentes dans le template mais absentes du `.env.production`
+   réel — ajoutez-les à la main avec `nano .env.production`, le reste du fichier n'est pas touché.
+3. **Backup automatique avant chaque déploiement.** `./deploy.sh deploy` et
+   `./deploy.sh update` sauvegardent désormais `.env.production` avec un horodatage dans
+   `backups/env/` avant toute action (les 20 dernières copies sont conservées). En cas de
+   mauvaise manip :
+   ```bash
+   ./deploy.sh env-restore   # restaure la dernière sauvegarde connue
+   ```
+4. **Une seule personne édite `.env.production` à la fois.** Le fichier n'est pas versionné,
+   donc deux modifications concurrentes sur le VPS s'écrasent silencieusement (le dernier
+   `nano`/`scp` gagne). Pour une petite équipe, le plus simple reste de traiter le fichier du
+   VPS comme la seule source de vérité (pas de copie locale qu'on repousserait par erreur), et
+   de noter les secrets réels dans un gestionnaire de mots de passe partagé (1Password,
+   Bitwarden...) plutôt que dans des `.env` locaux qui finissent par diverger.
+5. **Ne copiez jamais un `.env.production` local vers le serveur** (`scp` écrase tout, y
+   compris des secrets de prod par des valeurs de test). Si un changement de config est
+   nécessaire, éditez directement sur le VPS via `nano .env.production` puis `./deploy.sh update`.
 
 ## Architecture Docker
 

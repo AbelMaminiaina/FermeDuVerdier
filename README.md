@@ -128,7 +128,6 @@ NEXT_PUBLIC_API_URL=http://localhost:3001/api
 
 | Priorité | Problème | Action |
 |----------|----------|--------|
-| Critique | Aucun test | Ajouter Jest/Vitest |
 | Critique | Vulnérabilités npm | `npm audit fix` |
 | Critique | APIs admin non protégées | Ajouter middleware auth |
 | Haute | Fichiers .env suivis par git | Mettre à jour .gitignore |
@@ -140,7 +139,8 @@ NEXT_PUBLIC_API_URL=http://localhost:3001/api
 - [ ] Corriger les vulnérabilités de sécurité (`npm audit fix`)
 - [ ] Ajouter authentification sur les endpoints admin
 - [ ] Retirer les fichiers .env du suivi git
-- [ ] Écrire des tests unitaires et d'intégration
+- [x] Écrire des tests unitaires (voir [FEATURES.md](./FEATURES.md#tests-unitaires))
+- [x] Intégrer les tests au pipeline CI
 - [ ] Configurer ESLint pour le backend
 - [ ] Ajouter rate limiting sur les APIs
 - [ ] Mettre en place la pagination sur les endpoints de liste

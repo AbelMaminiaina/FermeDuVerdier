@@ -148,7 +148,7 @@ ferme-du-vardier/
 - Couleur des œufs
 
 ### Page Services (`/services`)
-- 4 services : Livraison, Gardiennage, Location, Conseils
+- 4 services : Livraison, Location, Conseils
 - FAQ en accordéon
 - Tarifs et conditions
 
@@ -201,7 +201,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
-CONTACT_EMAIL=contact@ferme-du-vardier.fr
+CONTACT_EMAIL=fermeduvardier@gmail.com
 
 # Google Maps
 NEXT_PUBLIC_GOOGLE_MAPS_KEY=your-google-maps-api-key
@@ -340,7 +340,7 @@ Le site peut être déployé sur :
 ## Support
 
 Pour toute question ou problème :
-- Email : contact@fermeduvardier.fr
+- Email : fermeduvardier@gmail.com
 - Téléphone : 01 23 45 67 89
 
 ## Licence

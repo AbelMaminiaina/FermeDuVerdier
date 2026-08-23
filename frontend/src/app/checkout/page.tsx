@@ -177,8 +177,8 @@ export default function CheckoutPage() {
         },
         shippingAddress: {
           street: addressInfo.street || 'Retrait en magasin',
-          city: addressInfo.city || 'Ambatofotsy Ambohimalaza',
-          postalCode: addressInfo.postalCode || '000',
+          city: addressInfo.city || 'Ambohitsoa Ambavatonelina',
+          postalCode: addressInfo.postalCode || '101',
         },
         deliveryMethod,
         notes: notes || undefined,
@@ -356,7 +356,7 @@ export default function CheckoutPage() {
                       <Store className="h-12 w-12 text-prairie-600 mx-auto mb-3" />
                       <p className="text-warm-700 font-medium">Retrait en magasin</p>
                       <p className="text-warm-600 text-sm mt-1">
-                        1 Chemin du Vardier, Ambatolampy Tsimahafotsy
+                         LE 187, Ambohitsoa Ambavatonelina, Madagascar
                       </p>
                     </div>
                   ) : (

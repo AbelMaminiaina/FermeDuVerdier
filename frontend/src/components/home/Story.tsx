@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { fadeInUp, fadeInLeft, fadeInRight, viewportOnce } from '@/lib/animations';
+import { fadeInLeft, fadeInRight, viewportOnce } from '@/lib/animations';
 
 export function Story() {
   return (
@@ -49,49 +49,64 @@ export function Story() {
               Notre histoire
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-warm-800 mb-6">
-              Une passion transmise de génération en génération
+              Élever avec soin, produire avec qualité
             </h2>
 
             <div className="space-y-4 text-warm-600 leading-relaxed">
               <p>
-                Tout a commencé en 2024, lorsque Varombo a décidé de
-                créer cette ferme avec une vision nouvelle : proposer
-                du porc et du poisson de qualité exceptionnelle tout en respectant
-                les animaux et l&apos;environnement.
+                Tout commence en 2024 à Ambatolampy, avec une ambition simple :
+                bâtir une ferme familiale fondée sur la passion de l&apos;élevage,
+                la qualité des productions et le respect des animaux et de leur
+                environnement. Fondée par Heriniaina et Fitiavana Raoelina, la
+                Ferme du Vardier s&apos;est développée pour proposer une production
+                diversifiée et participer au développement de l&apos;élevage local
+                à Madagascar.
               </p>
               <p>
-                Installée à Ambatolampy Tsimahafotsy à Madagascar, la Ferme du Vardier s&apos;étend sur
-                5 hectares où notre élevage porcin et notre pisciculture prospèrent
-                dans des conditions optimales. Nos porcs bénéficient d&apos;enclos spacieux
-                et nos bassins de poissons sont entretenus avec le plus grand soin.
+                Aujourd&apos;hui, notre ferme rassemble plusieurs élevages : poules
+                pondeuses, Kuroiler et volailles d&apos;ornement, élevage porcin
+                (Piétrain, Large White), ainsi qu&apos;une pisciculture de tilapia.
+                Nous proposons également des œufs fécondés de volailles
+                d&apos;ornement, issus de notre élevage et de lignées sélectionnées
+                venues de France, pour faire découvrir et développer de nouvelles
+                races à Madagascar.
               </p>
               <p>
-                Notre engagement pour un élevage responsable n&apos;est pas qu&apos;un
-                label, c&apos;est une philosophie de vie. Nous nourrissons nos animaux
-                avec des aliments de qualité, sans antibiotiques de croissance,
-                pour vous offrir des produits au goût incomparable.
+                Pour nous, l&apos;élevage ne se résume pas à produire et à vendre :
+                c&apos;est une responsabilité. Bien-être animal, qualité de
+                l&apos;alimentation, conditions d&apos;élevage et qualité des produits
+                guident chacune de nos décisions.
               </p>
               <p className="font-medium text-warm-800">
-                Aujourd&apos;hui, c&apos;est toute une équipe passionnée qui perpétue
-                cette tradition d&apos;excellence, avec le même amour des animaux et
-                le même souci de qualité.
+                Notre ambition : construire une ferme moderne et durable, qui
+                répond aux besoins de nos clients tout en créant de la valeur
+                pour notre région et en faisant grandir l&apos;élevage à
+                Ambatolampy et à Madagascar.
               </p>
             </div>
+
+            {/* Devise */}
+            <blockquote className="mt-8 border-l-4 border-prairie-500 pl-5">
+              <p className="font-display text-xl text-warm-800">« Ferme responsable »</p>
+              <p className="text-sm text-warm-500 mt-1">
+                Une philosophie qui guide notre travail chaque jour.
+              </p>
+            </blockquote>
 
             {/* Signature */}
             <div className="mt-8 flex items-center gap-4">
               <div className="w-16 h-16 rounded-full overflow-hidden relative">
                 <Image
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-                  alt="Pierre"
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect width='150' height='150' fill='white'/%3E%3C/svg%3E"
+                  alt=""
                   fill
                   sizes="64px"
                   className="object-cover"
                 />
               </div>
               <div>
-                <div className="font-display text-xl text-warm-800">Varombo Fitoky</div>
-                <div className="text-warm-500">Fondateur de la Ferme du Vardier</div>
+                <div className="font-display text-xl text-warm-800">Heriniaina &amp; Fitiavana Raoelina</div>
+                <div className="text-warm-500">Fondateurs de la Ferme du Vardier</div>
               </div>
             </div>
           </motion.div>

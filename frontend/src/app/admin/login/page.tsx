@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@fermeduvardier.mg"
+                  placeholder="fermeduvardier@gmail.com"
                   className="pl-10"
                   required
                 />

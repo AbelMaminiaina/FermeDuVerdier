@@ -13,14 +13,14 @@ export function OrganizationJsonLd() {
       'Élevage de qualité à Madagascar - Porcs, poulets fermiers, pintades, cailles et poissons frais. Produits locaux de la ferme directement chez vous.',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Lot IF 210',
-      addressLocality: 'Ambatofotsy Ambohimalaza',
+      streetAddress: 'LE 187',
+      addressLocality: 'Ambohitsoa Ambavatonelina',
       addressRegion: 'Analamanga',
       addressCountry: 'MG',
     },
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'contact@fermeduvardier.com',
+      email: 'fermeduvardier@gmail.com',
       contactType: 'customer service',
       availableLanguage: ['French', 'Malagasy'],
     },
@@ -50,11 +50,11 @@ export function LocalBusinessJsonLd() {
     description:
       'Ferme d\'élevage à Madagascar proposant viande de porc, poulets fermiers Akoho Gasy, pintades Akanga, cailles et poissons tilapia frais.',
     url: 'https://fermeduvardier.com',
-    email: 'contact@fermeduvardier.com',
+    email: 'fermeduvardier@gmail.com',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Lot IF 210',
-      addressLocality: 'Ambatofotsy Ambohimalaza',
+      streetAddress: 'LE 187',
+      addressLocality: 'Ambohitsoa Ambavatonelina',
       addressRegion: 'Analamanga',
       postalCode: '103',
       addressCountry: 'MG',

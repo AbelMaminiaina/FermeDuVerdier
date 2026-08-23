@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/prisma.js';
 import { DeliveryMethod } from '@prisma/client';
-import { sendOrderConfirmationEmail } from '../services/emailService.js';
+import { sendOrderConfirmationEmail, sendOrderCancellationEmail } from '../services/emailService.js';
 
 const router = Router();
 
@@ -251,6 +251,7 @@ router.get('/orders', async (req: Request, res: Response) => {
       total: order.total,
       deliveryMethod: order.deliveryMethod,
       notes: order.notes,
+      cancelReason: order.cancelReason,
       createdAt: order.createdAt,
       address: order.address ? {
         street: order.address.street,
@@ -276,7 +277,7 @@ router.get('/orders', async (req: Request, res: Response) => {
 router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body;
+    const { status, reason } = req.body;
 
     const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
     if (!validStatuses.includes(status)) {
@@ -285,8 +286,36 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
 
     const order = await prisma.order.update({
       where: { id: orderId },
-      data: { status },
+      data: {
+        status,
+        ...(status === 'cancelled' ? { cancelReason: reason || null } : {}),
+      },
+      include: {
+        customer: true,
+        items: {
+          include: {
+            product: { select: { name: true } },
+          },
+        },
+      },
     });
+
+    // Envoi asynchrone de l'email d'annulation (ne bloque pas la réponse)
+    if (status === 'cancelled') {
+      sendOrderCancellationEmail({
+        orderNumber: order.orderNumber,
+        customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+        customerEmail: order.customer.email,
+        reason: reason || undefined,
+        items: order.items.map((item) => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total: order.total,
+        cancelledAt: new Date(),
+      }).catch((err) => console.error('Failed to send cancellation email:', err));
+    }
 
     res.json({ success: true, order });
   } catch (error) {
@@ -335,6 +364,7 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
       shippingCost: order.shippingCost,
       total: order.total,
       deliveryMethod: order.deliveryMethod,
+      cancelReason: order.cancelReason,
       createdAt: order.createdAt,
       address: order.address ? {
         street: order.address.street,

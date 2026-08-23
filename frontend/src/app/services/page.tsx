@@ -53,7 +53,7 @@ export default function ServicesPage() {
             </h1>
             <p className="text-lg text-warm-200">
               Au-delà de nos produits, nous vous accompagnons avec des services
-              adaptés à vos besoins : livraison, gardiennage, conseils...
+              adaptés à vos besoins : livraison, conseils...
             </p>
           </motion.div>
         </div>

@@ -19,7 +19,6 @@ const footerLinks = {
   produits: [
     { name: 'Viande de porc', href: '/produits?categorie=porc' },
     { name: 'Poissons frais', href: '/produits?categorie=poisson' },
-    { name: 'Produits transformés', href: '/produits?categorie=transformes' },
     { name: 'Tous les produits', href: '/produits' },
   ],
   informations: [
@@ -30,9 +29,7 @@ const footerLinks = {
   ],
   services: [
     { name: 'Livraison', href: '/services#livraison' },
-    { name: 'Gardiennage', href: '/services#gardiennage' },
-    { name: 'Location matériel', href: '/services#location' },
-    { name: 'Conseils personnalisés', href: '/services#conseils' },
+    { name: 'Elévage', href: '/services#conseils' },
   ],
   legal: [
     { name: 'Mentions légales', href: '/mentions-legales' },
@@ -112,12 +109,12 @@ export function Footer() {
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-prairie-500 shrink-0 mt-0.5" />
-                <span>LE 187<br />Ambohitsoa Ambavatonelina</span>
+                <span>LE 187<br />Ambohitsoa Ambavatonelina, Madagascar</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-prairie-500 shrink-0" />
-                <a href="mailto:contact@fermeduvardier.com" className="hover:text-white transition-colors">
-                  contact@fermeduvardier.com
+                <a href="mailto:fermeduvardier@gmail.com" className="hover:text-white transition-colors">
+                  fermeduvardier@gmail.com
                 </a>
               </div>
               <div className="flex items-start gap-2">

@@ -166,6 +166,7 @@ model Order {
   total          Int            // Prix en Ariary
 
   notes          String?
+  cancelReason   String?
 
   items          OrderItem[]
 

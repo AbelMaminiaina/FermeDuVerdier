@@ -10,7 +10,7 @@ import { fadeInUp, fadeInRight, staggerContainer } from '@/lib/animations';
 const slides = [
   {
     id: 1,
-    image: '/images/porc/test3.jpeg',
+    image: '/images/porc/Accueil.jpeg',
     title: 'Porc de',
     titleHighlight: 'Qualité Premium',
     description:
@@ -18,11 +18,11 @@ const slides = [
   },
   {
     id: 2,
-    image: '/images/chickens/Akoho2.jpeg',
-    title: 'Brahma',
-    titleHighlight: 'Race Noble',
+    image: '/images/caille/Soie.jpeg',
+    title: 'Poule Soie',
+    titleHighlight: 'Race de poule domestique',
     description:
-      'Découvrez notre élevage de Brahma, une race majestueuse reconnue pour sa beauté et sa robustesse. Des volailles d\'exception pour les amateurs de races nobles.',
+      'Découvrez notre élevage de poule soie, qui est une authentique race ancienne reconnue en aviculture, bien qu on ne parle pas de "noblesse" au sens héraldique, mais plutôt d une race de prestige',
     zoomIn: true,
   },
   {

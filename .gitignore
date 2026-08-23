@@ -25,6 +25,7 @@ yarn-error.log*
 # Production
 certbot/
 backups/*.sql
+backups/env/
 nginx/ssl/
 
 # Vercel

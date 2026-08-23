@@ -4,7 +4,7 @@
 # Usage: ./init-letsencrypt.sh
 
 domains=(fermeduvardier.com www.fermeduvardier.com)
-email="a.maminiaina@gmail.com"
+email="fermeduvardier@gmail.com"
 staging=0 # Set to 1 for testing
 
 data_path="./certbot"

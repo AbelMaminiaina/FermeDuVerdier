@@ -26,6 +26,16 @@ interface OrderData {
   createdAt: Date;
 }
 
+interface CancellationEmailData {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  reason?: string;
+  items: OrderItem[];
+  total: number;
+  cancelledAt: Date;
+}
+
 const deliveryLabels: Record<string, string> = {
   standard: 'Livraison standard (3-5 jours)',
   express: 'Livraison express (1-2 jours)',
@@ -33,7 +43,7 @@ const deliveryLabels: Record<string, string> = {
 };
 
 // Email admin de la ferme
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'contact@fermeduvardier.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'fermeduvardier@gmail.com';
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('fr-MG', {
@@ -205,11 +215,11 @@ function generateCustomerEmailHTML(order: OrderData): string {
     <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
       <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur votre commande ?</p>
       <p style="margin: 0; color: #666; font-size: 14px;">
-        📧 contact@fermeduvardier.com | 📞 038 01 001 01
+        📧 fermeduvardier@gmail.com | 📞 038 01 001 01
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
-          Ferme du Vardier - Lot IF 210 Ambatofotsy Ambohimalaza<br>
+          Ferme du Vardier - LE 187  Ambohitsoa Ambavatonelina, Madagascar<br>
           Madagascar
         </p>
       </div>
@@ -293,6 +303,115 @@ function generateAdminNotificationHTML(order: OrderData): string {
   `;
 }
 
+// Template email d'ANNULATION pour le CLIENT
+function generateCancellationEmailHTML(order: CancellationEmailData): string {
+  const itemsHTML = order.items
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">${item.quantity}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${formatPrice(item.price * item.quantity)}</td>
+      </tr>
+    `
+    )
+    .join('');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Commande annulée - ${order.orderNumber}</title>
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+
+  <div style="background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+    <!-- Header -->
+    <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: white;">
+      <h1 style="margin: 0; font-size: 28px;">🌿 FERME DU VARDIER</h1>
+      <p style="margin: 5px 0 0 0; opacity: 0.9;">Produits fermiers de qualité</p>
+    </div>
+
+    <div style="padding: 30px;">
+
+      <!-- Message -->
+      <div style="text-align: center; padding: 20px 0 30px 0;">
+        <div style="font-size: 50px; margin-bottom: 15px;">❌</div>
+        <h2 style="margin: 0; color: #dc2626; font-size: 24px;">Commande annulée</h2>
+        <p style="margin: 10px 0 0 0; color: #666;">Bonjour ${order.customerName.split(' ')[0]}, votre commande a été annulée</p>
+      </div>
+
+      <!-- Order info -->
+      <div style="background-color: #f8f8f8; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+        <table style="width: 100%;">
+          <tr>
+            <td style="padding: 5px 0;"><strong>N° de commande:</strong></td>
+            <td style="text-align: right; font-family: monospace; font-size: 16px; color: #dc2626;">${order.orderNumber}</td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0;"><strong>Date d'annulation:</strong></td>
+            <td style="text-align: right;">${formatDate(order.cancelledAt)}</td>
+          </tr>
+        </table>
+      </div>
+
+      ${order.reason ? `
+      <!-- Reason -->
+      <div style="background-color: #fef2f2; border: 2px solid #fca5a5; padding: 20px; margin-bottom: 25px; border-radius: 12px;">
+        <h3 style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px;">MOTIF DE L'ANNULATION</h3>
+        <p style="margin: 0; color: #7f1d1d;">${order.reason}</p>
+      </div>
+      ` : ''}
+
+      <!-- Items Table -->
+      <h3 style="margin: 0 0 15px 0; color: #333;">Commande concernée</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #6b7280; color: white;">
+            <th style="padding: 12px; text-align: left; border-radius: 8px 0 0 0;">Produit</th>
+            <th style="padding: 12px; text-align: center;">Qté</th>
+            <th style="padding: 12px; text-align: right; border-radius: 0 8px 0 0;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHTML}
+        </tbody>
+      </table>
+
+      <div style="background-color: #f8f8f8; border-radius: 8px; padding: 20px; text-align: right;">
+        <span style="color: #666;">Montant de la commande annulée : </span>
+        <strong style="font-size: 18px;">${formatPrice(order.total)}</strong>
+      </div>
+
+      <p style="margin-top: 25px; color: #666; font-size: 14px; text-align: center;">
+        Si vous aviez déjà effectué un paiement MVola pour cette commande, contactez-nous pour organiser le remboursement.
+      </p>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
+      <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur cette annulation ?</p>
+      <p style="margin: 0; color: #666; font-size: 14px;">
+        📧 fermeduvardier@gmail.com | 📞 038 01 001 01
+      </p>
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
+        <p style="margin: 0; color: #999; font-size: 12px;">
+          Ferme du Vardier - Lot IF 210 Ambatofotsy Ambohimalaza<br>
+          Madagascar
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
+  `;
+}
+
 // Create transporter
 const createTransporter = () => {
   return nodemailer.createTransport({
@@ -363,6 +482,32 @@ export async function sendAdminNotificationEmail(order: OrderData): Promise<bool
     return true;
   } catch (error) {
     console.error('Error sending admin email:', error);
+    return false;
+  }
+}
+
+// Envoyer email d'annulation au CLIENT (avec motif)
+export async function sendOrderCancellationEmail(order: CancellationEmailData): Promise<boolean> {
+  try {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.log('SMTP not configured, skipping cancellation email');
+      return false;
+    }
+
+    const transporter = createTransporter();
+    const html = generateCancellationEmailHTML(order);
+
+    await transporter.sendMail({
+      from: `"Ferme du Vardier" <${process.env.SMTP_USER}>`,
+      to: order.customerEmail,
+      subject: `❌ Commande ${order.orderNumber} annulée`,
+      html,
+    });
+
+    console.log(`✉️ Email d'annulation envoyé à ${order.customerEmail} pour commande ${order.orderNumber}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending cancellation email:', error);
     return false;
   }
 }

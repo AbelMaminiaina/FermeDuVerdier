@@ -3,11 +3,11 @@ import { BlogPost, Author } from '@/types';
 const authors: Record<string, Author> = {
   pierre: {
     name: 'Varombo Fitoky',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-    bio: 'Fondateur de la Ferme du Vardier, passionné d\'aviculture depuis 20 ans.',
+    avatar: '',
+    bio: 'Fondateur de la Ferme du Vardier, passionné d\'aviculture depuis 10 ans.',
   },
   marie: {
-    name: 'Marie Martin',
+    name: 'Fy',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
     bio: 'Responsable de l\'élevage et experte en bien-être animal.',
   },
@@ -355,7 +355,7 @@ Parking gratuit sur place (100 places)
 
 L'entrée est libre mais l'inscription nous aide à organiser la journée :
 - Par téléphone : 038 01 001 01
-- Par email : contact@fermeduvardier.com
+- Par email : fermeduvardier@gmail.com
 
 Nous avons hâte de vous accueillir !`,
     coverImage: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=800',

@@ -25,6 +25,16 @@ if [ ! -f .env.production ]; then
     exit 1
 fi
 
+# Keep a timestamped copy of .env.production before any action that could
+# touch it, so a mistake (accidental `cp .env.production.example
+# .env.production`, a bad edit from a teammate, etc.) is never unrecoverable.
+backup_env() {
+    mkdir -p backups/env
+    cp .env.production "backups/env/env.production.$(date +%Y%m%d_%H%M%S).bak"
+    # Keep only the last 20 backups
+    ls -1t backups/env/env.production.*.bak 2>/dev/null | tail -n +21 | xargs -r rm --
+}
+
 # Load environment variables
 export $(cat .env.production | grep -v '^#' | xargs)
 
@@ -33,6 +43,7 @@ ACTION=${1:-deploy}
 case $ACTION in
     deploy)
         echo -e "${GREEN}Starting deployment...${NC}"
+        backup_env
 
         # Use HTTP config
         cp nginx/nginx.conf.http-only nginx/nginx.conf 2>/dev/null || true
@@ -63,6 +74,7 @@ case $ACTION in
 
     update)
         echo -e "${GREEN}Updating...${NC}"
+        backup_env
         git pull origin main
         docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
         docker compose -f docker-compose.prod.yml exec -T backend npx prisma migrate deploy || true
@@ -127,6 +139,40 @@ case $ACTION in
         echo -e "${GREEN}Backup: ${BACKUP_FILE}${NC}"
         ;;
 
+    env-diff)
+        # Never `cp .env.production.example .env.production` on a server that's
+        # already configured, it wipes every real secret. Use this instead to
+        # see which variables a teammate added to the template but that are
+        # still missing on this server, then add just those by hand.
+        echo "Variables present in .env.production.example but missing from .env.production:"
+        MISSING=0
+        while IFS='=' read -r KEY _; do
+            [[ -z "$KEY" || "$KEY" == \#* ]] && continue
+            if ! grep -q "^${KEY}=" .env.production; then
+                echo "  - ${KEY}"
+                MISSING=1
+            fi
+        done < .env.production.example
+        if [ "$MISSING" -eq 0 ]; then
+            echo -e "${GREEN}Nothing missing - .env.production is up to date.${NC}"
+        fi
+        ;;
+
+    env-restore)
+        LATEST=$(ls -1t backups/env/env.production.*.bak 2>/dev/null | head -n 1)
+        if [ -z "$LATEST" ]; then
+            echo -e "${RED}No .env.production backup found.${NC}"
+            exit 1
+        fi
+        echo "Latest backup: ${LATEST}"
+        read -p "Restore this into .env.production? (y/N) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            cp "$LATEST" .env.production
+            echo -e "${GREEN}Restored.${NC}"
+        fi
+        ;;
+
     shell-backend)
         docker compose -f docker-compose.prod.yml exec backend sh
         ;;
@@ -161,6 +207,8 @@ case $ACTION in
         echo "  seed         - Seed database"
         echo "  migrate      - Run migrations"
         echo "  backup       - Backup database"
+        echo "  env-diff     - Show env vars missing from .env.production"
+        echo "  env-restore  - Restore .env.production from latest backup"
         echo "  shell-backend- Backend shell"
         echo "  shell-db     - PostgreSQL shell"
         echo "  clean        - Remove everything"

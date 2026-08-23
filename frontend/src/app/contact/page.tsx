@@ -126,8 +126,8 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium text-warm-800">Adresse</div>
                     <div className="text-warm-600 text-sm">
-                      Lot IF 210<br />
-                      Ambatofotsy Ambohimalaza<br />
+                      LE 187 <br />
+                      Ambohitsoa Ambavatonelina, Madagascar<br />
                       Madagascar
                     </div>
                   </div>
@@ -155,10 +155,10 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium text-warm-800">Email</div>
                     <a
-                      href="mailto:contact@fermeduvardier.com"
+                      href="mailto:fermeduvardier@gmail.com"
                       className="text-prairie-600 hover:text-prairie-700"
                     >
-                      contact@fermeduvardier.com
+                      fermeduvardier@gmail.com
                     </a>
                   </div>
                 </div>

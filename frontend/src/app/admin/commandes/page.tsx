@@ -17,6 +17,7 @@ interface Order {
   total: number;
   deliveryMethod: string;
   notes?: string;
+  cancelReason?: string;
   createdAt: string;
   address?: {
     street: string;
@@ -72,7 +73,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  const updateOrderStatus = async (orderId: string, newStatus: string, reason?: string) => {
     setUpdatingStatus(true);
     try {
       const response = await fetch(
@@ -80,13 +81,13 @@ export default function AdminOrdersPage() {
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({ status: newStatus, ...(reason !== undefined ? { reason } : {}) }),
         }
       );
       if (response.ok) {
         await fetchOrders();
         if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder({ ...selectedOrder, status: newStatus });
+          setSelectedOrder({ ...selectedOrder, status: newStatus, ...(reason !== undefined ? { cancelReason: reason } : {}) });
         }
       }
     } catch (error) {
@@ -509,9 +510,11 @@ export default function AdminOrdersPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        if (confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
-                          updateOrderStatus(selectedOrder.id, 'cancelled');
-                        }
+                        const reason = window.prompt(
+                          "Motif de l'annulation (envoyé au client par email) :"
+                        );
+                        if (reason === null) return;
+                        updateOrderStatus(selectedOrder.id, 'cancelled', reason.trim());
                       }}
                       icon={<Ban className="h-4 w-4" />}
                       className="text-red-600 border-red-300 hover:bg-red-50 col-span-2 sm:col-span-1"
@@ -526,6 +529,11 @@ export default function AdminOrdersPage() {
               {selectedOrder.status === 'cancelled' && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
                   <p className="text-red-700 font-medium">Cette commande a été annulée</p>
+                  {selectedOrder.cancelReason && (
+                    <p className="text-red-600 text-sm mt-2">
+                      Motif : {selectedOrder.cancelReason}
+                    </p>
+                  )}
                 </div>
               )}
 
