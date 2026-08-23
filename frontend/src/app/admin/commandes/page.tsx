@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { formatPrice } from '@/lib/utils';
 import { Eye, Check, Truck, X, Search, Filter, Phone, MapPin, FileText, Package, Ban, Printer } from 'lucide-react';
-import { Button, Input } from '@/components/ui';
+import { Button, Input, Modal, Textarea } from '@/components/ui';
 
 interface Order {
   id: string;
@@ -54,6 +54,8 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   useEffect(() => {
     fetchOrders();
@@ -95,6 +97,13 @@ export default function AdminOrdersPage() {
     } finally {
       setUpdatingStatus(false);
     }
+  };
+
+  const confirmCancelOrder = async () => {
+    if (!selectedOrder) return;
+    await updateOrderStatus(selectedOrder.id, 'cancelled', cancelReason.trim());
+    setShowCancelDialog(false);
+    setCancelReason('');
   };
 
   const filteredOrders = useMemo(() => {
@@ -510,11 +519,8 @@ export default function AdminOrdersPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        const reason = window.prompt(
-                          "Motif de l'annulation (envoyé au client par email) :"
-                        );
-                        if (reason === null) return;
-                        updateOrderStatus(selectedOrder.id, 'cancelled', reason.trim());
+                        setCancelReason('');
+                        setShowCancelDialog(true);
                       }}
                       icon={<Ban className="h-4 w-4" />}
                       className="text-red-600 border-red-300 hover:bg-red-50 col-span-2 sm:col-span-1"
@@ -546,6 +552,55 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       )}
+
+      {/* Cancel reason dialog */}
+      <Modal
+        isOpen={showCancelDialog}
+        onClose={() => setShowCancelDialog(false)}
+        title="Annuler la commande"
+        size="sm"
+        closeOnOverlayClick={!updatingStatus}
+        closeOnEscape={!updatingStatus}
+      >
+        <div className="space-y-4">
+          <p className="text-warm-600 text-sm">
+            {selectedOrder && (
+              <>
+                Commande <span className="font-medium text-warm-800">{selectedOrder.orderNumber}</span> —
+                cette action est irréversible.
+              </>
+            )}
+          </p>
+          <Textarea
+            label="Motif de l'annulation"
+            placeholder="Ex : rupture de stock, adresse invalide..."
+            helperText="Ce motif sera envoyé au client par email."
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            rows={3}
+            autoFocus
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCancelDialog(false)}
+              disabled={updatingStatus}
+            >
+              Retour
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              icon={<Ban className="h-4 w-4" />}
+              onClick={confirmCancelOrder}
+              loading={updatingStatus}
+            >
+              Confirmer l&apos;annulation
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
