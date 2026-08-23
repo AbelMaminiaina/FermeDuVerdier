@@ -2,6 +2,10 @@
 
 Deploiement sur VPS Contabo avec Docker.
 
+> Un problème après un déploiement (backend qui redémarre en boucle, erreur `P1000`,
+> conflit git sur `deploy.sh`/`docker-compose.prod.yml`...) ? Regarde d'abord
+> [TROUBLESHOOTING.md](./TROUBLESHOOTING.md), ces cas y sont déjà documentés.
+
 ## Commandes rapides (Contabo)
 
 ### Connexion SSH
