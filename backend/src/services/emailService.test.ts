@@ -9,7 +9,13 @@ vi.mock('nodemailer', () => ({
   },
 }));
 
-import { sendOrderConfirmationEmail, sendAdminNotificationEmail, sendOrderCancellationEmail } from './emailService.js';
+import {
+  sendOrderConfirmationEmail,
+  sendAdminNotificationEmail,
+  sendOrderCancellationEmail,
+  sendOrderShippedEmail,
+  sendOrderDeliveredEmail,
+} from './emailService.js';
 
 const baseOrder = {
   orderNumber: 'FDV-TEST123',
@@ -159,6 +165,83 @@ describe('sendOrderCancellationEmail', () => {
     sendMailMock.mockRejectedValueOnce(new Error('smtp error'));
 
     const result = await sendOrderCancellationEmail(cancellation);
+
+    expect(result).toBe(false);
+  });
+});
+
+const statusUpdate = {
+  orderNumber: 'FDV-SHIP1',
+  customerName: 'Jean Dupont',
+  customerEmail: 'jean@example.com',
+  items: [{ name: 'Poulet fermier', quantity: 2, price: 15000 }],
+  total: 30000,
+  deliveryMethod: 'express',
+  address: {
+    street: '12 rue des Champs',
+    city: 'Antananarivo',
+    postalCode: '101',
+    country: 'Madagascar',
+  },
+  updatedAt: new Date('2026-01-03T10:00:00Z'),
+};
+
+describe('sendOrderShippedEmail', () => {
+  it('skips sending when SMTP credentials are not configured', async () => {
+    delete process.env.SMTP_USER;
+    delete process.env.SMTP_PASS;
+
+    const result = await sendOrderShippedEmail(statusUpdate);
+
+    expect(result).toBe(false);
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it('sends the shipped email with the order number and delivery method', async () => {
+    const result = await sendOrderShippedEmail(statusUpdate);
+
+    expect(result).toBe(true);
+    const call = sendMailMock.mock.calls[0][0];
+    expect(call.to).toBe('jean@example.com');
+    expect(call.subject).toContain('FDV-SHIP1');
+    expect(call.html).toContain('FDV-SHIP1');
+    expect(call.html).toContain('Livraison express');
+  });
+
+  it('returns false and does not throw when sendMail rejects', async () => {
+    sendMailMock.mockRejectedValueOnce(new Error('smtp error'));
+
+    const result = await sendOrderShippedEmail(statusUpdate);
+
+    expect(result).toBe(false);
+  });
+});
+
+describe('sendOrderDeliveredEmail', () => {
+  it('skips sending when SMTP credentials are not configured', async () => {
+    delete process.env.SMTP_USER;
+    delete process.env.SMTP_PASS;
+
+    const result = await sendOrderDeliveredEmail(statusUpdate);
+
+    expect(result).toBe(false);
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it('sends the delivered email with the order number', async () => {
+    const result = await sendOrderDeliveredEmail(statusUpdate);
+
+    expect(result).toBe(true);
+    const call = sendMailMock.mock.calls[0][0];
+    expect(call.to).toBe('jean@example.com');
+    expect(call.subject).toContain('FDV-SHIP1');
+    expect(call.html).toContain('FDV-SHIP1');
+  });
+
+  it('returns false and does not throw when sendMail rejects', async () => {
+    sendMailMock.mockRejectedValueOnce(new Error('smtp error'));
+
+    const result = await sendOrderDeliveredEmail(statusUpdate);
 
     expect(result).toBe(false);
   });

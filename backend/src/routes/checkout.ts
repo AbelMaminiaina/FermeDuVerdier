@@ -2,7 +2,13 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/prisma.js';
 import { DeliveryMethod } from '@prisma/client';
-import { sendOrderConfirmationEmail, sendOrderCancellationEmail } from '../services/emailService.js';
+import {
+  sendOrderConfirmationEmail,
+  sendOrderCancellationEmail,
+  sendOrderShippedEmail,
+  sendOrderDeliveredEmail,
+} from '../services/emailService.js';
+import { invalidateProductCache } from '../lib/cache.js';
 
 const router = Router();
 
@@ -154,6 +160,7 @@ router.post('/', async (req: Request, res: Response) => {
           })
         )
       );
+      await invalidateProductCache();
       console.log('Commande en préparation:', order.orderNumber);
     } else {
       console.log('Commande en attente (stock insuffisant):', order.orderNumber);
@@ -284,6 +291,19 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Statut invalide' });
     }
 
+    const existingOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({ error: 'Commande non trouvée' });
+    }
+
+    if (existingOrder.status === 'cancelled') {
+      return res.status(400).json({ error: 'Cette commande est déjà annulée' });
+    }
+
     const order = await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -292,6 +312,7 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
       },
       include: {
         customer: true,
+        address: true,
         items: {
           include: {
             product: { select: { name: true } },
@@ -300,7 +321,25 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
       },
     });
 
-    // Envoi asynchrone de l'email d'annulation (ne bloque pas la réponse)
+    // Une commande "pending" n'a jamais décrémenté le stock (stock insuffisant au moment
+    // de la commande) : rien à restaurer. Pour toute autre commande annulée, le stock avait
+    // été décrémenté à la création, on le restitue.
+    if (status === 'cancelled' && existingOrder.status !== 'pending') {
+      await Promise.all(
+        existingOrder.items.map((item) =>
+          prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stockQuantity: { increment: item.quantity },
+              inStock: true,
+            },
+          })
+        )
+      );
+      await invalidateProductCache();
+    }
+
+    // Envoi asynchrone des emails de notification (ne bloque pas la réponse)
     if (status === 'cancelled') {
       sendOrderCancellationEmail({
         orderNumber: order.orderNumber,
@@ -315,6 +354,33 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
         total: order.total,
         cancelledAt: new Date(),
       }).catch((err) => console.error('Failed to send cancellation email:', err));
+    } else if (status === 'shipped' || status === 'delivered') {
+      const emailData = {
+        orderNumber: order.orderNumber,
+        customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+        customerEmail: order.customer.email,
+        items: order.items.map((item) => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total: order.total,
+        deliveryMethod: order.deliveryMethod,
+        address: order.address
+          ? {
+              street: order.address.street,
+              city: order.address.city,
+              postalCode: order.address.postalCode,
+              country: order.address.country,
+            }
+          : { street: '', city: '', postalCode: '', country: '' },
+        updatedAt: new Date(),
+      };
+
+      const sendFn = status === 'shipped' ? sendOrderShippedEmail : sendOrderDeliveredEmail;
+      sendFn(emailData).catch((err) =>
+        console.error(`Failed to send ${status} email:`, err)
+      );
     }
 
     res.json({ success: true, order });
