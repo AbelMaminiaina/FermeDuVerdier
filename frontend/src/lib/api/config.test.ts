@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fetchAPI } from './config';
 
 beforeEach(() => {
@@ -69,5 +69,37 @@ describe('fetchAPI', () => {
     );
 
     await expect(fetchAPI('/products/missing')).rejects.toThrow('API Error: 404 Not Found');
+  });
+});
+
+describe('SERVER_API_BASE_URL', () => {
+  const originalBackendUrl = process.env.BACKEND_URL;
+
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    if (originalBackendUrl === undefined) {
+      delete process.env.BACKEND_URL;
+    } else {
+      process.env.BACKEND_URL = originalBackendUrl;
+    }
+  });
+
+  it('uses BACKEND_URL (internal Docker network) when set, so Server Components skip the public domain', async () => {
+    process.env.BACKEND_URL = 'http://backend:3001';
+
+    const { SERVER_API_BASE_URL } = await import('./config');
+
+    expect(SERVER_API_BASE_URL).toBe('http://backend:3001/api');
+  });
+
+  it('falls back to the public API_BASE_URL when BACKEND_URL is not set (e.g. local dev)', async () => {
+    delete process.env.BACKEND_URL;
+
+    const { SERVER_API_BASE_URL, API_BASE_URL } = await import('./config');
+
+    expect(SERVER_API_BASE_URL).toBe(API_BASE_URL);
   });
 });

@@ -1,12 +1,12 @@
 import { Suspense } from 'react';
 import { unstable_noStore as noStore } from 'next/cache';
-import { API_BASE_URL } from '@/lib/api/config';
+import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import NosDoulesClient from './NospoulesClient';
 
 async function getChickenBreeds() {
   noStore();
 
-  const apiUrl = `${API_BASE_URL}/chickens`;
+  const apiUrl = `${SERVER_API_BASE_URL}/chickens`;
   console.log('[SSR] Fetching chickens from:', apiUrl);
 
   try {

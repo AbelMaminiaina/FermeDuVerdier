@@ -1,11 +1,11 @@
 import { unstable_noStore as noStore } from 'next/cache';
-import { API_BASE_URL } from '@/lib/api/config';
+import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import { FeaturedProductsClient } from './FeaturedProductsClient';
 
 async function getFeaturedProducts() {
   noStore();
 
-  const apiUrl = `${API_BASE_URL}/products`;
+  const apiUrl = `${SERVER_API_BASE_URL}/products`;
   console.log('[SSR] Fetching featured products from:', apiUrl);
 
   const res = await fetch(apiUrl, {

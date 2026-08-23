@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
-import { API_BASE_URL } from '@/lib/api/config';
+import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import ProductDetailClient from './ProductDetailClient';
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 async function getProduct(slug: string) {
   noStore();
-  const res = await fetch(`${API_BASE_URL}/products/${slug}`);
+  const res = await fetch(`${SERVER_API_BASE_URL}/products/${slug}`);
   if (!res.ok) {
     return null;
   }
@@ -17,7 +17,7 @@ async function getProduct(slug: string) {
 async function getRelatedProducts(slug: string) {
   noStore();
   try {
-    const res = await fetch(`${API_BASE_URL}/products/${slug}/related?limit=4`);
+    const res = await fetch(`${SERVER_API_BASE_URL}/products/${slug}/related?limit=4`);
     if (!res.ok) {
       return [];
     }

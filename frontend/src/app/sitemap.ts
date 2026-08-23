@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { API_BASE_URL } from '@/lib/api/config';
+import { SERVER_API_BASE_URL } from '@/lib/api/config';
 
 interface Product {
   slug: string;
@@ -8,7 +8,7 @@ interface Product {
 
 async function getProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/products`, {
+    const res = await fetch(`${SERVER_API_BASE_URL}/products`, {
       next: { revalidate: 3600 }, // Revalidate every hour
     });
     if (!res.ok) {

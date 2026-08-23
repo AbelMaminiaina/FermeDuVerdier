@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
-import { API_BASE_URL } from '@/lib/api/config';
+import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import ProductsClient from './ProductsClient';
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 async function getProducts() {
   noStore(); // Mark this fetch as dynamic
 
-  const apiUrl = `${API_BASE_URL}/products`;
+  const apiUrl = `${SERVER_API_BASE_URL}/products`;
   console.log('[SSR] Fetching products from:', apiUrl);
 
   const res = await fetch(apiUrl, {
