@@ -49,13 +49,13 @@ const methods = [
 ];
 
 const galleryImages = [
-  { src: '/images/porc/test4.jpeg', alt: 'Nos porcs' },
-  { src: '/images/caille/caille1.jpeg', alt: 'Nos cailles' },
+  { src: '/images/porc/Porc_noir_29.jpeg', alt: 'Nos porcs' },  
   { src: '/images/akanga/Akanga1.jpeg', alt: 'Nos pintades (Akanga)' },
-  { src: '/images/chickens/Akoho1.jpeg', alt: 'Nos poulets (Akoho)' },
-  { src: '/images/chickens/Akoho2.jpeg', alt: 'Nos poulets en plein air' },
+  { src: '/images/chickens/Poule_29.jpeg', alt: 'Nos poulets (Akoho)' },
+  { src: '/images/chickens/Poule_3_29.jpeg', alt: 'Nos poulets en plein air' },  
+  { src: '/images/porc/Porc_rouge_2_29.jpeg', alt: 'Elevage de porcs' },
   { src: '/images/chickens/Akoho3.jpeg', alt: 'Élevage de poulets' },
-  { src: '/images/poisson/poisson1.jpg', alt: 'Nos poissons frais' },
+  { src: '/images/chickens/Canard_1_29.jpeg', alt: 'Elevage de canards' },
 ];
 
 export default function NotreElevagePage() {

@@ -16,7 +16,6 @@ import {
   Store,
   Check,
   Smartphone,
-  Banknote,
 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { formatPrice, getShippingCost } from '@/lib/utils';
@@ -26,7 +25,7 @@ import { fadeInUp } from '@/lib/animations';
 
 type Step = 'informations' | 'adresse' | 'livraison' | 'paiement';
 type DeliveryMethod = 'standard' | 'express' | 'retrait';
-type PaymentMethod = 'mvola' | 'orange_money' | 'airtel_money' | 'stripe' | 'cash';
+type PaymentMethod = 'mvola' | 'orange_money' | 'airtel_money' | 'stripe';
 
 interface CustomerInfo {
   firstName: string;
@@ -77,19 +76,12 @@ const paymentMethods = [
     icon: '/images/payments/stripe.png',
     color: 'bg-indigo-500',
   },
-  {
-    id: 'cash' as PaymentMethod,
-    name: 'Paiement à l\'arrivée',
-    description: 'Payez en espèces à la livraison',
-    icon: '/images/payments/cash.png',
-    color: 'bg-green-600',
-  },
 ];
 
 export default function CheckoutPage() {
   const router = useRouter();
   const cart = useCart();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [currentStep, setCurrentStep] = useState<Step>('informations');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -523,11 +515,7 @@ export default function CheckoutPage() {
                           className="sr-only"
                         />
                         <div className={`w-12 h-12 ${method.color} rounded-lg flex items-center justify-center`}>
-                          {method.id === 'cash' ? (
-                            <Banknote className="h-6 w-6 text-white" />
-                          ) : (
-                            <Smartphone className="h-6 w-6 text-white" />
-                          )}
+                          <Smartphone className="h-6 w-6 text-white" />
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-warm-800">{method.name}</p>

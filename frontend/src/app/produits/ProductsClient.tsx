@@ -98,14 +98,14 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
         </motion.div>
 
         {/* Results count */}
-        <motion.p
+        {/* <motion.p
           className="text-warm-500 text-center mb-8"
           variants={fadeInUp}
           initial="initial"
           animate="animate"
         >
           {filteredProducts.length} produit{filteredProducts.length > 1 ? 's' : ''} trouvé{filteredProducts.length > 1 ? 's' : ''}
-        </motion.p>
+        </motion.p> */}
 
         {/* Products grid */}
         <ProductGrid products={filteredProducts} />
