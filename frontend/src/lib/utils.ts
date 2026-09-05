@@ -120,13 +120,59 @@ export function getDeliveryEstimate(method: string): string {
   return estimates[method] || '';
 }
 
-export function getShippingCost(method: string, subtotal: number): number {
-  if (subtotal >= 200000) return 0; // Livraison gratuite au-dessus de 200 000 Ar
+// Miroir de backend/src/lib/shipping.ts — garder les deux alignés.
+export const FREE_SHIPPING_THRESHOLD = 100000; // Ar
+export const SHIPPING_COSTS: Record<string, number> = {
+  standard: 3000,
+  express: 5000,
+  retrait: 0,
+};
 
-  const costs: Record<string, number> = {
-    'standard': 25000,
-    'express': 45000,
-    'retrait': 0,
-  };
-  return costs[method] || 0;
+/**
+ * Frais de livraison en Ariary (aperçu ; le montant facturé est recalculé côté backend).
+ *
+ * - `hasFreeShippingItem` : le panier contient au moins un produit « livraison gratuite »
+ *   → livraison offerte, on ignore la méthode et le seuil.
+ * - sinon : retrait gratuit, gratuit au-dessus du seuil, sinon forfait par méthode.
+ */
+export function getShippingCost(
+  method: string,
+  subtotal: number,
+  hasFreeShippingItem = false
+): number {
+  if (hasFreeShippingItem) return 0;
+  if (method === 'retrait') return 0;
+  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
+  return SHIPPING_COSTS[method] ?? 0;
+}
+
+/** Poids indicatif formaté, ex. « ≈ 1,8 kg ». */
+export function formatWeight(kg: number): string {
+  return `≈ ${kg.toLocaleString('fr-FR', { maximumFractionDigits: 2 })} kg`;
+}
+
+/** true si le produit n'est pas encore disponible (date de dispo dans le futur) → réservable en précommande. */
+export function isUpcoming(availableFrom?: string | null): boolean {
+  if (!availableFrom) return false;
+  const date = new Date(availableFrom);
+  return !Number.isNaN(date.getTime()) && date.getTime() > Date.now();
+}
+
+/**
+ * Fenêtre de livraison d'un produit en précommande : le jour de disponibilité,
+ * ou au plus tard le lendemain. Ex. « 20 ou 21 décembre 2026 ».
+ */
+export function formatDeliveryWindow(availableFrom: string): string {
+  const start = new Date(availableFrom);
+  if (Number.isNaN(start.getTime())) return '';
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+
+  const sameMonth =
+    start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  if (sameMonth) {
+    const tail = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(end);
+    return `${start.getDate()} ou ${end.getDate()} ${tail}`;
+  }
+  return `${formatDate(start)} ou ${formatDate(end)}`;
 }

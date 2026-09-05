@@ -14,11 +14,17 @@ export interface Product {
   badges: ProductBadge[];
   metadata?: ProductMetadata;
   characteristics?: string[];
+  productType: ProductType;
+  estimatedWeightKg?: number | null;
+  freeShipping: boolean;
+  availableFrom?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export type ProductBadge = 'bio' | 'plein_air' | 'nouveau' | 'promo' | 'populaire';
+
+export type ProductType = 'vif' | 'piece';
 
 export interface ProductMetadata {
   race?: string;
@@ -59,6 +65,9 @@ export interface CartItem {
   image: string;
   slug: string;
   metadata?: ProductMetadata;
+  freeShipping?: boolean;
+  estimatedWeightKg?: number | null;
+  availableFrom?: string | null;
 }
 
 export interface CartState {

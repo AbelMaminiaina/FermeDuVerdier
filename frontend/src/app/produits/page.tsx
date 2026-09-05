@@ -1,8 +1,12 @@
 import { Suspense } from 'react';
-import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
 import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import ProductsClient from './ProductsClient';
+
+// This page fetches from the backend, which isn't reachable from the isolated
+// Docker build stage — force per-request rendering so the build doesn't try
+// to prerender it statically.
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Nos Produits - Viande, Volaille et Poisson Frais',
@@ -32,11 +36,13 @@ export const metadata: Metadata = {
 };
 
 async function getProducts() {
-  noStore(); // Mark this fetch as dynamic
-
   const apiUrl = `${SERVER_API_BASE_URL}/products`;
   console.log('[SSR] Fetching products from:', apiUrl);
 
+  // Backend already caches this in Redis for 5 min (see CACHE_TTL.PRODUCTS).
+  // We deliberately do NOT use Next.js' data cache: product payloads embed their
+  // images (data: URIs) and the list can exceed Next's hard 2 MB fetch-cache
+  // limit, which silently drops the oversized part of the response.
   const res = await fetch(apiUrl, {
     cache: 'no-store',
     headers: {

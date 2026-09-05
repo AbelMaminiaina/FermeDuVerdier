@@ -1,13 +1,18 @@
 import { notFound } from 'next/navigation';
-import { unstable_noStore as noStore } from 'next/cache';
 import { Metadata } from 'next';
 import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import ProductDetailClient from './ProductDetailClient';
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
+// The backend already caches these in Redis (see CACHE_TTL.PRODUCT/RELATED).
+// We deliberately do NOT use Next.js' data cache here: product payloads embed
+// their images (data: URIs) and can exceed Next's hard 2 MB fetch-cache limit,
+// which silently drops the oversized part of the response. `no-store` streams
+// the full payload straight through on every request.
 async function getProduct(slug: string) {
-  noStore();
-  const res = await fetch(`${SERVER_API_BASE_URL}/products/${slug}`);
+  const res = await fetch(`${SERVER_API_BASE_URL}/products/${slug}`, {
+    cache: 'no-store',
+  });
   if (!res.ok) {
     return null;
   }
@@ -15,9 +20,10 @@ async function getProduct(slug: string) {
 }
 
 async function getRelatedProducts(slug: string) {
-  noStore();
   try {
-    const res = await fetch(`${SERVER_API_BASE_URL}/products/${slug}/related?limit=4`);
+    const res = await fetch(`${SERVER_API_BASE_URL}/products/${slug}/related?limit=4`, {
+      cache: 'no-store',
+    });
     if (!res.ok) {
       return [];
     }
@@ -89,13 +95,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const product = await getProduct(slug);
+  const [product, relatedProducts] = await Promise.all([
+    getProduct(slug),
+    getRelatedProducts(slug),
+  ]);
 
   if (!product) {
     notFound();
   }
-
-  const relatedProducts = await getRelatedProducts(slug);
 
   const breadcrumbItems = [
     { name: 'Accueil', url: 'https://fermeduvardier.com' },

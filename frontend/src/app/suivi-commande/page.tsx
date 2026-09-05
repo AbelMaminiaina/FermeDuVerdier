@@ -25,6 +25,13 @@ interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  availableFrom?: string | null;
+}
+
+function isReservation(availableFrom?: string | null): boolean {
+  if (!availableFrom) return false;
+  const d = new Date(availableFrom);
+  return !Number.isNaN(d.getTime()) && d.getTime() > Date.now();
 }
 
 interface Order {
@@ -133,6 +140,7 @@ export default function MesCommandesPage() {
             name: item.product?.name || item.name || 'Produit',
             quantity: item.quantity,
             price: item.price,
+            availableFrom: item.availableFrom ?? null,
           })) || [],
         }));
         setOrders(formattedOrders);
@@ -380,6 +388,14 @@ export default function MesCommandesPage() {
                       <div key={index} className="flex justify-between text-sm py-2 border-b border-warm-200 last:border-0">
                         <span className="text-warm-700">
                           {item.name} <span className="text-warm-500">x{item.quantity}</span>
+                          {isReservation(item.availableFrom) && (
+                            <span className="block text-xs text-amber-600 font-medium mt-0.5">
+                              📅 Réservation — livraison à partir du{' '}
+                              {new Date(item.availableFrom!).toLocaleDateString('fr-FR', {
+                                day: 'numeric', month: 'long', year: 'numeric',
+                              })}
+                            </span>
+                          )}
                         </span>
                         <span className="font-medium text-warm-800">
                           {formatPrice(item.price * item.quantity)}

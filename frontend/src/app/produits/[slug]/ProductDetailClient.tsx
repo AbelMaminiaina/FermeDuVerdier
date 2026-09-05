@@ -13,11 +13,12 @@ import {
   Shield,
   ArrowLeft,
   ChevronRight,
+  CalendarClock,
 } from 'lucide-react';
 import { Product } from '@/types';
 import { Button, Badge } from '@/components/ui';
 import ProductCard from '@/components/products/ProductCard';
-import { formatPrice, getBadgeLabel, getCategoryLabel } from '@/lib/utils';
+import { formatDate, formatPrice, formatWeight, getBadgeLabel, getCategoryLabel, isUpcoming } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/components/ui/Toast';
 import { fadeInLeft, fadeInRight } from '@/lib/animations';
@@ -33,6 +34,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   const cart = useCart();
   const { addToast } = useToast();
 
+  const isVif = product.productType === 'vif';
+  const upcoming = isUpcoming(product.availableFrom);
+  const reserveLabel = isVif || upcoming;
+
   const handleAddToCart = () => {
     cart.addItem({
       productId: product.id,
@@ -42,11 +47,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
       image: product.images[0] || '/images/placeholder.jpg',
       slug: product.slug,
       metadata: product.metadata,
+      freeShipping: product.freeShipping,
+      estimatedWeightKg: product.estimatedWeightKg,
+      availableFrom: product.availableFrom,
     });
-    addToast('success', `${product.name} ajouté au panier`);
+    addToast('success', upcoming ? `${product.name} réservé` : `${product.name} ajouté au panier`);
   };
-
-  const isPoule = product.category === 'poules';
 
   return (
     <div className="min-h-screen bg-cream-50 py-8">
@@ -157,25 +163,54 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
-              {isPoule && <span className="text-warm-500">/pièce</span>}
+              <span className="text-warm-500">/pièce</span>
             </div>
 
-            {/* Stock status */}
-            <div className="flex items-center gap-2 mb-6">
-              {product.inStock ? (
-                <>
-                  <Check className="h-5 w-5 text-green-500" />
-                  <span className="text-green-600 font-medium">En stock</span>
-                  {product.stockQuantity && product.stockQuantity < 10 && (
-                    <span className="text-warm-500">
-                      (Plus que {product.stockQuantity} disponibles)
-                    </span>
-                  )}
-                </>
-              ) : (
-                <span className="text-red-600 font-medium">Rupture de stock</span>
-              )}
-            </div>
+            {/* Weight estimate + free shipping + availability */}
+            {(product.estimatedWeightKg || product.freeShipping || upcoming) && (
+              <div className="flex flex-col gap-2 mb-6">
+                {upcoming && (
+                  <p className="inline-flex items-center gap-2 text-sm text-amber-600 font-medium">
+                    <CalendarClock className="h-4 w-4" />
+                    Disponible à partir du {formatDate(product.availableFrom!)} — réservation possible dès maintenant
+                  </p>
+                )}
+                {product.estimatedWeightKg ? (
+                  <p className="text-sm text-warm-600">
+                    <span className="font-medium">Poids estimé&nbsp;:</span>{' '}
+                    {formatWeight(product.estimatedWeightKg)}
+                    {isVif && (
+                      <span className="text-warm-500"> — pesée à la livraison</span>
+                    )}
+                  </p>
+                ) : null}
+                {product.freeShipping && (
+                  <p className="inline-flex items-center gap-2 text-sm text-prairie-600 font-medium">
+                    <Truck className="h-4 w-4" />
+                    Livraison offerte
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Stock status (masqué pour un produit en précommande : l'info de date est affichée au-dessus) */}
+            {!upcoming && (
+              <div className="flex items-center gap-2 mb-6">
+                {product.inStock ? (
+                  <>
+                    <Check className="h-5 w-5 text-green-500" />
+                    <span className="text-green-600 font-medium">En stock</span>
+                    {product.stockQuantity && product.stockQuantity < 10 && (
+                      <span className="text-warm-500">
+                        (Plus que {product.stockQuantity} disponibles)
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-red-600 font-medium">Rupture de stock</span>
+                )}
+              </div>
+            )}
 
             {/* Description */}
             <p className="text-warm-600 leading-relaxed mb-6">
@@ -198,7 +233,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             )}
 
             {/* Add to cart */}
-            {product.inStock && (
+            {(product.inStock || upcoming) && (
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 {/* Quantity selector */}
                 <div className="flex items-center border border-warm-300 rounded-lg">
@@ -226,7 +261,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   icon={<ShoppingCart className="h-5 w-5" />}
                   className="flex-1"
                 >
-                  {isPoule ? 'Réserver' : 'Ajouter au panier'}
+                  {reserveLabel ? 'Réserver' : 'Ajouter au panier'}
                 </Button>
               </div>
             )}
@@ -241,7 +276,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <div className="font-medium text-warm-800 text-sm">
                     Livraison gratuite
                   </div>
-                  <div className="text-xs text-warm-500">Dès 200 000 Ar d&apos;achat</div>
+                  <div className="text-xs text-warm-500">
+                    {product.freeShipping ? 'Incluse pour ce produit' : 'Dès 200 000 Ar d’achat'}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">

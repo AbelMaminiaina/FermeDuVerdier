@@ -1,10 +1,11 @@
-import { unstable_noStore as noStore } from 'next/cache';
 import { SERVER_API_BASE_URL } from '@/lib/api/config';
 import { FeaturedProductsClient } from './FeaturedProductsClient';
 
+// Backend already caches this in Redis for 5 min (see CACHE_TTL.PRODUCTS).
+// Not using Next.js' data cache here: product payloads embed their images
+// (data: URIs) and the list can exceed Next's hard 2 MB fetch-cache limit,
+// which silently drops the oversized part of the response.
 async function getFeaturedProducts() {
-  noStore();
-
   const apiUrl = `${SERVER_API_BASE_URL}/products`;
   console.log('[SSR] Fetching featured products from:', apiUrl);
 

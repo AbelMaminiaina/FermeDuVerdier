@@ -4,6 +4,7 @@ interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  availableFrom?: Date | string | null;
 }
 
 interface OrderData {
@@ -75,13 +76,30 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
+function formatDateOnly(date: Date | string): string {
+  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date(date));
+}
+
+// Date de disponibilité (réservation / précommande) figée sur la ligne de commande.
+function isReservationItem(item: OrderItem): boolean {
+  if (!item.availableFrom) return false;
+  const d = new Date(item.availableFrom);
+  return !Number.isNaN(d.getTime()) && d.getTime() > Date.now();
+}
+
+// Petite ligne « Réservation — livraison à partir du … » à afficher sous le nom du produit.
+function reservationNoteHTML(item: OrderItem): string {
+  if (!isReservationItem(item)) return '';
+  return `<br><span style="color: #b45309; font-size: 12px;">📅 Réservation — livraison à partir du ${formatDateOnly(item.availableFrom!)}</span>`;
+}
+
 // Template email pour le CLIENT
 function generateCustomerEmailHTML(order: OrderData): string {
   const itemsHTML = order.items
     .map(
       (item) => `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}${reservationNoteHTML(item)}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">${item.quantity}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${formatPrice(item.price)}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${formatPrice(item.price * item.quantity)}</td>
@@ -89,6 +107,18 @@ function generateCustomerEmailHTML(order: OrderData): string {
     `
     )
     .join('');
+
+  const reservationItems = order.items.filter(isReservationItem);
+  const reservationBannerHTML = reservationItems.length
+    ? `<div style="background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #92400e; font-weight: bold; font-size: 14px;">📅 Votre commande contient une réservation</p>
+        <p style="margin: 6px 0 0 0; color: #78350f; font-size: 13px;">
+          ${reservationItems
+            .map((it) => `${it.name} — livraison à partir du ${formatDateOnly(it.availableFrom!)}`)
+            .join('<br>')}
+        </p>
+      </div>`
+    : '';
 
   const statusLabel = order.status === 'processing'
     ? 'Confirmée - En préparation'
@@ -191,6 +221,8 @@ function generateCustomerEmailHTML(order: OrderData): string {
         </div>
       </div>
 
+      ${reservationBannerHTML}
+
       <!-- Items Table -->
       <h3 style="margin: 0 0 15px 0; color: #333;">Récapitulatif de votre commande</h3>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -251,7 +283,12 @@ function generateCustomerEmailHTML(order: OrderData): string {
 // Template email pour l'ADMIN
 function generateAdminNotificationHTML(order: OrderData): string {
   const itemsList = order.items
-    .map(item => `• ${item.name} x${item.quantity} = ${formatPrice(item.price * item.quantity)}`)
+    .map(item => {
+      const resa = isReservationItem(item)
+        ? ` <span style="color:#b45309;">(réservation — dispo le ${formatDateOnly(item.availableFrom!)})</span>`
+        : '';
+      return `• ${item.name} x${item.quantity} = ${formatPrice(item.price * item.quantity)}${resa}`;
+    })
     .join('<br>');
 
   return `
@@ -325,7 +362,7 @@ function generateCancellationEmailHTML(order: CancellationEmailData): string {
     .map(
       (item) => `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}${reservationNoteHTML(item)}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">${item.quantity}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${formatPrice(item.price * item.quantity)}</td>
       </tr>
@@ -434,7 +471,7 @@ function generateItemsRows(items: OrderItem[]): string {
     .map(
       (item) => `
       <tr>
-        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}${reservationNoteHTML(item)}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">${item.quantity}</td>
         <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${formatPrice(item.price * item.quantity)}</td>
       </tr>

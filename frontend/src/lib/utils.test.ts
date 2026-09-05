@@ -16,6 +16,11 @@ import {
   validatePostalCode,
   getDeliveryEstimate,
   getShippingCost,
+  formatWeight,
+  isUpcoming,
+  formatDeliveryWindow,
+  FREE_SHIPPING_THRESHOLD,
+  SHIPPING_COSTS,
 } from './utils';
 
 describe('cn', () => {
@@ -187,23 +192,74 @@ describe('getDeliveryEstimate', () => {
 });
 
 describe('getShippingCost', () => {
+  const below = FREE_SHIPPING_THRESHOLD - 1;
+
   it('charges standard shipping below the free-shipping threshold', () => {
-    expect(getShippingCost('standard', 50000)).toBe(25000);
+    expect(getShippingCost('standard', below)).toBe(SHIPPING_COSTS.standard);
   });
 
   it('charges express shipping below the free-shipping threshold', () => {
-    expect(getShippingCost('express', 50000)).toBe(45000);
+    expect(getShippingCost('express', below)).toBe(SHIPPING_COSTS.express);
   });
 
   it('is free for pickup regardless of subtotal', () => {
     expect(getShippingCost('retrait', 1000)).toBe(0);
   });
 
-  it('is free once the subtotal reaches 200000 Ar', () => {
-    expect(getShippingCost('express', 200000)).toBe(0);
+  it('is free once the subtotal reaches the free-shipping threshold', () => {
+    expect(getShippingCost('express', FREE_SHIPPING_THRESHOLD)).toBe(0);
   });
 
   it('defaults to 0 for an unknown method', () => {
     expect(getShippingCost('drone', 1000)).toBe(0);
+  });
+
+  it('is free when the cart holds a freeShipping item, ignoring method and threshold', () => {
+    expect(getShippingCost('express', 1000, true)).toBe(0);
+  });
+
+  it('still charges normally when no cart item is flagged freeShipping', () => {
+    expect(getShippingCost('standard', below, false)).toBe(SHIPPING_COSTS.standard);
+  });
+});
+
+describe('formatWeight', () => {
+  it('formats a weight with the ≈ prefix and kg suffix', () => {
+    expect(formatWeight(1.8)).toBe('≈ 1,8 kg');
+  });
+
+  it('drops trailing zeros', () => {
+    expect(formatWeight(2)).toBe('≈ 2 kg');
+  });
+});
+
+describe('isUpcoming', () => {
+  it('is false for a null/undefined/empty date', () => {
+    expect(isUpcoming(null)).toBe(false);
+    expect(isUpcoming(undefined)).toBe(false);
+    expect(isUpcoming('')).toBe(false);
+  });
+
+  it('is false for an invalid date string', () => {
+    expect(isUpcoming('not-a-date')).toBe(false);
+  });
+
+  it('is true only for a date in the future', () => {
+    expect(isUpcoming(new Date(Date.now() + 86400_000).toISOString())).toBe(true);
+    expect(isUpcoming(new Date(Date.now() - 86400_000).toISOString())).toBe(false);
+  });
+});
+
+describe('formatDeliveryWindow', () => {
+  it('gives the availability day or the next day, same month', () => {
+    expect(formatDeliveryWindow('2026-12-20')).toBe('20 ou 21 décembre 2026');
+  });
+
+  it('handles a month boundary', () => {
+    expect(formatDeliveryWindow('2026-12-31')).toBe('31 décembre 2026 ou 1 janvier 2027');
+  });
+
+  it('returns an empty string for an invalid date', () => {
+    expect(formatDeliveryWindow('not-a-date')).toBe('');
   });
 });

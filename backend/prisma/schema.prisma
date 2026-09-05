@@ -34,6 +34,12 @@ enum ProductBadge {
   populaire
 }
 
+// Nature du produit (remplace l'ancien test de catégorie en dur côté frontend)
+enum ProductType {
+  vif   // animal vendu vivant
+  piece // vendu à la pièce (découpe, poisson, œufs, accessoire…)
+}
+
 // Produits
 model Product {
   id               String           @id @default(uuid())
@@ -52,6 +58,12 @@ model Product {
   isActive         Boolean          @default(true)  // Masquer du catalogue sans supprimer
   badges           ProductBadge[]
   characteristics  String[]
+
+  // Nature + logistique
+  productType       ProductType     @default(piece)
+  estimatedWeightKg Float?          // Poids estimé indicatif — n'entre JAMAIS dans le calcul du prix
+  freeShipping      Boolean         @default(false) // Si true, la commande contenant ce produit est livrée gratuitement
+  availableFrom     DateTime?       // Date de disponibilité — avant cette date le client peut réserver (précommande)
 
   // Metadata (pour les œufs fécondés et poules)
   race             String?
@@ -185,7 +197,8 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
 
   quantity  Int
-  price     Int     // Prix unitaire en Ariary au moment de la commande
+  price     Int       // Prix unitaire en Ariary au moment de la commande
+  availableFrom DateTime? // Date de disponibilité du produit figée au moment de la commande (réservation / précommande)
 
   createdAt DateTime @default(now())
 
