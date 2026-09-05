@@ -29,7 +29,14 @@ interface Order {
     name: string;
     quantity: number;
     price: number;
+    availableFrom?: string | null;
   }>;
+}
+
+function isReservation(availableFrom?: string | null): boolean {
+  if (!availableFrom) return false;
+  const d = new Date(availableFrom);
+  return !Number.isNaN(d.getTime()) && d.getTime() > Date.now();
 }
 
 const statusLabels: Record<string, { label: string; color: string }> = {
@@ -154,7 +161,7 @@ export default function AdminOrdersPage() {
 
       ARTICLES
       --------
-      ${order.items.map((item) => `${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`).join('\n      ')}
+      ${order.items.map((item) => `${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}${isReservation(item.availableFrom) ? ` (réservation - dispo le ${new Date(item.availableFrom!).toLocaleDateString('fr-FR')})` : ''}`).join('\n      ')}
 
       Sous-total: ${formatPrice(order.subtotal)}
       Frais de livraison: ${formatPrice(order.shippingCost)}
@@ -446,6 +453,14 @@ export default function AdminOrdersPage() {
                         <p className="text-sm text-warm-500">
                           {formatPrice(item.price)} x {item.quantity}
                         </p>
+                        {isReservation(item.availableFrom) && (
+                          <p className="text-xs text-amber-600 font-medium mt-0.5">
+                            📅 Réservation — livraison à partir du{' '}
+                            {new Date(item.availableFrom!).toLocaleDateString('fr-FR', {
+                              day: 'numeric', month: 'long', year: 'numeric',
+                            })}
+                          </p>
+                        )}
                       </div>
                       <p className="font-semibold text-warm-800">
                         {formatPrice(item.price * item.quantity)}

@@ -84,6 +84,31 @@ describe('sendOrderConfirmationEmail', () => {
 
     expect(result).toBe(false);
   });
+
+  it('shows a reservation notice and date for an item with a future availableFrom', async () => {
+    await sendOrderConfirmationEmail({
+      ...baseOrder,
+      items: [
+        { name: 'Poulet vif', quantity: 1, price: 30000, availableFrom: '2099-12-20' },
+        { name: 'Oeufs frais', quantity: 2, price: 2000 },
+      ],
+    });
+
+    const customerHtml = sendMailMock.mock.calls[0][0].html;
+    expect(customerHtml).toContain('Votre commande contient une réservation');
+    expect(customerHtml).toMatch(/Réservation — livraison à partir du 20 décembre 2099/);
+  });
+
+  it('does not show a reservation notice when the availability date is in the past', async () => {
+    await sendOrderConfirmationEmail({
+      ...baseOrder,
+      items: [{ name: 'Poulet fermier', quantity: 1, price: 30000, availableFrom: '2000-01-01' }],
+    });
+
+    const customerHtml = sendMailMock.mock.calls[0][0].html;
+    expect(customerHtml).not.toContain('contient une réservation');
+    expect(customerHtml).not.toContain('livraison à partir du');
+  });
 });
 
 describe('sendAdminNotificationEmail', () => {
@@ -108,6 +133,16 @@ describe('sendAdminNotificationEmail', () => {
     const call = sendMailMock.mock.calls[0][0];
     expect(call.html).toContain('Poulet fermier x2');
     expect(call.html).toContain('Oeufs frais x3');
+  });
+
+  it('flags a reservation item in the admin notification body', async () => {
+    await sendAdminNotificationEmail({
+      ...baseOrder,
+      items: [{ name: 'Poulet vif', quantity: 1, price: 30000, availableFrom: '2099-12-20' }],
+    });
+
+    const call = sendMailMock.mock.calls[0][0];
+    expect(call.html).toMatch(/réservation — dispo le 20 décembre 2099/);
   });
 
   it('skips sending when SMTP credentials are not configured', async () => {

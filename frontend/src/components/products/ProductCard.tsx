@@ -4,10 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Eye } from 'lucide-react';
+import { ShoppingCart, Eye, Truck, CalendarClock } from 'lucide-react';
 import { Product } from '@/types';
 import { Badge, Button } from '@/components/ui';
-import { formatPrice, getBadgeLabel } from '@/lib/utils';
+import { formatDate, formatPrice, formatWeight, getBadgeLabel, isUpcoming } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useToast } from '@/components/ui/Toast';
 import { imageHover } from '@/lib/animations';
@@ -20,6 +20,10 @@ export function ProductCard({ product }: ProductCardProps) {
   const cart = useCart();
   const { addToast } = useToast();
 
+  const isVif = product.productType === 'vif';
+  const upcoming = isUpcoming(product.availableFrom);
+  const reserveLabel = isVif || upcoming;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -31,13 +35,14 @@ export function ProductCard({ product }: ProductCardProps) {
       image: product.images[0] || '/images/placeholder.jpg',
       slug: product.slug,
       metadata: product.metadata,
+      freeShipping: product.freeShipping,
+      estimatedWeightKg: product.estimatedWeightKg,
+      availableFrom: product.availableFrom,
       quantity: 1,
     });
 
-    addToast('success', `${product.name} ajouté au panier`);
+    addToast('success', upcoming ? `${product.name} réservé` : `${product.name} ajouté au panier`);
   };
-
-  const isPoule = product.category === 'poules';
 
   return (
     <Link href={`/produits/${product.slug}`}>
@@ -67,8 +72,8 @@ export function ProductCard({ product }: ProductCardProps) {
             ))}
           </div>
 
-          {/* Out of stock overlay */}
-          {!product.inStock && (
+          {/* Out of stock overlay (pas pour un produit en précommande) */}
+          {!upcoming && !product.inStock && (
             <div className="absolute inset-0 bg-warm-900/60 flex items-center justify-center">
               <span className="text-white font-semibold bg-warm-800 px-4 py-2 rounded-lg">
                 Rupture de stock
@@ -104,6 +109,29 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.shortDescription}
           </p>
 
+          {/* Weight estimate + free shipping + availability */}
+          {(product.estimatedWeightKg || product.freeShipping || upcoming) && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs">
+              {product.estimatedWeightKg ? (
+                <span className="text-warm-500">
+                  Poids estimé&nbsp;: {formatWeight(product.estimatedWeightKg)}
+                </span>
+              ) : null}
+              {product.freeShipping && (
+                <span className="inline-flex items-center gap-1 text-prairie-600 font-medium">
+                  <Truck className="h-3.5 w-3.5" />
+                  Livraison offerte
+                </span>
+              )}
+              {upcoming && (
+                <span className="inline-flex items-center gap-1 text-amber-600 font-medium">
+                  <CalendarClock className="h-3.5 w-3.5" />
+                  Disponible le {formatDate(product.availableFrom!)}
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Price and action */}
           <div className="flex items-center justify-between mt-4">
             <div>
@@ -115,19 +143,17 @@ export function ProductCard({ product }: ProductCardProps) {
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
-              {isPoule && (
-                <span className="text-xs text-warm-500 block">/pièce</span>
-              )}
+              <span className="text-xs text-warm-500 block">/pièce</span>
             </div>
 
-            {product.inStock && (
+            {(product.inStock || upcoming) && (
               <Button
                 size="sm"
                 icon={<ShoppingCart className="h-4 w-4" />}
                 onClick={handleAddToCart}
-                aria-label={isPoule ? 'Réserver' : 'Ajouter au panier'}
+                aria-label={reserveLabel ? 'Réserver' : 'Ajouter au panier'}
               >
-                {isPoule ? 'Réserver' : 'Ajouter'}
+                {reserveLabel ? 'Réserver' : 'Ajouter'}
               </Button>
             )}
           </div>

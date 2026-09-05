@@ -6,6 +6,11 @@ import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { Testimonials } from '@/components/home/Testimonials';
 import { CTASection } from '@/components/home/CTASection';
 
+// FeaturedProducts fetches from the backend, which isn't reachable from the
+// isolated Docker build stage — force per-request rendering so the build
+// doesn't try to prerender this page statically.
+export const dynamic = 'force-dynamic';
+
 export default function HomePage() {
   return (
     <>

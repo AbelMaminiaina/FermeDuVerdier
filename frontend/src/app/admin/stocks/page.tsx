@@ -20,6 +20,43 @@ import {
 import { Button, Input } from '@/components/ui';
 import { useCategories, Category, invalidateCategoriesCache } from '@/hooks/useCategories';
 
+type ProductType = 'vif' | 'piece';
+
+// Les images sont stockées en data: URI directement dans le produit. Sans
+// redimensionnement, une photo de téléphone (2–5 Mo) fait exploser la taille de
+// la réponse API et casse l'affichage côté client. On ramène chaque image à
+// 1600 px max et on ré-encode en JPEG (~150–400 Ko).
+const MAX_IMAGE_DIMENSION = 1600;
+const IMAGE_JPEG_QUALITY = 0.82;
+
+function resizeImageToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Lecture du fichier impossible'));
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onerror = () => reject(new Error('Image illisible'));
+      img.onload = () => {
+        const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height));
+        const width = Math.round(img.width * scale);
+        const height = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(reader.result as string); // pas de canvas → on garde l'original
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', IMAGE_JPEG_QUALITY));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 interface Product {
   id: string;
   name: string;
@@ -31,6 +68,10 @@ interface Product {
   inStock: boolean;
   isActive: boolean;
   images: string[];
+  productType: ProductType;
+  estimatedWeightKg: number | null;
+  freeShipping: boolean;
+  availableFrom: string | null;
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -61,7 +102,18 @@ export default function AdminStocksPage() {
 
   // Modal
   const [modal, setModal] = useState<{ mode: 'add' | 'edit'; product?: Product } | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', category: '', price: 0, stockQuantity: 0, images: '' });
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    price: 0,
+    stockQuantity: 0,
+    images: '',
+    productType: 'piece' as ProductType,
+    estimatedWeightKg: '' as string,
+    freeShipping: false,
+    availableFrom: '' as string,
+  });
   const [saving, setSaving] = useState(false);
 
   // Delete confirmation modal
@@ -215,10 +267,17 @@ export default function AdminStocksPage() {
         price: product.price,
         stockQuantity: product.stockQuantity,
         images: product.images?.join('\n') || '',
+        productType: product.productType || 'piece',
+        estimatedWeightKg: product.estimatedWeightKg != null ? String(product.estimatedWeightKg) : '',
+        freeShipping: product.freeShipping ?? false,
+        availableFrom: product.availableFrom ? product.availableFrom.slice(0, 10) : '',
       });
     } else {
       const defaultCategory = categories.length > 0 ? categories[0].slug.replace(/-/g, '_') : 'poulet';
-      setForm({ name: '', description: '', category: defaultCategory, price: 0, stockQuantity: 0, images: '' });
+      setForm({
+        name: '', description: '', category: defaultCategory, price: 0, stockQuantity: 0, images: '',
+        productType: 'piece', estimatedWeightKg: '', freeShipping: false, availableFrom: '',
+      });
     }
     setModal({ mode, product });
   };
@@ -234,6 +293,10 @@ export default function AdminStocksPage() {
       price: product.price,
       stockQuantity: 0,
       images: product.images?.join('\n') || '',
+      productType: product.productType || 'piece',
+      estimatedWeightKg: product.estimatedWeightKg != null ? String(product.estimatedWeightKg) : '',
+      freeShipping: product.freeShipping ?? false,
+      availableFrom: product.availableFrom ? product.availableFrom.slice(0, 10) : '',
     });
     setModal({ mode: 'add' });
   };
@@ -267,7 +330,13 @@ export default function AdminStocksPage() {
   const saveProduct = async () => {
     setSaving(true);
     const images = form.images.split('\n').map(s => s.trim()).filter(Boolean);
-    const body = { ...form, images };
+    const trimmedWeight = form.estimatedWeightKg.trim();
+    const body = {
+      ...form,
+      images,
+      estimatedWeightKg: trimmedWeight === '' ? null : Number(trimmedWeight.replace(',', '.')),
+      availableFrom: form.availableFrom || null,
+    };
 
     try {
       const isEdit = modal?.mode === 'edit';
@@ -432,6 +501,24 @@ export default function AdminStocksPage() {
                       {!p.isActive && (
                         <span className="ml-2 text-xs bg-gray-500 text-white px-2 py-0.5 rounded">Masqué</span>
                       )}
+                      <span className="flex flex-wrap gap-1 mt-1">
+                        {p.productType === 'vif' && (
+                          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">Vif</span>
+                        )}
+                        {p.freeShipping && (
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">Livraison offerte</span>
+                        )}
+                        {p.estimatedWeightKg != null && (
+                          <span className="text-xs bg-warm-100 text-warm-600 px-2 py-0.5 rounded">
+                            ≈ {p.estimatedWeightKg} kg
+                          </span>
+                        )}
+                        {p.availableFrom && new Date(p.availableFrom) > new Date() && (
+                          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">
+                            Dispo. {new Date(p.availableFrom).toLocaleDateString('fr-FR')}
+                          </span>
+                        )}
+                      </span>
                     </div>
                   </div>
                 </td>
@@ -530,6 +617,36 @@ export default function AdminStocksPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
+                      <label className="block text-sm font-semibold text-warm-700 mb-1">Type de produit</label>
+                      <select
+                        value={form.productType}
+                        onChange={e => setForm(f => ({ ...f, productType: e.target.value as ProductType }))}
+                        className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
+                      >
+                        <option value="piece">Pièce</option>
+                        <option value="vif">Vif (animal vivant)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-warm-700 mb-1">Poids estimé (kg)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="500"
+                        step="0.1"
+                        value={form.estimatedWeightKg}
+                        onChange={e => setForm(f => ({ ...f, estimatedWeightKg: e.target.value }))}
+                        className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
+                        placeholder="Ex: 1.8"
+                      />
+                      <p className="text-xs text-warm-500 mt-1">
+                        Indicatif, n&apos;affecte pas le prix. Laisser vide si non pertinent.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
                       <label className="block text-sm font-semibold text-warm-700 mb-1">Prix (Ar) *</label>
                       <input
                         type="number"
@@ -549,6 +666,36 @@ export default function AdminStocksPage() {
                         className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
                       />
                     </div>
+                  </div>
+
+                  <label className="flex items-start gap-3 rounded-lg border border-warm-300 p-3 cursor-pointer hover:bg-warm-50">
+                    <input
+                      type="checkbox"
+                      checked={form.freeShipping}
+                      onChange={e => setForm(f => ({ ...f, freeShipping: e.target.checked }))}
+                      className="mt-0.5 h-4 w-4 accent-prairie-600"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-warm-700">
+                        Livraison gratuite pour ce produit
+                      </span>
+                      <span className="block text-xs text-warm-500">
+                        Toute commande contenant ce produit est livrée sans frais, quelle que soit la méthode.
+                      </span>
+                    </span>
+                  </label>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-warm-700 mb-1">Date de disponibilité</label>
+                    <input
+                      type="date"
+                      value={form.availableFrom}
+                      onChange={e => setForm(f => ({ ...f, availableFrom: e.target.value }))}
+                      className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
+                    />
+                    <p className="text-xs text-warm-500 mt-1">
+                      Laisser vide si le produit est disponible immédiatement. Avant cette date, le client peut réserver (précommande).
+                    </p>
                   </div>
 
                   <div>
@@ -586,20 +733,20 @@ export default function AdminStocksPage() {
                             accept="image/*"
                             multiple
                             className="hidden"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const files = e.target.files;
                               if (files) {
-                                Array.from(files).forEach(file => {
-                                  const reader = new FileReader();
-                                  reader.onload = (event) => {
-                                    const base64 = event.target?.result as string;
+                                for (const file of Array.from(files)) {
+                                  try {
+                                    const base64 = await resizeImageToDataUrl(file);
                                     setForm(f => ({
                                       ...f,
                                       images: f.images ? f.images + '\n' + base64 : base64
                                     }));
-                                  };
-                                  reader.readAsDataURL(file);
-                                });
+                                  } catch {
+                                    setToast({ type: 'error', message: `Image "${file.name}" ignorée (format non supporté)` });
+                                  }
+                                }
                               }
                               e.target.value = '';
                             }}
@@ -687,17 +834,17 @@ export default function AdminStocksPage() {
                     accept="image/*"
                     multiple
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const files = e.target.files;
                       if (files) {
-                        Array.from(files).forEach(file => {
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            const base64 = event.target?.result as string;
+                        for (const file of Array.from(files)) {
+                          try {
+                            const base64 = await resizeImageToDataUrl(file);
                             setImageForm(f => (f ? f + '\n' + base64 : base64));
-                          };
-                          reader.readAsDataURL(file);
-                        });
+                          } catch {
+                            setToast({ type: 'error', message: `Image "${file.name}" ignorée (format non supporté)` });
+                          }
+                        }
                       }
                       e.target.value = '';
                     }}

@@ -10,6 +10,10 @@ function transformProduct(p: any) {
     ...p,
     category: p.category.replace('_', '-'),
     isActive: p.isActive ?? true,
+    productType: p.productType ?? 'piece',
+    estimatedWeightKg: p.estimatedWeightKg ?? null,
+    freeShipping: p.freeShipping ?? false,
+    availableFrom: p.availableFrom ?? null,
     metadata: {
       race: p.race,
       eggColor: p.eggColor,
@@ -194,6 +198,62 @@ async function isValidProductCategory(category: unknown): Promise<boolean> {
   return Boolean(match);
 }
 
+// Validate the optional "nature + logistique" fields shared by create/update.
+// Returns an error message, or null when the payload is acceptable.
+function validateProductExtras(body: any): string | null {
+  const { productType, estimatedWeightKg, freeShipping } = body;
+
+  if (productType !== undefined && productType !== 'vif' && productType !== 'piece') {
+    return 'Type de produit invalide';
+  }
+  if (
+    estimatedWeightKg !== undefined &&
+    estimatedWeightKg !== null &&
+    (typeof estimatedWeightKg !== 'number' ||
+      !Number.isFinite(estimatedWeightKg) ||
+      estimatedWeightKg <= 0 ||
+      estimatedWeightKg > 500)
+  ) {
+    return 'Poids estimé invalide (entre 0 et 500 kg)';
+  }
+  if (freeShipping !== undefined && typeof freeShipping !== 'boolean') {
+    return 'Valeur de livraison gratuite invalide';
+  }
+
+  const { availableFrom } = body;
+  if (
+    availableFrom !== undefined &&
+    availableFrom !== null &&
+    availableFrom !== '' &&
+    Number.isNaN(new Date(availableFrom).getTime())
+  ) {
+    return 'Date de disponibilité invalide';
+  }
+
+  return validateImages(body.images);
+}
+
+// Chaque image est stockée en data: URI dans le produit ; on plafonne la taille
+// pour éviter des réponses API géantes (Next.js tronque > 2 Mo côté rendu).
+const MAX_IMAGE_LENGTH = 1_500_000; // ~1,1 Mo binaire une fois décodé
+
+function validateImages(images: unknown): string | null {
+  if (images === undefined) return null;
+  if (!Array.isArray(images) || !images.every((img) => typeof img === 'string')) {
+    return 'Images invalides';
+  }
+  if (images.some((img) => img.length > MAX_IMAGE_LENGTH)) {
+    return 'Une image est trop lourde. Réduisez sa taille (max ~1 Mo) avant de l’ajouter.';
+  }
+  return null;
+}
+
+// Normalise la date de disponibilité reçue du client (string ISO / '' / null) en Date | null.
+function parseAvailableFrom(value: unknown): Date | null {
+  if (value === undefined || value === null || value === '') return null;
+  return new Date(value as string);
+}
+
 // Generate slug from name
 function generateSlug(name: string): string {
   return name
@@ -207,10 +267,16 @@ function generateSlug(name: string): string {
 // Admin: Create new product
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, description, category, price, stockQuantity, images } = req.body;
+    const { name, description, category, price, stockQuantity, images,
+      productType, estimatedWeightKg, freeShipping, availableFrom } = req.body;
 
     if (!name || !category || typeof price !== 'number' || price <= 0) {
       return res.status(400).json({ error: 'Données invalides' });
+    }
+
+    const extrasError = validateProductExtras(req.body);
+    if (extrasError) {
+      return res.status(400).json({ error: extrasError });
     }
 
     if (!(await isValidProductCategory(category))) {
@@ -237,6 +303,10 @@ router.post('/', async (req: Request, res: Response) => {
         stockQuantity: stockQuantity || 0,
         inStock: (stockQuantity || 0) > 0,
         images: images || [],
+        productType: productType ?? 'piece',
+        estimatedWeightKg: estimatedWeightKg ?? null,
+        freeShipping: freeShipping ?? false,
+        availableFrom: parseAvailableFrom(availableFrom),
       },
     });
 
@@ -252,10 +322,16 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:productId', async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
-    const { name, description, category, price, stockQuantity, images } = req.body;
+    const { name, description, category, price, stockQuantity, images,
+      productType, estimatedWeightKg, freeShipping, availableFrom } = req.body;
 
     if (!name || !category || typeof price !== 'number' || price <= 0) {
       return res.status(400).json({ error: 'Données invalides' });
+    }
+
+    const extrasError = validateProductExtras(req.body);
+    if (extrasError) {
+      return res.status(400).json({ error: extrasError });
     }
 
     if (!(await isValidProductCategory(category))) {
@@ -294,6 +370,13 @@ router.put('/:productId', async (req: Request, res: Response) => {
         stockQuantity: stockQuantity ?? existingProduct.stockQuantity,
         inStock: (stockQuantity ?? existingProduct.stockQuantity) > 0,
         images: images || existingProduct.images,
+        productType: productType ?? existingProduct.productType,
+        estimatedWeightKg:
+          estimatedWeightKg === undefined ? existingProduct.estimatedWeightKg : estimatedWeightKg,
+        freeShipping:
+          freeShipping === undefined ? existingProduct.freeShipping : freeShipping,
+        availableFrom:
+          availableFrom === undefined ? existingProduct.availableFrom : parseAvailableFrom(availableFrom),
       },
     });
 
@@ -312,8 +395,12 @@ router.patch('/:productId/images', async (req: Request, res: Response) => {
     const { productId } = req.params;
     const { images } = req.body;
 
-    if (!Array.isArray(images) || !images.every((img) => typeof img === 'string')) {
+    if (!Array.isArray(images)) {
       return res.status(400).json({ error: 'Images invalides' });
+    }
+    const imagesError = validateImages(images);
+    if (imagesError) {
+      return res.status(400).json({ error: imagesError });
     }
 
     const product = await prisma.product.update({

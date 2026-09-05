@@ -9,6 +9,7 @@ import {
   sendOrderDeliveredEmail,
 } from '../services/emailService.js';
 import { invalidateProductCache } from '../lib/cache.js';
+import { computeShippingCost } from '../lib/shipping.js';
 
 const router = Router();
 
@@ -38,18 +39,6 @@ const checkoutSchema = z.object({
   notes: z.string().optional(),
 });
 
-// Calculate shipping cost
-function getShippingCost(method: string, subtotal: number): number {
-  if (subtotal >= 200000) return 0; // Free shipping above 200,000 Ar
-
-  const costs: Record<string, number> = {
-    standard: 25000,
-    express: 45000,
-    retrait: 0,
-  };
-  return costs[method] || 0;
-}
-
 // Generate order number
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString(36);
@@ -61,13 +50,11 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const validatedData = checkoutSchema.parse(req.body);
 
-    // Calculate totals
+    // Calculate subtotal (shipping is computed further down, once products are loaded)
     const subtotal = validatedData.items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    const shippingCost = getShippingCost(validatedData.deliveryMethod, subtotal);
-    const total = subtotal + shippingCost;
 
     // Find or create customer
     let customer = await prisma.customer.findUnique({
@@ -100,10 +87,23 @@ router.post('/', async (req: Request, res: Response) => {
     const productIds = validatedData.items.map(item => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, stockQuantity: true },
+      select: { id: true, stockQuantity: true, freeShipping: true, availableFrom: true },
     });
 
     const productMap = new Map(products.map(p => [p.id, p]));
+
+    // Shipping: a single product flagged freeShipping makes the whole order free.
+    const freeShippingProductIds = new Set(
+      products.filter(p => p.freeShipping).map(p => p.id)
+    );
+    const shippingCost = computeShippingCost(
+      validatedData.deliveryMethod,
+      subtotal,
+      freeShippingProductIds,
+      validatedData.items,
+    );
+    const total = subtotal + shippingCost;
+
     let allInStock = true;
     const stockUpdates: { id: string; newQuantity: number }[] = [];
 
@@ -139,6 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
             productId: item.productId,
             quantity: item.quantity,
             price: item.price,
+            availableFrom: productMap.get(item.productId)?.availableFrom ?? null,
           })),
         },
       },
@@ -183,6 +184,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
+        availableFrom: productMap.get(item.productId)?.availableFrom ?? null,
       })),
       subtotal,
       shippingCost,
@@ -270,6 +272,7 @@ router.get('/orders', async (req: Request, res: Response) => {
         name: item.product.name,
         quantity: item.quantity,
         price: item.price,
+        availableFrom: item.availableFrom,
       })),
     }));
 
@@ -350,6 +353,7 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
           name: item.product.name,
           quantity: item.quantity,
           price: item.price,
+          availableFrom: item.availableFrom,
         })),
         total: order.total,
         cancelledAt: new Date(),
@@ -363,6 +367,7 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
           name: item.product.name,
           quantity: item.quantity,
           price: item.price,
+          availableFrom: item.availableFrom,
         })),
         total: order.total,
         deliveryMethod: order.deliveryMethod,
@@ -442,6 +447,7 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
         name: item.product.name,
         quantity: item.quantity,
         price: item.price,
+        availableFrom: item.availableFrom,
       })),
     }));
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -18,10 +18,11 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { formatPrice, getShippingCost } from '@/lib/utils';
+import { formatDeliveryWindow, formatPrice, getShippingCost, isUpcoming } from '@/lib/utils';
 import { Button, Input } from '@/components/ui';
 import { createOrder } from '@/lib/api/checkout';
 import { fadeInUp } from '@/lib/animations';
+import { filterCheckoutSteps } from './checkout-steps';
 
 type Step = 'informations' | 'adresse' | 'livraison' | 'paiement';
 type DeliveryMethod = 'standard' | 'express' | 'retrait';
@@ -40,7 +41,7 @@ interface AddressInfo {
   postalCode: string;
 }
 
-const steps: { id: Step; label: string; icon: React.ReactNode }[] = [
+const ALL_STEPS: { id: Step; label: string; icon: React.ReactNode }[] = [
   { id: 'informations', label: 'Informations', icon: <User className="h-5 w-5" /> },
   { id: 'adresse', label: 'Adresse', icon: <MapPin className="h-5 w-5" /> },
   { id: 'livraison', label: 'Livraison', icon: <Truck className="h-5 w-5" /> },
@@ -117,8 +118,22 @@ export default function CheckoutPage() {
 
   // Calculations
   const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingCost = deliveryMethod === 'retrait' ? 0 : getShippingCost(deliveryMethod, subtotal);
+  const hasFreeShippingItem = cart.items.some((item) => item.freeShipping);
+  const shippingCost = getShippingCost(deliveryMethod, subtotal, hasFreeShippingItem);
   const total = subtotal + shippingCost;
+
+  // Livraison offerte sur un produit du panier → l'étape « Livraison » n'a plus d'objet, on la saute.
+  const steps = useMemo(
+    () => filterCheckoutSteps(ALL_STEPS, hasFreeShippingItem),
+    [hasFreeShippingItem]
+  );
+
+  // Si l'étape courante vient de disparaître (panier hydraté après coup), revenir à une étape valide.
+  useEffect(() => {
+    if (!steps.some((s) => s.id === currentStep)) {
+      setCurrentStep('paiement');
+    }
+  }, [steps, currentStep]);
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
 
@@ -454,10 +469,10 @@ export default function CheckoutPage() {
                         <p className="text-sm text-warm-600">Livraison sous 24-48h</p>
                       </div>
                       <span className="font-semibold text-warm-800">
-                        {subtotal >= 100000 ? (
+                        {getShippingCost('standard', subtotal, hasFreeShippingItem) === 0 ? (
                           <span className="text-prairie-600">Gratuit</span>
                         ) : (
-                          formatPrice(10000)
+                          formatPrice(getShippingCost('standard', subtotal, hasFreeShippingItem))
                         )}
                       </span>
                     </label>
@@ -483,7 +498,13 @@ export default function CheckoutPage() {
                         <p className="font-medium text-warm-800">Livraison express</p>
                         <p className="text-sm text-warm-600">Livraison le jour même</p>
                       </div>
-                      <span className="font-semibold text-warm-800">{formatPrice(20000)}</span>
+                      <span className="font-semibold text-warm-800">
+                        {getShippingCost('express', subtotal, hasFreeShippingItem) === 0 ? (
+                          <span className="text-prairie-600">Gratuit</span>
+                        ) : (
+                          formatPrice(getShippingCost('express', subtotal, hasFreeShippingItem))
+                        )}
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -609,6 +630,11 @@ export default function CheckoutPage() {
                       <p className="text-sm font-semibold text-prairie-600">
                         {formatPrice(item.price * item.quantity)}
                       </p>
+                      {isUpcoming(item.availableFrom) && (
+                        <p className="text-xs text-amber-600 font-medium mt-0.5">
+                          📅 Livraison le {formatDeliveryWindow(item.availableFrom!)}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}

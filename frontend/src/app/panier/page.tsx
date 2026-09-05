@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Truck, Shield, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { formatPrice, getShippingCost } from '@/lib/utils';
+import { formatDate, formatPrice, formatWeight, getShippingCost, isUpcoming, FREE_SHIPPING_THRESHOLD } from '@/lib/utils';
 import { Button, Input } from '@/components/ui';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 
@@ -17,7 +17,8 @@ export default function CartPage() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shippingCost = getShippingCost('standard', subtotal);
+  const hasFreeShippingItem = cart.items.some((item) => item.freeShipping);
+  const shippingCost = getShippingCost('standard', subtotal, hasFreeShippingItem);
   const total = subtotal + shippingCost;
 
   if (cart.items.length === 0) {
@@ -102,8 +103,23 @@ export default function CartPage() {
                       </h3>
                     </Link>
                     <p className="text-prairie-600 font-semibold mt-1">
-                      {formatPrice(item.price)} / unité
+                      {formatPrice(item.price)} / pièce
                     </p>
+                    {item.estimatedWeightKg ? (
+                      <p className="text-xs text-warm-500 mt-0.5">
+                        Poids estimé&nbsp;: {formatWeight(item.estimatedWeightKg)}
+                      </p>
+                    ) : null}
+                    {item.freeShipping && (
+                      <p className="text-xs text-prairie-600 font-medium mt-0.5">
+                        Livraison offerte
+                      </p>
+                    )}
+                    {isUpcoming(item.availableFrom) && (
+                      <p className="text-xs text-amber-600 font-medium mt-0.5">
+                        Réservation — disponible le {formatDate(item.availableFrom!)}
+                      </p>
+                    )}
 
                     <div className="flex items-center justify-between mt-4">
                       {/* Quantity controls */}
@@ -195,10 +211,16 @@ export default function CartPage() {
                     <span>{formatPrice(shippingCost)}</span>
                   )}
                 </div>
-                {subtotal < 50 && shippingCost > 0 && (
-                  <p className="text-sm text-warm-500">
-                    Plus que {formatPrice(50 - subtotal)} pour la livraison gratuite
+                {hasFreeShippingItem ? (
+                  <p className="text-sm text-prairie-600">
+                    Votre panier contient un produit à livraison offerte 🎉
                   </p>
+                ) : (
+                  subtotal < FREE_SHIPPING_THRESHOLD && (
+                    <p className="text-sm text-warm-500">
+                      Plus que {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} pour la livraison gratuite
+                    </p>
+                  )
                 )}
               </div>
 
