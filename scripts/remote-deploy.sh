@@ -162,6 +162,19 @@ fetch_code() {
   echo "Version : $(git log -1 --format='%h %s')  (avant : ${PREV_COMMIT:0:7})"
 }
 
+# Construit les nouvelles images PENDANT que l'ancien site continue de tourner ; les conteneurs
+# ne sont remplaces qu'une fois le build reussi (coupure de quelques secondes seulement).
+# Si le build echoue, le site en ligne n'est pas touche.
+# Pas de --remove-orphans : ne jamais supprimer un conteneur que ce fichier compose ne decrit pas.
+build_and_restart() {
+  say "Construction des nouvelles images (le site actuel reste en ligne, plusieurs minutes)"
+  compose build || fail "Le build a echoue : le site en ligne n'a PAS ete modifie (ancienne version toujours active).
+  Le code sur disque est deja a jour : corrigez puis relancez le deploiement, ou remettez le code
+  d'avant avec -Action rollback."
+  say "Remplacement des conteneurs modifies (coupure de quelques secondes)"
+  compose up -d
+}
+
 reload_nginx() {
   compose exec -T nginx nginx -t >/dev/null 2>&1 && compose exec -T nginx nginx -s reload >/dev/null 2>&1 \
     || compose restart nginx >/dev/null 2>&1 || true
@@ -233,8 +246,7 @@ do_deploy() {
   fetch_code
   verify_env "mise a jour du code"
 
-  say "Construction et redemarrage des conteneurs (plusieurs minutes)"
-  compose up -d --build --remove-orphans
+  build_and_restart
   verify_env "reconstruction"
 
   say "Migrations de la base"
@@ -271,7 +283,7 @@ do_rollback() {
   backup_db
   move_code_preserving_local "Retour a ${target:0:7}" git checkout --quiet "$target"
   verify_env "retour arriere"
-  compose up -d --build --remove-orphans
+  build_and_restart
   verify_env "reconstruction"
   reload_nginx
   wait_ready
