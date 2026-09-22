@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Package, ShoppingCart, TrendingUp, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/utils';
+import { adminFetch } from '@/lib/api/admin';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -41,8 +42,8 @@ export default function AdminDashboard() {
     try {
       // Fetch orders and products in parallel
       const [ordersRes, productsRes] = await Promise.all([
-        fetch(`${API_URL}/checkout/orders`),
-        fetch(`${API_URL}/products?inStock=false`),
+        adminFetch(`${API_URL}/checkout/orders`),
+        adminFetch(`${API_URL}/products?inStock=false`),
       ]);
 
       let totalOrders = 0;

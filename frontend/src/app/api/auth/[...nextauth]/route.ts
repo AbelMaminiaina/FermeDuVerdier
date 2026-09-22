@@ -38,6 +38,11 @@ providers.push(
     },
     async authorize(credentials) {
       const adminEmail = process.env.ADMIN_EMAIL || 'fermeduvardier@gmail.com';
+      // Jamais de mot de passe par défaut en production : sans ADMIN_PASSWORD, pas de connexion admin
+      if (!process.env.ADMIN_PASSWORD && process.env.NODE_ENV === 'production') {
+        console.error('[NextAuth] ADMIN_PASSWORD manquant : connexion admin désactivée.');
+        return null;
+      }
       const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
       if (

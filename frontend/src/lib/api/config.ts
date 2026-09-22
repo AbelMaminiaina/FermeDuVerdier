@@ -12,6 +12,8 @@ export async function fetchAPI<T>(endpoint: string, options?: RequestInit): Prom
   const url = `${API_BASE_URL}${endpoint}`;
 
   const response = await fetch(url, {
+    // Envoie la session NextAuth : requise par les routes d'administration du backend
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...options?.headers,

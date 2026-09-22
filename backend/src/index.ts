@@ -7,6 +7,7 @@ import checkoutRouter from './routes/checkout.js';
 import newsletterRouter from './routes/newsletter.js';
 import categoriesRouter from './routes/categories.js';
 import { connectRedis, redis, isRedisAvailable } from './lib/redis.js';
+import { requireAdmin } from './lib/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -53,7 +54,7 @@ app.get('/api/health', async (_req, res) => {
 });
 
 // Cache stats endpoint
-app.get('/api/cache/stats', async (_req, res) => {
+app.get('/api/cache/stats', requireAdmin, async (_req, res) => {
   try {
     const info = await redis.info('stats');
     const dbSize = await redis.dbsize();
@@ -67,7 +68,7 @@ app.get('/api/cache/stats', async (_req, res) => {
 });
 
 // Clear cache endpoint (for admin use)
-app.delete('/api/cache', async (_req, res) => {
+app.delete('/api/cache', requireAdmin, async (_req, res) => {
   try {
     await redis.flushdb();
     res.json({ message: 'Cache cleared successfully' });

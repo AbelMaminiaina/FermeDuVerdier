@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { formatPrice } from '@/lib/utils';
 import { Eye, Check, Truck, X, Search, Filter, Phone, MapPin, FileText, Package, Ban, Printer } from 'lucide-react';
 import { Button, Input, Modal, Textarea } from '@/components/ui';
+import { adminFetch } from '@/lib/api/admin';
 
 interface Order {
   id: string;
@@ -70,7 +71,7 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/checkout/orders`);
+      const response = await adminFetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/checkout/orders`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data.orders || []);
@@ -85,7 +86,7 @@ export default function AdminOrdersPage() {
   const updateOrderStatus = async (orderId: string, newStatus: string, reason?: string) => {
     setUpdatingStatus(true);
     try {
-      const response = await fetch(
+      const response = await adminFetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/checkout/orders/${orderId}/status`,
         {
           method: 'PATCH',

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
 import { withCache, CACHE_TTL, CACHE_KEYS, invalidateProductCache } from '../lib/cache.js';
+import { requireAdmin, getSessionUser, isAdmin } from '../lib/auth.js';
 
 const router = Router();
 
@@ -27,7 +28,10 @@ function transformProduct(p: any) {
 // Get all products with filters
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { category, search, inStock, includeInactive } = req.query;
+    const { category, search, inStock } = req.query;
+    // Les produits masqués ne sont listés que pour l'admin
+    const includeInactive =
+      req.query.includeInactive === 'true' && isAdmin(await getSessionUser(req)) ? 'true' : undefined;
 
     // Build cache key based on query params
     const cacheKey = `${CACHE_KEYS.PRODUCTS}:list:${category || 'all'}:${search || ''}:${inStock || ''}:${includeInactive || ''}`;
@@ -162,7 +166,7 @@ router.get('/:slug/related', async (req: Request, res: Response) => {
 });
 
 // Admin: Update product stock
-router.patch('/:productId/stock', async (req: Request, res: Response) => {
+router.patch('/:productId/stock', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const { stockQuantity } = req.body;
@@ -265,7 +269,7 @@ function generateSlug(name: string): string {
 }
 
 // Admin: Create new product
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, description, category, price, stockQuantity, images,
       productType, estimatedWeightKg, freeShipping, availableFrom } = req.body;
@@ -319,7 +323,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Admin: Update product
-router.put('/:productId', async (req: Request, res: Response) => {
+router.put('/:productId', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const { name, description, category, price, stockQuantity, images,
@@ -404,7 +408,7 @@ router.put('/:productId', async (req: Request, res: Response) => {
 
 // Admin: Update product images only (allowed even if product has orders,
 // since changing the photo doesn't affect order history integrity)
-router.patch('/:productId/images', async (req: Request, res: Response) => {
+router.patch('/:productId/images', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const { images } = req.body;
@@ -431,7 +435,7 @@ router.patch('/:productId/images', async (req: Request, res: Response) => {
 });
 
 // Toggle product visibility (isActive)
-router.patch('/:productId/visibility', async (req: Request, res: Response) => {
+router.patch('/:productId/visibility', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const { isActive } = req.body;
@@ -453,7 +457,7 @@ router.patch('/:productId/visibility', async (req: Request, res: Response) => {
 });
 
 // Check if product has orders (for delete warning)
-router.get('/:productId/has-orders', async (req: Request, res: Response) => {
+router.get('/:productId/has-orders', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
 
@@ -480,7 +484,7 @@ router.get('/:productId/has-orders', async (req: Request, res: Response) => {
 });
 
 // Admin: Delete product
-router.delete('/:productId', async (req: Request, res: Response) => {
+router.delete('/:productId', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
 

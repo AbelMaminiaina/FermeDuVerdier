@@ -53,6 +53,8 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-fermeduvardier}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fermeduvardier}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       FRONTEND_URL: ${FRONTEND_URL:-https://fermeduvardier.com}
+      # Partagé avec le frontend : le backend vérifie la session NextAuth sur les routes admin
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
       SMTP_SECURE: ${SMTP_SECURE:-false}

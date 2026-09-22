@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma.js';
+import { requireAdmin } from '../lib/auth.js';
 
 const router = Router();
 
@@ -107,7 +108,7 @@ function generateSlug(name: string): string {
 }
 
 // Create category
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, description, image, order, isActive } = req.body;
 
@@ -141,7 +142,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Update category
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description, image, order, isActive } = req.body;
@@ -188,7 +189,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // Delete category
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -221,7 +222,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 // Reorder categories
-router.post('/reorder', async (req: Request, res: Response) => {
+router.post('/reorder', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { orders } = req.body; // Array of { id, order }
 

@@ -16,6 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
+import { adminFetch } from '@/lib/api/admin';
 
 interface Category {
   id: string;
@@ -63,7 +64,7 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_URL}/categories`);
+      const res = await adminFetch(`${API_URL}/categories`);
       if (res.ok) {
         const data = await res.json();
         setCategories(data.categories || []);
@@ -104,7 +105,7 @@ export default function AdminCategoriesPage() {
     try {
       const isEdit = modal?.mode === 'edit';
       const url = isEdit ? `${API_URL}/categories/${modal.category?.id}` : `${API_URL}/categories`;
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -155,7 +156,7 @@ export default function AdminCategoriesPage() {
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_URL}/categories/${category.id}`, { method: 'DELETE' });
+      const res = await adminFetch(`${API_URL}/categories/${category.id}`, { method: 'DELETE' });
       const data = await res.json();
 
       if (res.ok) {
@@ -181,7 +182,7 @@ export default function AdminCategoriesPage() {
   // Toggle active status
   const toggleActive = async (category: Category) => {
     try {
-      const res = await fetch(`${API_URL}/categories/${category.id}`, {
+      const res = await adminFetch(`${API_URL}/categories/${category.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

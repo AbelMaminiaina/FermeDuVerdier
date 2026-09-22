@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
 import { useCategories, Category, invalidateCategoriesCache } from '@/hooks/useCategories';
+import { adminFetch } from '@/lib/api/admin';
 
 type ProductType = 'vif' | 'piece';
 
@@ -140,7 +141,7 @@ export default function AdminStocksPage() {
   const fetchProducts = async () => {
     try {
       // includeInactive=true pour afficher tous les produits dans l'admin
-      const res = await fetch(`${API_URL}/products?includeInactive=true`);
+      const res = await adminFetch(`${API_URL}/products?includeInactive=true`);
       if (res.ok) {
         const data = await res.json();
         setProducts(data.products || []);
@@ -180,7 +181,7 @@ export default function AdminStocksPage() {
 
     setSavingStock(id);
     try {
-      const res = await fetch(`${API_URL}/products/${id}/stock`, {
+      const res = await adminFetch(`${API_URL}/products/${id}/stock`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stockQuantity: qty }),
@@ -213,7 +214,7 @@ export default function AdminStocksPage() {
       // Un produit lié à des commandes reste modifiable, sauf son nom (l'historique
       // des commandes affiche le nom en direct).
       try {
-        const res = await fetch(`${API_URL}/products/${product.id}/has-orders`);
+        const res = await adminFetch(`${API_URL}/products/${product.id}/has-orders`);
         const data = await res.json();
         hasOrders = Boolean(data.hasOrders);
       } catch (e) {
@@ -265,7 +266,7 @@ export default function AdminStocksPage() {
   const toggleVisibility = async (product: Product, makeActive: boolean) => {
     setHidingProduct(true);
     try {
-      const res = await fetch(`${API_URL}/products/${product.id}/visibility`, {
+      const res = await adminFetch(`${API_URL}/products/${product.id}/visibility`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: makeActive }),
@@ -299,7 +300,7 @@ export default function AdminStocksPage() {
     try {
       const isEdit = modal?.mode === 'edit';
       const url = isEdit ? `${API_URL}/products/${modal.product?.id}` : `${API_URL}/products`;
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -322,7 +323,7 @@ export default function AdminStocksPage() {
   const openDeleteModal = async (product: Product) => {
     setCheckingOrders(true);
     try {
-      const res = await fetch(`${API_URL}/products/${product.id}/has-orders`);
+      const res = await adminFetch(`${API_URL}/products/${product.id}/has-orders`);
       const data = await res.json();
       setDeleteModal({
         product,
@@ -343,7 +344,7 @@ export default function AdminStocksPage() {
 
     setDeleting(true);
     try {
-      const res = await fetch(`${API_URL}/products/${deleteModal.product.id}`, { method: 'DELETE' });
+      const res = await adminFetch(`${API_URL}/products/${deleteModal.product.id}`, { method: 'DELETE' });
       const data = await res.json();
 
       if (res.ok) {
