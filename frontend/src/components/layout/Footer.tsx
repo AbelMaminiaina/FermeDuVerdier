@@ -80,7 +80,7 @@ export function Footer() {
                   required
                   className="flex-1 bg-white"
                 />
-                <Button type="submit" variant="secondary" icon={<Send className="h-4 w-4" />}>
+                <Button type="submit" icon={<Send className="h-4 w-4" />}>
                   S&apos;inscrire
                 </Button>
               </form>

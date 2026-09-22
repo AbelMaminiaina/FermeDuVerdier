@@ -12,6 +12,10 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
   ::selection {
     @apply bg-prairie-200 text-prairie-900;
   }
@@ -169,11 +173,3 @@
   }
 }
 
-/* Font faces */
-@font-face {
-  font-family: 'Playfair Display';
-  font-style: normal;
-  font-weight: 400 900;
-  font-display: swap;
-  src: url('/fonts/PlayfairDisplay-VariableFont.woff2') format('woff2');
-}

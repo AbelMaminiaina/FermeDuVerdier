@@ -15,6 +15,7 @@ vi.mock('../lib/cache.js', () => ({
 import prisma from '../lib/prisma.js';
 import { invalidateProductCache } from '../lib/cache.js';
 import productsRouter from './products.js';
+import { ADMIN_SESSION, withSession, type TestSession } from '../test/auth.js';
 
 const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
 
@@ -23,8 +24,9 @@ beforeEach(() => {
   vi.mocked(invalidateProductCache).mockClear();
 });
 
-function buildApp() {
+function buildApp(session: TestSession | null = ADMIN_SESSION) {
   const app = express();
+  app.use(withSession(session));
   app.use(express.json({ limit: '50mb' })); // aligné sur src/index.ts
   app.use('/api/products', productsRouter);
   return app;

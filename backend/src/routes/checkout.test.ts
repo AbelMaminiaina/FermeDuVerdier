@@ -25,6 +25,7 @@ import {
 } from '../services/emailService.js';
 import checkoutRouter from './checkout.js';
 import { SHIPPING_COSTS, FREE_SHIPPING_THRESHOLD } from '../lib/shipping.js';
+import { ADMIN_SESSION, withSession, type TestSession } from '../test/auth.js';
 
 const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
 
@@ -37,8 +38,9 @@ beforeEach(() => {
   vi.mocked(invalidateProductCache).mockClear();
 });
 
-function buildApp() {
+function buildApp(session: TestSession | null = ADMIN_SESSION) {
   const app = express();
+  app.use(withSession(session));
   app.use(express.json());
   app.use('/api/checkout', checkoutRouter);
   return app;
@@ -435,6 +437,63 @@ describe('GET /api/checkout/:orderNumber', () => {
     prismaMock.order.findUnique.mockResolvedValue(null);
 
     const res = await request(buildApp()).get('/api/checkout/FDV-UNKNOWN');
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('GET /api/checkout/track/:orderNumber', () => {
+  const order = {
+    id: 'o1',
+    orderNumber: 'FDV-ABC123-XYZ',
+    status: 'shipped',
+    subtotal: 30000,
+    shippingCost: 3000,
+    total: 33000,
+    deliveryMethod: 'standard',
+    cancelReason: null,
+    createdAt: new Date('2026-09-01T10:00:00Z'),
+    customerId: 'c1',
+    address: { city: 'Antananarivo' },
+    items: [
+      { quantity: 2, price: 15000, availableFrom: null, product: { name: 'Poulet' } },
+    ],
+  };
+
+  it('retrouve la commande sans connexion, numéro saisi en minuscules avec espaces', async () => {
+    prismaMock.order.findUnique.mockResolvedValue(order as any);
+
+    const res = await request(buildApp()).get('/api/checkout/track/%20fdv-abc123-xyz%20');
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.order.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { orderNumber: 'FDV-ABC123-XYZ' } })
+    );
+    expect(res.body.order).toMatchObject({
+      orderNumber: 'FDV-ABC123-XYZ',
+      status: 'shipped',
+      total: 33000,
+      city: 'Antananarivo',
+      items: [{ name: 'Poulet', quantity: 2, price: 15000 }],
+    });
+  });
+
+  it("n'expose aucune donnée personnelle du client", async () => {
+    prismaMock.order.findUnique.mockResolvedValue(order as any);
+
+    const res = await request(buildApp()).get('/api/checkout/track/FDV-ABC123-XYZ');
+
+    const body = JSON.stringify(res.body);
+    expect(body).not.toContain('customer');
+    expect(body).not.toContain('email');
+    expect(body).not.toContain('phone');
+    expect(body).not.toContain('street');
+  });
+
+  it('renvoie 404 pour un numéro inconnu', async () => {
+    prismaMock.order.findUnique.mockResolvedValue(null);
+
+    const res = await request(buildApp()).get('/api/checkout/track/FDV-INCONNU');
 
     expect(res.status).toBe(404);
   });

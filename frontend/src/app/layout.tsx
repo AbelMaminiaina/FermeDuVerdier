@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter, Quicksand } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -17,10 +18,22 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
+// Typographie reprise de la maquette ShopWise : Roboto (texte),
+// Quicksand (titres), Inter (menu).
+// Roboto est hébergée dans le projet : next/font/google (Next 14) ne sait pas lire
+// les URLs « /l/font?kit=… » que Google sert désormais pour Roboto et le build échoue.
+const roboto = localFont({
+  src: './fonts/roboto-latin-variable.woff2',
+  weight: '300 700',
   display: 'swap',
-  variable: '--font-playfair',
+  variable: '--font-roboto',
+});
+
+const quicksand = Quicksand({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-quicksand',
 });
 
 export const metadata: Metadata = {
@@ -118,7 +131,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
+    <html lang="fr" className={`${inter.variable} ${roboto.variable} ${quicksand.variable}`} suppressHydrationWarning>
       <head>
         <OrganizationJsonLd />
         <LocalBusinessJsonLd />
@@ -127,7 +140,8 @@ export default function RootLayout({
       <body className="font-sans" suppressHydrationWarning>
         <SessionProvider>
           <ToastProvider>
-            <div className="flex flex-col min-h-screen">
+            {/* overflow-x-clip (et non hidden) : coupe les animations qui glissent hors écran sans casser le header sticky */}
+            <div className="flex flex-col min-h-screen overflow-x-clip">
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />

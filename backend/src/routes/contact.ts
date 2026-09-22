@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/prisma.js';
+import { requireAdmin } from '../lib/auth.js';
 
 const router = Router();
 
@@ -55,7 +56,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Get all messages (admin)
-router.get('/', async (_req: Request, res: Response) => {
+router.get('/', requireAdmin, async (_req: Request, res: Response) => {
   try {
     const messages = await prisma.contactMessage.findMany({
       orderBy: { createdAt: 'desc' },
@@ -68,7 +69,7 @@ router.get('/', async (_req: Request, res: Response) => {
 });
 
 // Mark message as read
-router.patch('/:id/read', async (req: Request, res: Response) => {
+router.patch('/:id/read', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

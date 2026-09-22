@@ -181,11 +181,12 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Navigation arrows */}
-      <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 z-20 flex justify-between pointer-events-none">
+      {/* Navigation arrows : sur mobile/tablette, en bas autour des indicateurs pour ne pas
+          masquer le texte ; sur grand écran, au milieu des côtés */}
+      <div className="absolute left-4 right-4 bottom-3 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 z-20 flex justify-between pointer-events-none">
         <motion.button
           onClick={prevSlide}
-          className="p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all pointer-events-auto"
+          className="p-2.5 lg:p-3 rounded-full bg-warm-900/50 lg:bg-white/20 backdrop-blur-sm text-white hover:bg-warm-900/70 lg:hover:bg-white/30 transition-all pointer-events-auto"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           aria-label="Slide précédent"
@@ -194,7 +195,7 @@ export function Hero() {
         </motion.button>
         <motion.button
           onClick={nextSlide}
-          className="p-3 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all pointer-events-auto"
+          className="p-2.5 lg:p-3 rounded-full bg-warm-900/50 lg:bg-white/20 backdrop-blur-sm text-white hover:bg-warm-900/70 lg:hover:bg-white/30 transition-all pointer-events-auto"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           aria-label="Slide suivant"

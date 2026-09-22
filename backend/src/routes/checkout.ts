@@ -10,6 +10,7 @@ import {
 } from '../services/emailService.js';
 import { invalidateProductCache } from '../lib/cache.js';
 import { computeShippingCost } from '../lib/shipping.js';
+import { requireAdmin, getSessionUser, isAdmin } from '../lib/auth.js';
 
 const router = Router();
 
@@ -228,7 +229,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // Admin: Get all orders (MUST be before /:orderNumber)
-router.get('/orders', async (req: Request, res: Response) => {
+router.get('/orders', requireAdmin, async (req: Request, res: Response) => {
   try {
     const orders = await prisma.order.findMany({
       include: {
@@ -284,7 +285,7 @@ router.get('/orders', async (req: Request, res: Response) => {
 });
 
 // Admin: Update order status
-router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
+router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
     const { status, reason } = req.body;
@@ -396,9 +397,18 @@ router.patch('/orders/:orderId/status', async (req: Request, res: Response) => {
 });
 
 // Get orders for customer (by email)
+// Historique d'un client : réservé au client connecté lui-même (ou à l'admin)
 router.get('/customer/:email', async (req: Request, res: Response) => {
   try {
     const { email } = req.params;
+
+    const user = await getSessionUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Authentification requise' });
+    }
+    if (!isAdmin(user) && user.email?.toLowerCase() !== email.toLowerCase()) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
 
     const customer = await prisma.customer.findUnique({
       where: { email },
@@ -458,8 +468,52 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
   }
 });
 
+// Suivi public d'une commande par son seul numéro (sans connexion).
+// Le numéro fait office de clé : on ne renvoie donc que ce qui sert au suivi,
+// jamais les coordonnées du client (email, téléphone, nom, adresse exacte).
+router.get('/track/:orderNumber', async (req: Request, res: Response) => {
+  try {
+    const orderNumber = req.params.orderNumber.trim().toUpperCase();
+
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        address: { select: { city: true } },
+        items: { include: { product: { select: { name: true } } } },
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Commande non trouvée' });
+    }
+
+    res.json({
+      order: {
+        orderNumber: order.orderNumber,
+        status: order.status,
+        subtotal: order.subtotal,
+        shippingCost: order.shippingCost,
+        total: order.total,
+        deliveryMethod: order.deliveryMethod,
+        cancelReason: order.cancelReason,
+        createdAt: order.createdAt,
+        city: order.address?.city ?? null,
+        items: order.items.map((item) => ({
+          name: item.product.name,
+          quantity: item.quantity,
+          price: item.price,
+          availableFrom: item.availableFrom,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Error tracking order:', error);
+    res.status(500).json({ error: 'Failed to track order' });
+  }
+});
+
 // Get order by number (MUST be LAST - catches all unmatched paths)
-router.get('/:orderNumber', async (req: Request, res: Response) => {
+router.get('/:orderNumber', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { orderNumber } = req.params;
 

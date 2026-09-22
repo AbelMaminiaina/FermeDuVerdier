@@ -8,6 +8,7 @@ vi.mock('../lib/prisma.js');
 
 import prisma from '../lib/prisma.js';
 import newsletterRouter from './newsletter.js';
+import { ADMIN_SESSION, withSession, type TestSession } from '../test/auth.js';
 
 const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
 
@@ -15,8 +16,9 @@ beforeEach(() => {
   mockReset(prismaMock);
 });
 
-function buildApp() {
+function buildApp(session: TestSession | null = ADMIN_SESSION) {
   const app = express();
+  app.use(withSession(session));
   app.use(express.json());
   app.use('/api/newsletter', newsletterRouter);
   return app;

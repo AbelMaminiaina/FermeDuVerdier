@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/prisma.js';
+import { requireAdmin } from '../lib/auth.js';
 
 const router = Router();
 
@@ -63,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/', async (_req: Request, res: Response) => {
+router.get('/', requireAdmin, async (_req: Request, res: Response) => {
   try {
     const count = await prisma.newsletterSubscriber.count({
       where: { isActive: true },
@@ -76,7 +77,7 @@ router.get('/', async (_req: Request, res: Response) => {
 });
 
 // Unsubscribe endpoint
-router.delete('/:email', async (req: Request, res: Response) => {
+router.delete('/:email', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { email } = req.params;
 
