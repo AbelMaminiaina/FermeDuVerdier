@@ -37,3 +37,7 @@ nginx/ssl/
 # Windows reserved names
 nul
 NUL
+# Sauvegardes et traces creees sur le serveur par scripts/remote-deploy.sh
+backups/db/
+backups/deploy/
+backups/server-changes/

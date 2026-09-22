@@ -6,6 +6,26 @@ Deploiement sur VPS Contabo avec Docker.
 > conflit git sur `deploy.sh`/`docker-compose.prod.yml`...) ? Regarde d'abord
 > [TROUBLESHOOTING.md](./TROUBLESHOOTING.md), ces cas y sont déjà documentés.
 
+## Deploiement en une commande (recommande)
+
+Depuis Windows, a la racine du projet, apres avoir pousse sur GitHub (`git push`) :
+
+```powershell
+.\scripts\deploy-prod.ps1                     # mise a jour de la prod
+.\scripts\deploy-prod.ps1 -Action status      # version en ligne, conteneurs, SSL
+.\scripts\deploy-prod.ps1 -Action rollback    # revenir a la version precedente
+.\scripts\deploy-prod.ps1 -Action ssl-renew   # renouveler le certificat HTTPS
+.\scripts\deploy-prod.ps1 -Action setup-key   # une fois : plus de mot de passe SSH
+```
+
+Meme principe que `ecommerceNew/scripts/deploy-demo.ps1` : le script envoie
+`scripts/remote-deploy.sh` au serveur par SSH. Sur le serveur, il verifie les secrets de
+`.env.production` (NEXTAUTH_SECRET, ADMIN_PASSWORD...), sauvegarde la base
+(`backups/db/`), met a jour le code **en conservant les reglages locaux du serveur**
+(ex. montage `/etc/letsencrypt`), reconstruit, migre, attend que le site reponde en HTTPS,
+verifie que l'API admin est protegee (401) et affiche les jours restants du certificat.
+En cas de conflit ou d'echec, le serveur est remis dans son etat d'avant.
+
 ## Commandes rapides (Contabo)
 
 ### Connexion SSH
