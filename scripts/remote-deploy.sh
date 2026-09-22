@@ -9,6 +9,10 @@
 # Particularite du serveur : il porte des reglages locaux non commites (ex. docker-compose.prod.yml
 # qui monte /etc/letsencrypt). Le deploiement les PRESERVE : sauvegarde en patch, git stash,
 # mise a jour, puis re-application. En cas de conflit, tout est remis comme avant.
+#
+# .env.production (secrets de prod) n'est JAMAIS ecrit : seulement lu, et copie en sauvegarde.
+# Verrou : son empreinte est prise au debut et reverifiee apres chaque etape ; s'il a change,
+# il est restaure depuis la copie et le script s'arrete.
 set -euo pipefail
 
 ACTION="${1:-deploy}"
@@ -74,6 +78,32 @@ backup_env() {
   mkdir -p backups/env
   cp .env.production "backups/env/env.production.${STAMP}.bak"
   ls -1t backups/env/env.production.*.bak 2>/dev/null | tail -n +21 | xargs -r rm --
+}
+
+# --- Verrou sur .env.production ----------------------------------------------------------------
+env_hash() { sha256sum .env.production | cut -d' ' -f1; }
+
+lock_env() {
+  # Un .env.production suivi par git pourrait etre ecrase par une mise a jour : on refuse
+  if git ls-files --error-unmatch .env.production >/dev/null 2>&1; then
+    fail ".env.production est suivi par git sur le serveur : une mise a jour pourrait l'ecraser.
+  Retirez-le du suivi (sans le supprimer) : git rm --cached .env.production ; puis relancez."
+  fi
+  git check-ignore -q .env.production     || warn ".env.production n'est pas dans .gitignore sur le serveur (il reste protege par ce script)."
+  ENV_HASH="$(env_hash)"
+  ENV_COPY="backups/env/env.production.${STAMP}.bak"
+  [ -f "$ENV_COPY" ] || fail "Copie de sauvegarde de .env.production absente."
+}
+
+verify_env() {
+  [ -n "${ENV_HASH:-}" ] || return 0
+  if [ ! -f .env.production ] || [ "$(env_hash)" != "$ENV_HASH" ]; then
+    cp "$ENV_COPY" .env.production
+    chmod 600 .env.production
+    fail ".env.production a ete modifie pendant l'etape '$1' : il a ete RESTAURE a l'identique
+  depuis $APP_DIR/$ENV_COPY. Deploiement arrete."
+  fi
+  echo "OK  .env.production intact ($1)"
 }
 
 # Execute une operation git (mise a jour ou retour arriere) en preservant les reglages locaux
@@ -198,11 +228,14 @@ do_deploy() {
   check_prereqs
   check_env
   backup_env
+  lock_env
   backup_db
   fetch_code
+  verify_env "mise a jour du code"
 
   say "Construction et redemarrage des conteneurs (plusieurs minutes)"
   compose up -d --build --remove-orphans
+  verify_env "reconstruction"
 
   say "Migrations de la base"
   compose exec -T backend npx prisma migrate deploy \
@@ -212,6 +245,7 @@ do_deploy() {
   wait_ready
   smoke_tests
   ssl_check
+  verify_env "fin du deploiement"
 
   say "Etat des conteneurs"
   compose ps
@@ -221,6 +255,7 @@ do_deploy() {
   echo " DEPLOIEMENT TERMINE : https://${DOMAIN}"
   echo " Version        : $(git log -1 --format='%h %s')"
   echo " Sauvegarde BDD : $APP_DIR/$LAST_BACKUP"
+  echo " .env.production: inchange (copie : $APP_DIR/$ENV_COPY)"
   echo " Retour arriere : deploy-prod.ps1 -Action rollback  (revient a ${PREV_COMMIT:0:7})"
   echo "================================================================"
 }
@@ -231,9 +266,13 @@ do_rollback() {
   local target
   target="$(cat backups/deploy/previous_commit)"
   say "Retour a la version ${target:0:7}"
+  backup_env
+  lock_env
   backup_db
   move_code_preserving_local "Retour a ${target:0:7}" git checkout --quiet "$target"
+  verify_env "retour arriere"
   compose up -d --build --remove-orphans
+  verify_env "reconstruction"
   reload_nginx
   wait_ready
   echo "Revenu a : $(git log -1 --format='%h %s')"
