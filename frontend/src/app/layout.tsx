@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter, Quicksand } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
@@ -12,16 +11,17 @@ import {
   WebsiteJsonLd,
 } from '@/components/seo/JsonLd';
 
-const inter = Inter({
-  subsets: ['latin'],
+// Typographie reprise de la maquette ShopWise : Roboto (texte), Quicksand (titres), Inter (menu).
+// Les trois polices sont hébergées dans le projet (next/font/local) : next/font/google (Next 14)
+// ne sait pas lire les URLs « /l/font?kit=… » que Google sert selon la police et le pays, ce qui
+// faisait échouer le build (Roboto en local, Quicksand sur le VPS). Le build ne dépend plus de Google.
+const inter = localFont({
+  src: './fonts/inter-latin-variable.woff2',
+  weight: '100 900',
   display: 'swap',
   variable: '--font-inter',
 });
 
-// Typographie reprise de la maquette ShopWise : Roboto (texte),
-// Quicksand (titres), Inter (menu).
-// Roboto est hébergée dans le projet : next/font/google (Next 14) ne sait pas lire
-// les URLs « /l/font?kit=… » que Google sert désormais pour Roboto et le build échoue.
 const roboto = localFont({
   src: './fonts/roboto-latin-variable.woff2',
   weight: '300 700',
@@ -29,9 +29,9 @@ const roboto = localFont({
   variable: '--font-roboto',
 });
 
-const quicksand = Quicksand({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+const quicksand = localFont({
+  src: './fonts/quicksand-latin-variable.woff2',
+  weight: '400 700',
   display: 'swap',
   variable: '--font-quicksand',
 });
