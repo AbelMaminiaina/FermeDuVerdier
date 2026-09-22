@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Inter, Quicksand, Roboto } from 'next/font/google';
+import { Inter, Quicksand } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -19,9 +20,11 @@ const inter = Inter({
 
 // Typographie reprise de la maquette ShopWise : Roboto (texte),
 // Quicksand (titres), Inter (menu).
-const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
+// Roboto est hébergée dans le projet : next/font/google (Next 14) ne sait pas lire
+// les URLs « /l/font?kit=… » que Google sert désormais pour Roboto et le build échoue.
+const roboto = localFont({
+  src: './fonts/roboto-latin-variable.woff2',
+  weight: '300 700',
   display: 'swap',
   variable: '--font-roboto',
 });
