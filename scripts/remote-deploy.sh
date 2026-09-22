@@ -3,7 +3,7 @@
 # Deploiement de PRODUCTION de la Ferme du Vardier (fermeduvardier.com, ports 80/443).
 # Fichier volontairement ASCII (transite par stdin depuis PowerShell).
 #
-# Usage : bash -s -- <deploy|status|logs|backup|rollback|ssl-check|ssl-renew|server-diff>
+# Usage : bash -s -- <deploy|status|logs|backup|rollback|ssl-check|ssl-renew|ssl-auto|server-diff>
 # Variables d'environnement lues : APP_DIR BRANCH DOMAIN
 #
 # Particularite du serveur : il porte des reglages locaux non commites (ex. docker-compose.prod.yml
@@ -258,6 +258,7 @@ do_deploy() {
   smoke_tests
   ssl_check
   verify_env "fin du deploiement"
+  ssl_auto_status
 
   say "Etat des conteneurs"
   compose ps
@@ -312,6 +313,142 @@ do_ssl_renew() {
   ssl_check
 }
 
+# --- Renouvellement automatique du certificat (cron sur le serveur) ------------------------------
+RENEW_BIN=/usr/local/bin/fermeduvardier-ssl-renew.sh
+RENEW_CRON=/etc/cron.d/fermeduvardier-ssl
+RENEW_LOG=/var/log/fermeduvardier-ssl.log
+
+write_renew_script() {
+  cat > "$RENEW_BIN" <<'RENEW'
+#!/usr/bin/env bash
+# Installe par : deploy-prod.ps1 -Action ssl-auto   (ne pas modifier ici : reinstaller)
+# Lance par cron 2 fois par jour. certbot ne renouvelle que si le certificat expire dans < 30 jours :
+# le reste du temps, ce script ne fait rien.
+# 1) mode "webroot" : sans coupure (nginx sert /.well-known/acme-challenge/ depuis /var/www/certbot)
+# 2) si echec : mode "standalone" (nginx coupe ~20 s), uniquement si un certificat est a renouveler
+set -uo pipefail
+NGINX=fermeduvardier-nginx
+log() { echo "$(date '+%F %T') $*"; }
+mount_src() { docker inspect -f "{{range .Mounts}}{{if eq .Destination \"$1\"}}{{.Source}}{{end}}{{end}}" "$NGINX" 2>/dev/null; }
+
+LE_DIR="$(mount_src /etc/letsencrypt)"; LE_DIR="${LE_DIR:-/etc/letsencrypt}"
+WEBROOT="$(mount_src /var/www/certbot)"
+FLAG="$LE_DIR/.renewed-by-cron"
+HOOK="touch /etc/letsencrypt/.renewed-by-cron"
+rm -f "$FLAG"
+
+needs_renewal() {
+  local cert
+  for cert in "$LE_DIR"/live/*/fullchain.pem; do
+    [ -f "$cert" ] || continue
+    openssl x509 -checkend $((30 * 86400)) -noout -in "$cert" >/dev/null 2>&1 || return 0
+  done
+  return 1
+}
+
+done_ok=1
+if [ -n "$WEBROOT" ]; then
+  if docker run --rm -v "$LE_DIR:/etc/letsencrypt" -v "$WEBROOT:/var/www/certbot" certbot/certbot \
+       renew --webroot -w /var/www/certbot --no-random-sleep-on-renew --deploy-hook "$HOOK"; then
+    done_ok=0
+  else
+    log "webroot : echec"
+  fi
+fi
+
+if [ "$done_ok" -ne 0 ] && needs_renewal; then
+  log "bascule en mode standalone (nginx coupe quelques secondes)"
+  docker stop "$NGINX" >/dev/null
+  trap 'docker start "$NGINX" >/dev/null' EXIT
+  docker run --rm --network host -v "$LE_DIR:/etc/letsencrypt" certbot/certbot \
+    renew --standalone --no-random-sleep-on-renew --deploy-hook "$HOOK" || log "standalone : echec"
+  docker start "$NGINX" >/dev/null
+  trap - EXIT
+fi
+
+if [ -f "$FLAG" ]; then
+  rm -f "$FLAG"
+  if docker exec "$NGINX" nginx -s reload; then
+    log "certificat renouvele, nginx recharge"
+  else
+    docker restart "$NGINX" >/dev/null && log "certificat renouvele, nginx redemarre"
+  fi
+fi
+
+for cert in "$LE_DIR"/live/*/fullchain.pem; do
+  [ -f "$cert" ] || continue
+  end="$(openssl x509 -noout -enddate -in "$cert" | cut -d= -f2)"
+  log "$(basename "$(dirname "$cert")") : expire le $end"
+done
+RENEW
+  chmod 755 "$RENEW_BIN"
+}
+
+do_ssl_auto() {
+  check_prereqs
+  [ "$(id -u)" = "0" ] || fail "Il faut etre root pour installer la tache automatique."
+  command -v openssl >/dev/null 2>&1 || fail "openssl n'est pas installe (apt install openssl)."
+  [ -d /etc/cron.d ] || fail "cron n'est pas installe (apt install cron)."
+  local nginx_id
+  nginx_id="$(compose ps -q nginx)"
+  [ -n "$nginx_id" ] || fail "Conteneur nginx introuvable."
+
+  say "Installation du script de renouvellement ($RENEW_BIN)"
+  write_renew_script
+
+  say "Test a blanc du mode sans coupure (webroot, serveur de test Let's Encrypt)"
+  local le_dir webroot
+  le_dir="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/etc/letsencrypt"}}{{.Source}}{{end}}{{end}}' "$nginx_id")"
+  webroot="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/var/www/certbot"}}{{.Source}}{{end}}{{end}}' "$nginx_id")"
+  echo "Certificats : ${le_dir:-?}   Dossier ACME : ${webroot:-aucun}"
+  if [ -n "$webroot" ] && docker run --rm -v "${le_dir:-/etc/letsencrypt}:/etc/letsencrypt" -v "$webroot:/var/www/certbot" \
+       certbot/certbot renew --dry-run --webroot -w /var/www/certbot --no-random-sleep-on-renew >/tmp/fdv-ssl-dryrun.log 2>&1; then
+    echo "OK  le renouvellement se fera SANS coupure du site."
+  else
+    tail -5 /tmp/fdv-ssl-dryrun.log 2>/dev/null || true
+    warn "le mode sans coupure ne fonctionne pas sur ce serveur : le renouvellement utilisera le mode"
+    echo "    standalone (site coupe ~20 s, une fois tous les 2 mois environ, a 3h17 ou 15h17)."
+  fi
+  rm -f /tmp/fdv-ssl-dryrun.log
+
+  say "Planification : tous les jours a 3h17 et 15h17 ($RENEW_CRON)"
+  cat > "$RENEW_CRON" <<CRON
+# Renouvellement automatique du certificat HTTPS de ${DOMAIN} (installe par deploy-prod.ps1 -Action ssl-auto)
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+17 3,15 * * * root $RENEW_BIN >> $RENEW_LOG 2>&1
+CRON
+  chmod 644 "$RENEW_CRON"
+  if command -v systemctl >/dev/null 2>&1; then
+    systemctl enable --now cron >/dev/null 2>&1 || systemctl enable --now crond >/dev/null 2>&1 || true
+  fi
+
+  cat > /etc/logrotate.d/fermeduvardier-ssl <<LOGROTATE
+$RENEW_LOG {
+  monthly
+  rotate 6
+  compress
+  missingok
+  notifempty
+}
+LOGROTATE
+
+  say "Premier passage (ne renouvelle que si necessaire)"
+  "$RENEW_BIN" 2>&1 | tee -a "$RENEW_LOG" | tail -5
+  ssl_check
+  echo
+  echo "Renouvellement automatique installe. Journal : $RENEW_LOG"
+}
+
+ssl_auto_status() {
+  if [ -f "$RENEW_CRON" ] && [ -x "$RENEW_BIN" ]; then
+    echo "OK  renouvellement automatique du certificat installe (3h17 et 15h17)"
+    [ -f "$RENEW_LOG" ] && { echo "    Derniers passages :"; tail -3 "$RENEW_LOG" | sed 's/^/      /'; }
+  else
+    warn "renouvellement automatique du certificat NON installe : deploy-prod.ps1 -Action ssl-auto"
+  fi
+}
+
 do_server_diff() {
   check_prereqs
   say "Reglages locaux du serveur (non commites)"
@@ -323,12 +460,13 @@ do_server_diff() {
 
 case "$ACTION" in
   deploy)      do_deploy ;;
-  status)      check_prereqs; git log -1 --format='Version : %h %s (%cr)'; compose ps; ssl_check ;;
+  status)      check_prereqs; git log -1 --format='Version : %h %s (%cr)'; compose ps; ssl_check; ssl_auto_status ;;
   logs)        check_prereqs; compose logs --tail 100 ;;
   backup)      check_prereqs; backup_db ;;
   rollback)    do_rollback ;;
   ssl-check)   check_prereqs; ssl_check ;;
   ssl-renew)   do_ssl_renew ;;
+  ssl-auto)    do_ssl_auto ;;
   server-diff) do_server_diff ;;
   *)           fail "Action inconnue: $ACTION" ;;
 esac

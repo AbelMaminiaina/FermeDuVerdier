@@ -18,6 +18,8 @@
     .\scripts\deploy-prod.ps1 -Action rollback       # revenir a la version precedente
 .EXAMPLE
     .\scripts\deploy-prod.ps1 -Action setup-key      # ne plus taper le mot de passe SSH
+.EXAMPLE
+    .\scripts\deploy-prod.ps1 -Action ssl-auto       # renouvellement automatique du certificat HTTPS
 #>
 [CmdletBinding()]
 param(
@@ -26,8 +28,8 @@ param(
     [int]$Port = 22,
     # Cle privee SSH (sinon : cle par defaut / mot de passe)
     [string]$KeyPath,
-    # deploy ; status ; logs ; backup ; rollback ; ssl-check ; ssl-renew ; server-diff ; setup-key
-    [ValidateSet('deploy', 'status', 'logs', 'backup', 'rollback', 'ssl-check', 'ssl-renew', 'server-diff', 'setup-key')]
+    # deploy ; status ; logs ; backup ; rollback ; ssl-check ; ssl-renew ; ssl-auto ; server-diff ; setup-key
+    [ValidateSet('deploy', 'status', 'logs', 'backup', 'rollback', 'ssl-check', 'ssl-renew', 'ssl-auto', 'server-diff', 'setup-key')]
     [string]$Action = 'deploy',
     [string]$Branch = 'main',
     [string]$RemoteDir = '/opt/FermeDuVardier',
@@ -106,7 +108,7 @@ if ($Action -eq 'deploy') {
 }
 
 # --- Confirmation pour les actions qui touchent la prod ------------------------------------------
-if ($Action -in @('deploy', 'rollback', 'ssl-renew') -and -not $Yes) {
+if ($Action -in @('deploy', 'rollback', 'ssl-renew', 'ssl-auto') -and -not $Yes) {
     Write-Host ""
     Write-Host "  Serveur  : $target   Dossier : $RemoteDir"
     Write-Host "  Site     : https://$Domain  (PRODUCTION)"
@@ -114,6 +116,7 @@ if ($Action -in @('deploy', 'rollback', 'ssl-renew') -and -not $Yes) {
         'deploy'    { Write-Host "  Action   : mise a jour depuis GitHub ($Branch), base sauvegardee avant" }
         'rollback'  { Write-Host "  Action   : retour a la version precedente (base sauvegardee avant)" }
         'ssl-renew' { Write-Host "  Action   : renouvellement du certificat HTTPS (site coupe ~20 s)" }
+        'ssl-auto'  { Write-Host "  Action   : installe le renouvellement automatique du certificat (tache cron, 2x/jour)" }
     }
     if ((Read-Host "Continuer ? (o/N)") -notmatch '^[oOyY]') { Stop-Deploy "Annule." }
 }
@@ -136,5 +139,5 @@ if ($Action -eq 'deploy') {
     Write-Host "  .\scripts\deploy-prod.ps1 -Action status      (etat, version, SSL)"
     Write-Host "  .\scripts\deploy-prod.ps1 -Action logs"
     Write-Host "  .\scripts\deploy-prod.ps1 -Action rollback    (revenir a la version precedente)"
-    Write-Host "  .\scripts\deploy-prod.ps1 -Action ssl-renew   (avant le 21 decembre 2026)"
+    Write-Host "  .\scripts\deploy-prod.ps1 -Action ssl-auto    (une fois : certificat HTTPS renouvele automatiquement)"
 }

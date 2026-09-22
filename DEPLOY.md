@@ -14,7 +14,8 @@ Depuis Windows, a la racine du projet, apres avoir pousse sur GitHub (`git push`
 .\scripts\deploy-prod.ps1                     # mise a jour de la prod
 .\scripts\deploy-prod.ps1 -Action status      # version en ligne, conteneurs, SSL
 .\scripts\deploy-prod.ps1 -Action rollback    # revenir a la version precedente
-.\scripts\deploy-prod.ps1 -Action ssl-renew   # renouveler le certificat HTTPS
+.\scripts\deploy-prod.ps1 -Action ssl-renew   # renouveler le certificat HTTPS maintenant
+.\scripts\deploy-prod.ps1 -Action ssl-auto    # une fois : renouvellement automatique (cron)
 .\scripts\deploy-prod.ps1 -Action setup-key   # une fois : plus de mot de passe SSH
 ```
 
@@ -25,6 +26,12 @@ Meme principe que `ecommerceNew/scripts/deploy-demo.ps1` : le script envoie
 (ex. montage `/etc/letsencrypt`), reconstruit, migre, attend que le site reponde en HTTPS,
 verifie que l'API admin est protegee (401) et affiche les jours restants du certificat.
 En cas de conflit ou d'echec, le serveur est remis dans son etat d'avant.
+
+**Certificat HTTPS** : `-Action ssl-auto` installe sur le serveur une tache cron (3h17 et 15h17,
+`/etc/cron.d/fermeduvardier-ssl`) qui lance `/usr/local/bin/fermeduvardier-ssl-renew.sh`.
+certbot ne renouvelle qu'a moins de 30 jours de l'expiration, en mode webroot (sans coupure) ;
+si ce mode echoue, bascule en standalone (nginx coupe ~20 s). Journal :
+`/var/log/fermeduvardier-ssl.log`. `-Action status` indique si la tache est installee.
 
 ## Commandes rapides (Contabo)
 
