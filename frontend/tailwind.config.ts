@@ -9,18 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Vert prairie - inspiré du logo (herbe, feuilles)
+        // Couleur d'accent (boutons, liens, actifs) — reprise de la maquette ShopWise (#0d9488 = 600)
         prairie: {
-          50: '#f4f9f0',
-          100: '#e4f0d9',
-          200: '#c9e2b3',
-          300: '#a5cf82',
-          400: '#7db94d',
-          500: '#5b9a2d',
-          600: '#4a7d24',
-          700: '#3d6620',
-          800: '#2f4f19',
-          900: '#243d14',
+          50: '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
         },
         // Doré/Jaune - inspiré du soleil et du blé du logo
         terre: {
@@ -35,38 +35,39 @@ const config: Config = {
           800: '#7a5316',
           900: '#5c3e11',
         },
-        // Marron chaud - inspiré de la clôture et du texte du logo
+        // Neutres du texte — maquette ShopWise : texte courant #5a6577 (600), titres #10243d (800)
         warm: {
-          50: '#faf8f5',
-          100: '#f3efe8',
-          200: '#e5ded2',
-          300: '#d4c9b8',
-          400: '#b5a48c',
-          500: '#8b7355',
-          600: '#6b5640',
-          700: '#574636',
-          800: '#3d312a',
-          900: '#2a211c',
+          50: '#f5f7f9',
+          100: '#eceff3',
+          200: '#dde2e8',
+          300: '#c3cad3',
+          400: '#8e98a6',
+          500: '#6f7a8a',
+          600: '#5a6577',
+          700: '#3a4a5f',
+          800: '#10243d',
+          900: '#0b1a2d',
         },
-        // Crème/Gris clair - fond du logo
+        // Fonds clairs — maquette ShopWise (sections « light-background » #f4f7f6)
         cream: {
-          50: '#FAFAF8',
-          100: '#F5F4F0',
-          200: '#EDECE6',
-          300: '#E0DED6',
+          50: '#f4f7f6',
+          100: '#edf1f0',
+          200: '#e2e8e6',
+          300: '#d3dbd9',
         },
       },
       fontFamily: {
-        display: ['var(--font-playfair)', 'Georgia', 'serif'],
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-quicksand)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-roboto)', 'system-ui', 'sans-serif'],
+        nav: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '4xl': '2rem',
       },
       boxShadow: {
-        'warm': '0 4px 6px -1px rgba(139, 115, 85, 0.15), 0 2px 4px -1px rgba(139, 115, 85, 0.1)',
-        'warm-lg': '0 10px 15px -3px rgba(139, 115, 85, 0.15), 0 4px 6px -2px rgba(139, 115, 85, 0.08)',
-        'prairie': '0 4px 6px -1px rgba(91, 154, 45, 0.15), 0 2px 4px -1px rgba(91, 154, 45, 0.1)',
+        'warm': '0 4px 6px -1px rgba(16, 36, 61, 0.1), 0 2px 4px -1px rgba(16, 36, 61, 0.06)',
+        'warm-lg': '0 10px 15px -3px rgba(16, 36, 61, 0.1), 0 4px 6px -2px rgba(16, 36, 61, 0.05)',
+        'prairie': '0 4px 6px -1px rgba(13, 148, 136, 0.15), 0 2px 4px -1px rgba(13, 148, 136, 0.1)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

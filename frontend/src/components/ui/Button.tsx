@@ -29,27 +29,28 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // Style des boutons de la maquette ShopWise : aplats, coins 6px, 14px medium, sans ombre
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-[3px] disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variants = {
       primary:
-        'bg-prairie-600 text-white hover:bg-prairie-700 focus:ring-prairie-500 shadow-md hover:shadow-lg active:shadow-sm',
+        'bg-prairie-600 text-white hover:bg-prairie-700 focus:ring-prairie-600/20',
       secondary:
-        'bg-terre-500 text-white hover:bg-terre-600 focus:ring-terre-400 shadow-md hover:shadow-lg',
+        'bg-transparent text-warm-600 border border-warm-300 hover:bg-white hover:border-warm-400 focus:ring-warm-400/20',
       outline:
-        'border-2 border-prairie-600 text-prairie-600 hover:bg-prairie-50 focus:ring-prairie-500',
+        'border border-prairie-600 text-prairie-600 hover:bg-prairie-600 hover:text-white focus:ring-prairie-600/20',
       ghost:
-        'text-prairie-600 hover:bg-prairie-50 focus:ring-prairie-500',
+        'text-prairie-600 hover:bg-prairie-600/10 focus:ring-prairie-600/20',
       danger:
-        'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md hover:shadow-lg',
+        'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600/20',
     };
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-sm gap-1.5',
-      md: 'px-4 py-2 text-base gap-2',
-      lg: 'px-6 py-3 text-lg gap-2',
-      xl: 'px-8 py-4 text-xl gap-3',
+      sm: 'px-3 py-1.5 text-[13px] gap-1.5',
+      md: 'px-6 py-2.5 text-sm gap-2',
+      lg: 'px-7 py-3 text-[15px] gap-2',
+      xl: 'px-8 py-3.5 text-base gap-2.5',
     };
 
     return (

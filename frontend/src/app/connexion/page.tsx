@@ -150,7 +150,7 @@ function ConnexionContent() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-4 py-3 bg-prairie-600 text-white rounded-lg hover:bg-prairie-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 bg-prairie-600 text-white rounded-md hover:bg-prairie-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Connexion...' : 'Se connecter'}
                 </button>

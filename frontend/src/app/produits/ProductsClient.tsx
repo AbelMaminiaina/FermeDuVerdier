@@ -9,6 +9,17 @@ import ProductGrid from '@/components/products/ProductGrid';
 import ProductFilter from '@/components/products/ProductFilter';
 import { fadeInUp } from '@/lib/animations';
 
+// Recherche insensible à la casse, aux accents et aux ligatures
+// (« oeufs » trouve « Œufs », « pintade » trouve « Pintadé »)
+export function normalizeSearch(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/œ/g, 'oe')
+    .replace(/æ/g, 'ae');
+}
+
 interface ProductsClientProps {
   initialProducts: Product[];
 }
@@ -16,6 +27,7 @@ interface ProductsClientProps {
 function ProductsContent({ initialProducts }: ProductsClientProps) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get('categorie');
+  const searchQuery = (searchParams.get('q') || '').trim();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
     categoryParam || 'all'
@@ -28,13 +40,19 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
   }, [categoryParam]);
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === 'all') return initialProducts;
     // Gérer les deux formats de catégorie (avec tirets et underscores)
-    return initialProducts.filter((p) =>
-      p.category === selectedCategory ||
-      p.category.replace(/-/g, '_') === selectedCategory.replace(/-/g, '_')
+    const byCategory = selectedCategory === 'all'
+      ? initialProducts
+      : initialProducts.filter((p) =>
+          p.category === selectedCategory ||
+          p.category.replace(/-/g, '_') === selectedCategory.replace(/-/g, '_')
+        );
+    if (!searchQuery) return byCategory;
+    const needle = normalizeSearch(searchQuery);
+    return byCategory.filter((p) =>
+      normalizeSearch(`${p.name} ${p.shortDescription || ''} ${p.description || ''}`).includes(needle)
     );
-  }, [selectedCategory, initialProducts]);
+  }, [selectedCategory, initialProducts, searchQuery]);
 
   const productCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -96,6 +114,13 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
             productCounts={productCounts}
           />
         </motion.div>
+
+        {searchQuery && (
+          <p className="text-warm-600 text-center mb-8">
+            {filteredProducts.length} résultat{filteredProducts.length > 1 ? 's' : ''} pour
+            {' '}<span className="font-semibold text-warm-800">« {searchQuery} »</span>
+          </p>
+        )}
 
         {/* Results count */}
         {/* <motion.p
