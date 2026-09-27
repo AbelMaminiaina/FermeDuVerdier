@@ -1,4 +1,4 @@
-export { Button } from './Button';
+export { Button, UiStyleProvider, useUiStyle } from './Button';
 export type { ButtonProps } from './Button';
 
 export { Badge } from './Badge';

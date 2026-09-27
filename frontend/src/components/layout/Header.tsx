@@ -30,6 +30,7 @@ import { useCart } from '@/hooks/useCart';
 import { useCategories } from '@/hooks/useCategories';
 import CartDrawer from '../cart/CartDrawer';
 import { ProductsMegaMenu } from './ProductsMegaMenu';
+import { AdminSiteHeader } from './AdminSiteHeader';
 
 // Mapping des icônes par slug de catégorie
 const categoryIcons: Record<string, { icon: LucideIcon; color: string }> = {
@@ -60,7 +61,13 @@ interface NavItem {
   submenu?: SubItem[];
 }
 
+// Les pages /admin gardent l'ancien header du site (avant le redesign ShopWise)
 export function Header() {
+  const pathname = usePathname();
+  return pathname?.startsWith('/admin') ? <AdminSiteHeader /> : <ShopHeader />;
+}
+
+function ShopHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -70,6 +77,9 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const accountRef = useRef<HTMLDivElement>(null);
+  const mainHeaderRef = useRef<HTMLDivElement>(null);
+  // Bas de la barre principale : le menu mobile occupe tout l'écran restant sous elle
+  const [mobileMenuTop, setMobileMenuTop] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const cart = useCart();
@@ -114,6 +124,16 @@ export function Header() {
     setOpenSubmenu(null);
     setIsAccountOpen(false);
   }, [pathname]);
+
+  // Menu mobile ouvert : mesurer où il commence et bloquer le défilement de la page derrière
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    setMobileMenuTop(mainHeaderRef.current?.getBoundingClientRect().bottom ?? 0);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   // Fermer le menu compte au clic à l'extérieur
   useEffect(() => {
@@ -177,7 +197,7 @@ export function Header() {
         </div>
 
         {/* Main Header */}
-        <div className={cn('bg-white border-b border-warm-100 transition-[padding] duration-300', isScrolled ? 'py-2' : 'py-3 lg:py-4')}>
+        <div ref={mainHeaderRef} className={cn('bg-white border-b border-warm-100 transition-[padding] duration-300', isScrolled ? 'py-2' : 'py-3 lg:py-4')}>
           <div className="container mx-auto px-4 flex items-center gap-4">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 flex items-center">
@@ -431,9 +451,10 @@ export function Header() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-warm-100 overflow-hidden max-h-[70vh] overflow-y-auto"
+              className="lg:hidden flex flex-col bg-white/95 backdrop-blur-xl border-b border-warm-100 overflow-hidden"
+              style={{ maxHeight: `calc(100dvh - ${mobileMenuTop}px)` }}
             >
-              <nav className="container mx-auto px-4 py-4 space-y-2" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
+              <nav className="flex-1 min-h-0 overflow-y-auto container mx-auto px-4 py-4 space-y-2">
                 {navigation.map((item, index) => (
                   <motion.div
                     key={item.name}
@@ -500,24 +521,24 @@ export function Header() {
                   </Link>
                 </motion.div>
 
-                {!session && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="pt-4 border-t border-warm-100"
-                  >
-                    <Link
-                      href="/connexion"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-white bg-gradient-to-r from-prairie-500 to-prairie-600 rounded-xl font-medium shadow-lg"
-                    >
-                      <User className="h-4 w-4" />
-                      Se connecter
-                    </Link>
-                  </motion.div>
-                )}
               </nav>
+
+              {/* « Se connecter » épinglé en bas : toujours visible, même quand la liste défile */}
+              {!session && (
+                <div
+                  className="shrink-0 container mx-auto px-4 pt-3 border-t border-warm-100 bg-white"
+                  style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+                >
+                  <Link
+                    href="/connexion"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-white bg-gradient-to-r from-prairie-500 to-prairie-600 rounded-xl font-medium shadow-lg"
+                  >
+                    <User className="h-4 w-4" />
+                    Se connecter
+                  </Link>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

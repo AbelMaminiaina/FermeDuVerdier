@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { modalBackdrop, modalContent } from '@/lib/animations';
+import { useUiStyle } from './Button';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -38,6 +39,9 @@ export function Modal({
   closeOnEscape = true,
   className,
 }: ModalProps) {
+  // Rendu hors de l'arbre (portail) : on reporte le style de l'admin s'il s'applique
+  const uiStyle = useUiStyle();
+
   useEffect(() => {
     if (!closeOnEscape) return;
 
@@ -61,7 +65,7 @@ export function Modal({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className={cn('fixed inset-0 z-50 flex items-center justify-center p-4', uiStyle === 'legacy' && 'admin-legacy')}>
           <motion.div
             className="fixed inset-0 bg-black/50"
             variants={modalBackdrop}

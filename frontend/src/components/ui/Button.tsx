@@ -13,6 +13,30 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
 }
 
+// Style de l'interface : 'shop' (maquette ShopWise, site public) ou 'legacy' (style d'avant le
+// redesign, conservé dans l'admin via <UiStyleProvider value="legacy">)
+export type UiStyle = 'shop' | 'legacy';
+const UiStyleContext = React.createContext<UiStyle>('shop');
+export const UiStyleProvider = UiStyleContext.Provider;
+export const useUiStyle = () => React.useContext(UiStyleContext);
+
+const legacyStyles = {
+  base: 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
+  variants: {
+    primary: 'bg-prairie-600 text-white hover:bg-prairie-700 focus:ring-prairie-500 shadow-md hover:shadow-lg active:shadow-sm',
+    secondary: 'bg-terre-500 text-white hover:bg-terre-600 focus:ring-terre-400 shadow-md hover:shadow-lg',
+    outline: 'border-2 border-prairie-600 text-prairie-600 hover:bg-prairie-50 focus:ring-prairie-500',
+    ghost: 'text-prairie-600 hover:bg-prairie-50 focus:ring-prairie-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-md hover:shadow-lg',
+  },
+  sizes: {
+    sm: 'px-3 py-1.5 text-sm gap-1.5',
+    md: 'px-4 py-2 text-base gap-2',
+    lg: 'px-6 py-3 text-lg gap-2',
+    xl: 'px-8 py-4 text-xl gap-3',
+  },
+};
+
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -29,6 +53,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const buttonStyle = useUiStyle();
+
     // Style des boutons de la maquette ShopWise : aplats, coins 6px, 14px medium, sans ombre
     const baseStyles =
       'inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-[3px] disabled:opacity-50 disabled:cursor-not-allowed';
@@ -57,9 +83,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          baseStyles,
-          variants[variant],
-          sizes[size],
+          buttonStyle === 'legacy' ? legacyStyles.base : baseStyles,
+          buttonStyle === 'legacy' ? legacyStyles.variants[variant] : variants[variant],
+          buttonStyle === 'legacy' ? legacyStyles.sizes[size] : sizes[size],
           fullWidth && 'w-full',
           className
         )}

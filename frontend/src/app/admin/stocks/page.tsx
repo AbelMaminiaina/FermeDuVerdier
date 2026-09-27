@@ -380,9 +380,8 @@ export default function AdminStocksPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-warm-800">Gestion des stocks</h1>
-        <Button onClick={() => openModal('add')} icon={<Plus className="h-4 w-4" />} className="shrink-0">
+        <Button onClick={() => openModal('add')} icon={<Plus className="h-4 w-4" />} className="shrink-0" aria-label="Ajouter un produit">
           <span className="hidden sm:inline">Ajouter</span>
-          <span className="sm:hidden">+</span>
         </Button>
       </div>
 

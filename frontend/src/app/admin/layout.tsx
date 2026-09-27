@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from 'next-auth/react';
+import { UiStyleProvider } from '@/components/ui';
 
 const adminNavigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -48,7 +49,11 @@ export default function AdminLayout({
 
   // Show login page directly without layout
   if (isLoginPage) {
-    return <>{children}</>;
+    return (
+      <UiStyleProvider value="legacy">
+        <div className="admin-legacy">{children}</div>
+      </UiStyleProvider>
+    );
   }
 
   if (status === 'loading') {
@@ -63,8 +68,10 @@ export default function AdminLayout({
     return null;
   }
 
+  // Admin : boutons et titres dans le style d'avant le redesign ShopWise (voir .admin-legacy)
   return (
-    <div className="min-h-screen bg-gray-100">
+    <UiStyleProvider value="legacy">
+    <div className="admin-legacy min-h-screen bg-gray-100">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -151,5 +158,6 @@ export default function AdminLayout({
         <main className="p-4 lg:p-8">{children}</main>
       </div>
     </div>
+    </UiStyleProvider>
   );
 }

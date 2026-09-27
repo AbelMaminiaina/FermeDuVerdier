@@ -16,6 +16,11 @@
     @apply font-display;
   }
 
+  /* Admin : titres dans la police du texte, comme avant le redesign (sauf classe font-display explicite) */
+  .admin-legacy :is(h1, h2, h3, h4, h5, h6):not(.font-display) {
+    font-family: inherit;
+  }
+
   ::selection {
     @apply bg-prairie-200 text-prairie-900;
   }
