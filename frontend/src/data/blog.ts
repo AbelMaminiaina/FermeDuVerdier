@@ -223,7 +223,7 @@ Les stocks sont limités, ne tardez pas à réserver vos préférées !
 
 Vous souhaitez voir nos poussins ? Nous organisons des visites tous les samedis après-midi de 14h à 17h. Les enfants adorent voir les poussins !
 
-Réservation conseillée au 038 01 001 01.
+Réservation conseillée au 038 07 122 69.
 
 À très bientôt à la ferme !`,
     coverImage: 'https://images.unsplash.com/photo-1569428034239-f9565e32e224?w=800',
@@ -354,7 +354,7 @@ Parking gratuit sur place (100 places)
 ## Inscription
 
 L'entrée est libre mais l'inscription nous aide à organiser la journée :
-- Par téléphone : 038 01 001 01
+- Par téléphone : 038 07 122 69
 - Par email : fermeduvardier@gmail.com
 
 Nous avons hâte de vous accueillir !`,

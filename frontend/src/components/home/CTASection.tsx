@@ -56,8 +56,8 @@ export function CTASection() {
                 <div className="w-10 h-10 rounded-full bg-prairie-600 flex items-center justify-center">
                   <Phone className="h-5 w-5 text-white" />
                 </div>
-                <a href="tel:+261380100101" className="hover:text-white transition-colors">
-                  038 01 001 01
+                <a href="tel:+261380712269" className="hover:text-white transition-colors">
+                  038 07 122 69
                 </a>
               </div>
             </div>

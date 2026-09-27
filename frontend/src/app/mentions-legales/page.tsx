@@ -18,12 +18,12 @@ export default function MentionsLegalesPage() {
           <p>
             Le site fermeduvardier.mg est édité par :<br />
             <strong>Ferme du Vardier</strong><br />
-            Forme juridique : SARL<br />
-            Capital social : 10 000 000 Ar<br />
+            Forme juridique : SI<br />
+            Capital social : 1 000 Ar<br />
             NIF : 1234567890<br />
             STAT : 12345 67 890 1 23456<br />
             Siège social : Lot 187, Ambohitsoa Ambavatonelina<br />
-            Téléphone : 038 01 001 01<br />
+            Téléphone : 038 07 122 69<br />
             Email : fermeduvardier@gmail.com
           </p>
           <p>

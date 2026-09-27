@@ -143,7 +143,7 @@ export default function ContactPage() {
                       href="tel:+261380100101"
                       className="text-prairie-600 hover:text-prairie-700"
                     >
-                      038 01 001 01
+                      038 07 122 69
                     </a>
                   </div>
                 </div>

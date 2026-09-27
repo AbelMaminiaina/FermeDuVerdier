@@ -264,7 +264,7 @@ export default function NotreElevagePage() {
                     <Phone className="h-5 w-5" />
                   </div>
                   <a href="tel:+261380100101" className="hover:text-prairie-300">
-                    038 01 001 01
+                    038 07 122 69
                   </a>
                 </div>
               </div>

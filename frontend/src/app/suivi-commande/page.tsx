@@ -465,8 +465,8 @@ function OrderDetail({ order }: { order: Order }) {
         <div className="flex items-center gap-2 text-warm-700">
           <Phone className="h-4 w-4" />
           <span>Une question ? </span>
-          <a href="tel:+261380100101" className="font-medium text-prairie-600 hover:underline">
-            038 01 001 01
+          <a href="tel:+261380712269" className="font-medium text-prairie-600 hover:underline">
+            038 07 122 69
           </a>
         </div>
       </div>

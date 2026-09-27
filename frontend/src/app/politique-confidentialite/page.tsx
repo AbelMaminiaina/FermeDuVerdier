@@ -26,7 +26,7 @@ export default function PolitiqueConfidentialitePage() {
             <strong>Ferme du Vardier</strong><br />
             LE 187, Ambohitsoa Ambavatonelina, Madagascar<br />
             Email : fermeduvardier@gmail.com<br />
-            Téléphone : 038 01 001 01
+            Téléphone : 038 07 122 69
           </p>
 
           <h2>2. Données collectées</h2>
