@@ -90,13 +90,14 @@ describe('POST /api/checkout', () => {
     expect(res.body.error).toBe('Données invalides');
   });
 
-  it('computes subtotal, shipping cost and total, and marks the order processing when stock is available', async () => {
+  it('computes subtotal, shipping cost and total, and keeps the order pending (awaiting payment) with stock reserved', async () => {
     mockHappyPath();
 
     const res = await request(buildApp()).post('/api/checkout').send(validPayload);
 
     expect(res.status).toBe(200);
-    expect(res.body.status).toBe('processing');
+    expect(res.body.status).toBe('pending');
+    expect(res.body.message).toBe('Commande enregistrée, en attente de paiement');
     // subtotal = 15000*2 + 5000*1 = 35000, livraison offerte
     expect(res.body.total).toBe(35000);
 
@@ -104,7 +105,8 @@ describe('POST /api/checkout', () => {
     expect(orderCreateArgs.data.subtotal).toBe(35000);
     expect(orderCreateArgs.data.shippingCost).toBe(0);
     expect(orderCreateArgs.data.total).toBe(35000);
-    expect(orderCreateArgs.data.status).toBe('processing');
+    expect(orderCreateArgs.data.status).toBe('pending');
+    expect(orderCreateArgs.data.stockReserved).toBe(true);
   });
 
   it('never charges shipping, whatever the delivery method', async () => {
@@ -151,6 +153,8 @@ describe('POST /api/checkout', () => {
     expect(res.body.status).toBe('pending');
     expect(res.body.message).toBe('Commande en attente de stock');
     expect(prismaMock.product.update).not.toHaveBeenCalled();
+    const orderCreateArgs = prismaMock.order.create.mock.calls[0][0] as any;
+    expect(orderCreateArgs.data.stockReserved).toBe(false);
   });
 
   it('decrements stock for every purchased item when in stock', async () => {
@@ -220,6 +224,7 @@ describe('PATCH /api/checkout/orders/:orderId/status', () => {
     prismaMock.order.findUnique.mockResolvedValue({
       id: 'o1',
       status: 'processing',
+      stockReserved: true,
       items: [{ productId: 'p1', quantity: 2 }],
       ...overrides,
     } as any);
@@ -351,9 +356,10 @@ describe('PATCH /api/checkout/orders/:orderId/status', () => {
     expect(emailArg.reason).toBeUndefined();
   });
 
-  it('restores stock for every item when cancelling a processing order', async () => {
+  it('restores stock for every item when cancelling an order whose stock was reserved', async () => {
     mockExistingOrder({
-      status: 'processing',
+      status: 'pending',
+      stockReserved: true,
       items: [
         { productId: 'p1', quantity: 2 },
         { productId: 'p2', quantity: 1 },
@@ -377,8 +383,8 @@ describe('PATCH /api/checkout/orders/:orderId/status', () => {
     });
   });
 
-  it('does not restore stock when cancelling a pending order (stock was never decremented)', async () => {
-    mockExistingOrder({ status: 'pending' });
+  it('does not restore stock when cancelling an order whose stock was never reserved', async () => {
+    mockExistingOrder({ status: 'pending', stockReserved: false });
     mockUpdatedOrder({ status: 'cancelled' });
 
     await request(buildApp())

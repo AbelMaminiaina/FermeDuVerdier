@@ -111,8 +111,9 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    // Stock disponible = processing, sinon = pending
-    const orderStatus = allInStock ? 'processing' : 'pending';
+    // Toute nouvelle commande attend la confirmation du paiement (MVola) par l'admin.
+    // Le stock est réservé dès maintenant s'il est disponible.
+    const orderStatus = 'pending';
 
     // Create order
     const order = await prisma.order.create({
@@ -122,6 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
         addressId: address.id,
         deliveryMethod: validatedData.deliveryMethod as DeliveryMethod,
         status: orderStatus,
+        stockReserved: allInStock,
         subtotal,
         shippingCost,
         total,
@@ -154,7 +156,7 @@ router.post('/', async (req: Request, res: Response) => {
         )
       );
       await invalidateProductCache();
-      console.log('Commande en préparation:', order.orderNumber);
+      console.log('Commande en attente de paiement (stock réservé):', order.orderNumber);
     } else {
       console.log('Commande en attente (stock insuffisant):', order.orderNumber);
     }
@@ -193,7 +195,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: allInStock
-        ? 'Commande confirmée et en préparation'
+        ? 'Commande enregistrée, en attente de paiement'
         : 'Commande en attente de stock',
       orderId: order.id,
       orderNumber: order.orderNumber,
@@ -316,10 +318,8 @@ router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: 
       },
     });
 
-    // Une commande "pending" n'a jamais décrémenté le stock (stock insuffisant au moment
-    // de la commande) : rien à restaurer. Pour toute autre commande annulée, le stock avait
-    // été décrémenté à la création, on le restitue.
-    if (status === 'cancelled' && existingOrder.status !== 'pending') {
+    // Stock réservé à la création → on le restitue ; sinon (stock insuffisant) rien à restaurer.
+    if (status === 'cancelled' && existingOrder.stockReserved) {
       await Promise.all(
         existingOrder.items.map((item) =>
           prisma.product.update({

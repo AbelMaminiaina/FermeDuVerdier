@@ -179,6 +179,8 @@ model Order {
 
   notes          String?
   cancelReason   String?
+  // true si le stock a été décrémenté à la création (à restituer en cas d'annulation)
+  stockReserved  Boolean        @default(false)
 
   items          OrderItem[]
 
