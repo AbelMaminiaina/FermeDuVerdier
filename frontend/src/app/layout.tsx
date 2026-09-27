@@ -11,8 +11,8 @@ import {
   WebsiteJsonLd,
 } from '@/components/seo/JsonLd';
 
-// Typographie reprise de la maquette ShopWise : Roboto (texte), Quicksand (titres), Inter (menu).
-// Les trois polices sont hébergées dans le projet (next/font/local) : next/font/google (Next 14)
+// Typographie : Inter (texte et menu), Playfair Display (titres).
+// Les polices sont hébergées dans le projet (next/font/local) : next/font/google (Next 14)
 // ne sait pas lire les URLs « /l/font?kit=… » que Google sert selon la police et le pays, ce qui
 // faisait échouer le build (Roboto en local, Quicksand sur le VPS). Le build ne dépend plus de Google.
 const inter = localFont({
@@ -22,18 +22,11 @@ const inter = localFont({
   variable: '--font-inter',
 });
 
-const roboto = localFont({
-  src: './fonts/roboto-latin-variable.woff2',
-  weight: '300 700',
+const playfair = localFont({
+  src: './fonts/playfair-display-latin-variable.woff2',
+  weight: '400 900',
   display: 'swap',
-  variable: '--font-roboto',
-});
-
-const quicksand = localFont({
-  src: './fonts/quicksand-latin-variable.woff2',
-  weight: '400 700',
-  display: 'swap',
-  variable: '--font-quicksand',
+  variable: '--font-playfair',
 });
 
 export const metadata: Metadata = {
@@ -131,7 +124,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${roboto.variable} ${quicksand.variable}`} suppressHydrationWarning>
+    <html lang="fr" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
       <head>
         <OrganizationJsonLd />
         <LocalBusinessJsonLd />
