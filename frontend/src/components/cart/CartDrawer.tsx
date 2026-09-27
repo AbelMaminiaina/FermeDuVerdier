@@ -163,17 +163,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </span>
                 </div>
 
-                {/* Free shipping notice */}
-                {total < 50 && (
-                  <p className="text-sm text-warm-500 text-center">
-                    Plus que {formatPrice(50 - total)} pour la livraison gratuite !
-                  </p>
-                )}
-                {total >= 50 && (
-                  <p className="text-sm text-prairie-600 text-center font-medium">
-                    Livraison gratuite !
-                  </p>
-                )}
+                <p className="text-sm text-prairie-600 text-center font-medium">
+                  Livraison gratuite !
+                </p>
 
                 {/* Actions */}
                 <div className="space-y-2">

@@ -24,7 +24,6 @@ import {
   sendOrderDeliveredEmail,
 } from '../services/emailService.js';
 import checkoutRouter from './checkout.js';
-import { SHIPPING_COSTS, FREE_SHIPPING_THRESHOLD } from '../lib/shipping.js';
 import { ADMIN_SESSION, withSession, type TestSession } from '../test/auth.js';
 
 const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
@@ -98,56 +97,25 @@ describe('POST /api/checkout', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('processing');
-    // subtotal = 15000*2 + 5000*1 = 35000 (below the free-shipping threshold) → standard flat rate
-    expect(res.body.total).toBe(35000 + SHIPPING_COSTS.standard);
+    // subtotal = 15000*2 + 5000*1 = 35000, livraison offerte
+    expect(res.body.total).toBe(35000);
 
     const orderCreateArgs = prismaMock.order.create.mock.calls[0][0] as any;
     expect(orderCreateArgs.data.subtotal).toBe(35000);
-    expect(orderCreateArgs.data.shippingCost).toBe(SHIPPING_COSTS.standard);
-    expect(orderCreateArgs.data.total).toBe(35000 + SHIPPING_COSTS.standard);
+    expect(orderCreateArgs.data.shippingCost).toBe(0);
+    expect(orderCreateArgs.data.total).toBe(35000);
     expect(orderCreateArgs.data.status).toBe('processing');
   });
 
-  it('applies free shipping once the subtotal reaches the free-shipping threshold', async () => {
-    mockHappyPath();
-    const bigOrder = {
-      ...validPayload,
-      items: [{ productId: 'p1', name: 'Poulet', price: FREE_SHIPPING_THRESHOLD, quantity: 1 }],
-    };
-
-    const res = await request(buildApp()).post('/api/checkout').send(bigOrder);
-
-    expect(res.status).toBe(200);
-    expect(res.body.total).toBe(FREE_SHIPPING_THRESHOLD);
-  });
-
-  it('uses express shipping cost when requested', async () => {
+  it('never charges shipping, whatever the delivery method', async () => {
     mockHappyPath();
 
     const res = await request(buildApp())
       .post('/api/checkout')
       .send({ ...validPayload, deliveryMethod: 'express' });
 
-    expect(res.body.total).toBe(35000 + SHIPPING_COSTS.express);
-  });
-
-  it('offers free shipping when the cart contains a product flagged freeShipping (ignores method and threshold)', async () => {
-    prismaMock.customer.findUnique.mockResolvedValue(null);
-    prismaMock.customer.create.mockResolvedValue({ id: 'cust1' } as any);
-    prismaMock.address.create.mockResolvedValue({ id: 'addr1' } as any);
-    prismaMock.product.findMany.mockResolvedValue([
-      { id: 'p1', stockQuantity: 10, freeShipping: true },
-      { id: 'p2', stockQuantity: 10, freeShipping: false },
-    ] as any);
-    prismaMock.order.create.mockResolvedValue({ id: 'order1', orderNumber: 'FDV-TEST', items: [] } as any);
-    prismaMock.product.update.mockResolvedValue({} as any);
-
-    const res = await request(buildApp())
-      .post('/api/checkout')
-      .send({ ...validPayload, deliveryMethod: 'express' });
-
     expect(res.status).toBe(200);
-    expect(res.body.total).toBe(35000); // subtotal only, no shipping despite express
+    expect(res.body.total).toBe(35000);
     const orderCreateArgs = prismaMock.order.create.mock.calls[0][0] as any;
     expect(orderCreateArgs.data.shippingCost).toBe(0);
   });
@@ -158,8 +126,8 @@ describe('POST /api/checkout', () => {
     prismaMock.customer.create.mockResolvedValue({ id: 'cust1' } as any);
     prismaMock.address.create.mockResolvedValue({ id: 'addr1' } as any);
     prismaMock.product.findMany.mockResolvedValue([
-      { id: 'p1', stockQuantity: 10, freeShipping: false, availableFrom },
-      { id: 'p2', stockQuantity: 10, freeShipping: false, availableFrom: null },
+      { id: 'p1', stockQuantity: 10, availableFrom },
+      { id: 'p2', stockQuantity: 10, availableFrom: null },
     ] as any);
     prismaMock.order.create.mockResolvedValue({ id: 'o1', orderNumber: 'FDV-TEST', items: [] } as any);
     prismaMock.product.update.mockResolvedValue({} as any);
@@ -235,7 +203,7 @@ describe('POST /api/checkout', () => {
     expect(sendOrderConfirmationEmail).toHaveBeenCalledTimes(1);
     const emailArg = vi.mocked(sendOrderConfirmationEmail).mock.calls[0][0];
     expect(emailArg.orderNumber).toBe('FDV-TEST');
-    expect(emailArg.total).toBe(35000 + SHIPPING_COSTS.standard);
+    expect(emailArg.total).toBe(35000);
   });
 
   it('returns 500 on unexpected errors', async () => {

@@ -88,21 +88,12 @@ router.post('/', async (req: Request, res: Response) => {
     const productIds = validatedData.items.map(item => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, stockQuantity: true, freeShipping: true, availableFrom: true },
+      select: { id: true, stockQuantity: true, availableFrom: true },
     });
 
     const productMap = new Map(products.map(p => [p.id, p]));
 
-    // Shipping: a single product flagged freeShipping makes the whole order free.
-    const freeShippingProductIds = new Set(
-      products.filter(p => p.freeShipping).map(p => p.id)
-    );
-    const shippingCost = computeShippingCost(
-      validatedData.deliveryMethod,
-      subtotal,
-      freeShippingProductIds,
-      validatedData.items,
-    );
+    const shippingCost = computeShippingCost();
     const total = subtotal + shippingCost;
 
     let allInStock = true;

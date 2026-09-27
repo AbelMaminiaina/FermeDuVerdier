@@ -15,21 +15,20 @@ export const services: Service[] = [
 - Autres régions : nous consulter
 
 **Frais de livraison :**
-- Gratuit dès 200 000 Ar d'achat
-- 15 000 Ar pour les commandes inférieures à 200 000 Ar
-- Livraison express (+10 000 Ar) : disponible sur certains secteurs
+- Livraison gratuite sur toutes les commandes, sans minimum d'achat
+- Livraison express (gratuite également) : disponible sur certains secteurs
 
 Les œufs sont transportés dans des emballages isothermes pour garantir leur conservation.`,
     icon: 'Truck',
     features: [
       'Livraison sous 24-48h',
-      'Gratuit dès 200 000 Ar d\'achat',
+      'Livraison gratuite, sans minimum',
       'Emballage isotherme',
       'Suivi de commande par SMS',
       'Créneau horaire au choix',
       'Livraison express disponible',
     ],
-    pricing: 'Gratuit dès 200 000 Ar / 15 000 Ar sinon',
+    pricing: 'Gratuit',
     available: true,
   },
   {

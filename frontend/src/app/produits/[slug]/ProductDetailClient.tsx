@@ -277,7 +277,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     Livraison gratuite
                   </div>
                   <div className="text-xs text-warm-500">
-                    {product.freeShipping ? 'Incluse pour ce produit' : 'Dès 200 000 Ar d’achat'}
+                    Sur toutes les commandes
                   </div>
                 </div>
               </div>

@@ -22,54 +22,17 @@ const paymentInstructions: Record<string, { name: string; steps: string[]; numbe
   mvola: {
     name: 'MVola',
     color: 'bg-yellow-500',
-    number: '034 00 000 00',
+    number: '038 07 122 69',
     steps: [
       'Composez #111# sur votre téléphone Telma',
       'Sélectionnez "Envoi d\'argent"',
-      'Entrez le numéro: 034 00 000 00',
+      'Entrez le numéro: 038 07 122 69',
       'Entrez le montant de votre commande',
       'Confirmez avec votre code PIN',
       'Envoyez le numéro de transaction par WhatsApp',
     ],
   },
-  orange_money: {
-    name: 'Orange Money',
-    color: 'bg-orange-500',
-    number: '032 00 000 00',
-    steps: [
-      'Composez #144# sur votre téléphone Orange',
-      'Sélectionnez "Transfert d\'argent"',
-      'Entrez le numéro: 032 00 000 00',
-      'Entrez le montant de votre commande',
-      'Confirmez avec votre code PIN',
-      'Envoyez le numéro de transaction par WhatsApp',
-    ],
-  },
-  airtel_money: {
-    name: 'Airtel Money',
-    color: 'bg-red-500',
-    number: '033 00 000 00',
-    steps: [
-      'Composez *444# sur votre téléphone Airtel',
-      'Sélectionnez "Envoi d\'argent"',
-      'Entrez le numéro: 033 00 000 00',
-      'Entrez le montant de votre commande',
-      'Confirmez avec votre code PIN',
-      'Envoyez le numéro de transaction par WhatsApp',
-    ],
-  },
-  stripe: {
-    name: 'Carte bancaire',
-    color: 'bg-indigo-500',
-    number: '',
-    steps: [
-      'Vous allez recevoir un lien de paiement par email',
-      'Cliquez sur le lien pour accéder à la page de paiement sécurisée',
-      'Entrez les informations de votre carte bancaire',
-      'Confirmez le paiement',
-      'Vous recevrez une confirmation par email',
-    ],
-  },
+  // Orange Money, Airtel Money et carte bancaire : bientôt disponibles
   cash: {
     name: 'Paiement à l\'arrivée',
     color: 'bg-green-600',
@@ -217,8 +180,8 @@ function ConfirmationContent() {
             <div className="flex items-center gap-2 text-warm-700">
               <Phone className="h-4 w-4" />
               <span>Appelez-nous au </span>
-              <a href="tel:+261380100101" className="font-medium text-prairie-600 hover:underline">
-                038 01 001 01
+              <a href="tel:+261380712269" className="font-medium text-prairie-600 hover:underline">
+                038 07 122 69
               </a>
             </div>
           </div>

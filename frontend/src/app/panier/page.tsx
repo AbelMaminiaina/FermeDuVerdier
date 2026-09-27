@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Truck, Shield, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { formatDate, formatPrice, formatWeight, getShippingCost, isUpcoming, FREE_SHIPPING_THRESHOLD } from '@/lib/utils';
+import { formatDate, formatPrice, formatWeight, getShippingCost, isUpcoming } from '@/lib/utils';
 import { Button, Input } from '@/components/ui';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 
@@ -17,8 +17,7 @@ export default function CartPage() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const hasFreeShippingItem = cart.items.some((item) => item.freeShipping);
-  const shippingCost = getShippingCost('standard', subtotal, hasFreeShippingItem);
+  const shippingCost = getShippingCost();
   const total = subtotal + shippingCost;
 
   if (cart.items.length === 0) {
@@ -211,17 +210,6 @@ export default function CartPage() {
                     <span>{formatPrice(shippingCost)}</span>
                   )}
                 </div>
-                {hasFreeShippingItem ? (
-                  <p className="text-sm text-prairie-600">
-                    Votre panier contient un produit à livraison offerte 🎉
-                  </p>
-                ) : (
-                  subtotal < FREE_SHIPPING_THRESHOLD && (
-                    <p className="text-sm text-warm-500">
-                      Plus que {formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)} pour la livraison gratuite
-                    </p>
-                  )
-                )}
               </div>
 
               {/* Total */}

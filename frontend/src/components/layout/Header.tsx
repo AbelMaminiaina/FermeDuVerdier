@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import {
   Menu,
@@ -24,7 +25,7 @@ import {
   LayoutDashboard,
   LucideIcon,
 } from 'lucide-react';
-import { cn, FREE_SHIPPING_THRESHOLD, formatPrice } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import { useCategories } from '@/hooks/useCategories';
 import CartDrawer from '../cart/CartDrawer';
@@ -62,7 +63,6 @@ interface NavItem {
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -114,14 +114,6 @@ export function Header() {
     setOpenSubmenu(null);
     setIsAccountOpen(false);
   }, [pathname]);
-
-  // Bloquer le scroll de la page quand le menu mobile est ouvert
-  useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen]);
 
   // Fermer le menu compte au clic à l'extérieur
   useEffect(() => {
@@ -179,7 +171,7 @@ export function Header() {
               </Link>
             </div>
             <span className="text-xs font-medium tracking-wide text-prairie-700">
-              Livraison offerte dès {formatPrice(FREE_SHIPPING_THRESHOLD)} d&apos;achat
+              Livraison offerte sur tous les articles
             </span>
           </div>
         </div>
@@ -220,7 +212,10 @@ export function Header() {
               {/* Mobile Search Toggle */}
               <button
                 type="button"
-                onClick={() => setIsMobileSearchOpen(v => !v)}
+                onClick={() => {
+                  setIsMobileSearchOpen(v => !v);
+                  setIsMobileMenuOpen(false);
+                }}
                 className="lg:hidden p-2 rounded-md text-warm-600 hover:bg-warm-50 hover:text-prairie-700 transition-colors"
                 aria-label="Rechercher"
                 aria-expanded={isMobileSearchOpen}
@@ -332,11 +327,15 @@ export function Header() {
               {/* Mobile Navigation Toggle */}
               <button
                 type="button"
-                onClick={() => setIsMobileMenuOpen(true)}
+                onClick={() => {
+                  setIsMobileMenuOpen(v => !v);
+                  setIsMobileSearchOpen(false);
+                }}
                 className="lg:hidden p-2 ml-1 rounded-md text-warm-600 hover:bg-warm-50 hover:text-prairie-700 transition-colors"
-                aria-label="Ouvrir le menu"
+                aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-expanded={isMobileMenuOpen}
               >
-                <Menu className="h-7 w-7" />
+                {isMobileMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
               </button>
             </div>
           </div>
@@ -423,117 +422,106 @@ export function Header() {
             </form>
           </div>
         )}
-      </header>
 
-      {/* Mobile Navigation (overlay) */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-[rgba(33,37,41,0.8)]" onClick={() => setIsMobileMenuOpen(false)}>
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="absolute top-4 right-4 text-white"
-            aria-label="Fermer le menu"
-          >
-            <X className="h-8 w-8" />
-          </button>
-          <nav
-            className="absolute top-[60px] left-5 right-5 bottom-5 py-2.5 bg-white rounded-md overflow-y-auto shadow-[0_0_30px_rgba(0,0,0,0.1)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ul>
-              {navigation.map((item) => {
-                const expanded = openMobileSubmenu === item.name;
-                return (
-                  <li key={item.name}>
-                    <div className="flex items-center justify-between">
-                      <Link
-                        href={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={cn(
-                          'flex-1 px-5 py-2.5 font-nav text-[17px] font-medium transition-colors',
-                          isActive(item.href) ? 'text-prairie-700' : 'text-warm-600 hover:text-prairie-700'
-                        )}
-                      >
-                        {item.name}
-                      </Link>
-                      {item.submenu && item.submenu.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setOpenMobileSubmenu(expanded ? null : item.name)}
-                          className={cn(
-                            'mr-5 w-[30px] h-[30px] flex items-center justify-center rounded-full transition-all',
-                            expanded ? 'bg-prairie-600 text-white rotate-180' : 'bg-prairie-100 text-prairie-700'
-                          )}
-                          aria-label={`Afficher le sous-menu ${item.name}`}
-                          aria-expanded={expanded}
-                        >
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        </button>
+        {/* Navigation mobile : panneau déroulant sous le header (ancien menu), sous-menu Produits toujours déplié */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="lg:hidden bg-white/95 backdrop-blur-xl border-b border-warm-100 overflow-hidden max-h-[70vh] overflow-y-auto"
+            >
+              <nav className="container mx-auto px-4 py-4 space-y-2" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
+                {navigation.map((item, index) => (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        'flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-300',
+                        isActive(item.href)
+                          ? 'text-prairie-700 bg-gradient-to-r from-prairie-50 to-prairie-100/50'
+                          : 'text-warm-700 hover:text-prairie-700 hover:bg-prairie-50'
                       )}
-                    </div>
-                    {item.submenu && expanded && (
-                      <ul className="mx-5 my-2.5 py-2.5 border border-warm-100 rounded bg-warm-50/40">
-                        {item.kind === 'mega' && (
-                          <li>
-                            <Link
-                              href="/produits"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                              className="flex items-center gap-3 px-5 py-2.5 font-nav text-[15px] text-warm-600 hover:text-prairie-700"
-                            >
-                              <Sparkles className="h-4 w-4 text-purple-500" />
-                              Tous les produits
-                            </Link>
-                          </li>
-                        )}
-                        {item.submenu.map((sub) => {
+                    >
+                      {item.name}
+                    </Link>
+                    {item.submenu && (
+                      <motion.div
+                        className="ml-4 mt-2 space-y-1 border-l-2 border-prairie-100 pl-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.1 }}
+                      >
+                        {[
+                          ...(item.kind === 'mega'
+                            ? [{ name: 'Tous les produits', href: '/produits', icon: Sparkles, color: 'text-purple-500' }]
+                            : []),
+                          ...item.submenu,
+                        ].map((sub) => {
                           const Icon = sub.icon;
                           return (
-                            <li key={sub.href}>
-                              <Link
-                                href={sub.href}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="flex items-center gap-3 px-5 py-2.5 font-nav text-[15px] text-warm-600 hover:text-prairie-700"
-                              >
-                                {Icon && <Icon className={cn('h-4 w-4', sub.color)} />}
-                                {sub.name}
-                              </Link>
-                            </li>
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm text-warm-600 hover:text-prairie-700 hover:bg-prairie-50 rounded-lg transition-all duration-300"
+                            >
+                              {Icon && <Icon className={cn('h-4 w-4', sub.color)} />}
+                              {sub.name}
+                            </Link>
                           );
                         })}
-                      </ul>
+                      </motion.div>
                     )}
-                  </li>
-                );
-              })}
-              <li className="mt-2 pt-2 border-t border-warm-100">
-                <Link
-                  href="/suivi-commande"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-5 py-2.5 font-nav text-[17px] font-medium text-warm-600 hover:text-prairie-700"
+                  </motion.div>
+                ))}
+
+                {/* Suivi commande - toujours visible */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
                 >
-                  <Truck className="h-5 w-5 text-prairie-600" />
-                  Suivi de commande
-                </Link>
-              </li>
-              {!session && (
-                <li className="px-5 pt-3">
                   <Link
-                    href="/connexion"
+                    href="/suivi-commande"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-md font-medium text-white bg-prairie-600 hover:bg-prairie-700"
+                    className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium text-warm-700 hover:text-prairie-700 hover:bg-prairie-50 transition-all duration-300"
                   >
-                    <User className="h-4 w-4" />
-                    Se connecter
+                    <Package className="h-5 w-5 text-prairie-600" />
+                    Suivi de commande
                   </Link>
-                </li>
-              )}
-            </ul>
-            <p className="px-5 pt-4 pb-2 text-xs font-medium text-prairie-700">
-              Livraison offerte dès {formatPrice(FREE_SHIPPING_THRESHOLD)} d&apos;achat
-            </p>
-          </nav>
-        </div>
-      )}
+                </motion.div>
+
+                {!session && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="pt-4 border-t border-warm-100"
+                  >
+                    <Link
+                      href="/connexion"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-white bg-gradient-to-r from-prairie-500 to-prairie-600 rounded-xl font-medium shadow-lg"
+                    >
+                      <User className="h-4 w-4" />
+                      Se connecter
+                    </Link>
+                  </motion.div>
+                )}
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
       {/* Cart drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

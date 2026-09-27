@@ -73,6 +73,7 @@ describe('sendOrderConfirmationEmail', () => {
     const customerCall = sendMailMock.mock.calls[0][0];
     expect(customerCall.to).toBe('jean@example.com');
     expect(customerCall.subject).toContain('FDV-TEST123');
+    expect(customerCall.subject).toContain('En attente de paiement');
     expect(customerCall.html).toContain('FDV-TEST123');
     expect(customerCall.html).toMatch(/55\s000\sAr/);
   });

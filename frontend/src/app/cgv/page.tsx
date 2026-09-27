@@ -88,9 +88,8 @@ export default function CGVPage() {
 
           <h3>5.3 Frais de livraison</h3>
           <ul>
-            <li><strong>Gratuit :</strong> pour les commandes supérieures à 200 000 Ar</li>
-            <li><strong>Livraison standard :</strong> 15 000 Ar</li>
-            <li><strong>Livraison express :</strong> 25 000 Ar</li>
+            <li><strong>Livraison standard :</strong> gratuite</li>
+            <li><strong>Livraison express :</strong> gratuite</li>
             <li><strong>Retrait à la ferme :</strong> gratuit</li>
           </ul>
 
@@ -186,7 +185,7 @@ export default function CGVPage() {
             <strong>Ferme du Vardier</strong><br />
             Ambohitsoa Ambavatonelina<br />
             Email : fermeduvardier@gmail.com<br />
-            Téléphone : 038 01 001 01
+            Téléphone : 038 07 122 69
           </p>
 
           <p className="text-sm text-warm-500 mt-8">

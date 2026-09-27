@@ -30,16 +30,10 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
 }
 
 describe('ProductDetailClient — bloc « Livraison gratuite »', () => {
-  it('affiche « Dès 200 000 Ar d’achat » pour un produit sans livraison offerte', () => {
+  it('annonce la livraison gratuite sur toutes les commandes, sans seuil', () => {
     render(<ProductDetailClient product={makeProduct({ freeShipping: false })} relatedProducts={[]} />);
-    expect(screen.getByText(/Dès 200 000 Ar d’achat/)).toBeInTheDocument();
-    expect(screen.queryByText('Incluse pour ce produit')).not.toBeInTheDocument();
-  });
-
-  it('remplace la condition par « Incluse pour ce produit » quand le produit est en livraison offerte', () => {
-    render(<ProductDetailClient product={makeProduct({ freeShipping: true })} relatedProducts={[]} />);
-    expect(screen.getByText('Incluse pour ce produit')).toBeInTheDocument();
-    expect(screen.queryByText(/Dès 200 000 Ar d’achat/)).not.toBeInTheDocument();
+    expect(screen.getByText('Sur toutes les commandes')).toBeInTheDocument();
+    expect(screen.queryByText(/Dès .* Ar d’achat/)).not.toBeInTheDocument();
   });
 });
 

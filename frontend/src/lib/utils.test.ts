@@ -19,8 +19,6 @@ import {
   formatWeight,
   isUpcoming,
   formatDeliveryWindow,
-  FREE_SHIPPING_THRESHOLD,
-  SHIPPING_COSTS,
 } from './utils';
 
 describe('cn', () => {
@@ -192,34 +190,8 @@ describe('getDeliveryEstimate', () => {
 });
 
 describe('getShippingCost', () => {
-  const below = FREE_SHIPPING_THRESHOLD - 1;
-
-  it('charges standard shipping below the free-shipping threshold', () => {
-    expect(getShippingCost('standard', below)).toBe(SHIPPING_COSTS.standard);
-  });
-
-  it('charges express shipping below the free-shipping threshold', () => {
-    expect(getShippingCost('express', below)).toBe(SHIPPING_COSTS.express);
-  });
-
-  it('is free for pickup regardless of subtotal', () => {
-    expect(getShippingCost('retrait', 1000)).toBe(0);
-  });
-
-  it('is free once the subtotal reaches the free-shipping threshold', () => {
-    expect(getShippingCost('express', FREE_SHIPPING_THRESHOLD)).toBe(0);
-  });
-
-  it('defaults to 0 for an unknown method', () => {
-    expect(getShippingCost('drone', 1000)).toBe(0);
-  });
-
-  it('is free when the cart holds a freeShipping item, ignoring method and threshold', () => {
-    expect(getShippingCost('express', 1000, true)).toBe(0);
-  });
-
-  it('still charges normally when no cart item is flagged freeShipping', () => {
-    expect(getShippingCost('standard', below, false)).toBe(SHIPPING_COSTS.standard);
+  it('is always free', () => {
+    expect(getShippingCost()).toBe(0);
   });
 });
 

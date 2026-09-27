@@ -190,7 +190,7 @@ function generateCustomerEmailHTML(order: OrderData): string {
 
         <div style="background-color: white; border-radius: 8px; padding: 15px; margin-top: 10px; text-align: center;">
           <p style="margin: 0 0 5px 0; color: #666; font-size: 12px;">NUMÉRO MVOLA</p>
-          <p style="margin: 0; font-size: 24px; font-weight: bold; color: #333; font-family: monospace;">038 01 001 01</p>
+          <p style="margin: 0; font-size: 24px; font-weight: bold; color: #333; font-family: monospace;">038 07 122 69</p>
           <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Nom: FERME DU VARDIER</p>
         </div>
 
@@ -198,7 +198,7 @@ function generateCustomerEmailHTML(order: OrderData): string {
           <p style="margin: 0 0 10px 0; font-weight: bold; color: #92400e; font-size: 14px;">📋 Comment payer :</p>
           <ol style="margin: 0; padding-left: 20px; color: #78350f; font-size: 13px;">
             <li style="margin-bottom: 5px;">Composez <strong>*111#</strong> sur votre téléphone</li>
-            <li style="margin-bottom: 5px;">Envoyez <strong>${formatPrice(order.total)}</strong> au <strong>038 01 001 01</strong></li>
+            <li style="margin-bottom: 5px;">Envoyez <strong>${formatPrice(order.total)}</strong> au <strong>038 07 122 69</strong></li>
             <li style="margin-bottom: 5px;">Indiquez <strong>${order.orderNumber}</strong> en référence</li>
             <li>Votre commande sera livrée après confirmation du paiement</li>
           </ol>
@@ -263,7 +263,7 @@ function generateCustomerEmailHTML(order: OrderData): string {
     <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
       <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur votre commande ?</p>
       <p style="margin: 0; color: #666; font-size: 14px;">
-        📧 fermeduvardier@gmail.com | 📞 038 01 001 01
+        📧 fermeduvardier@gmail.com | 📞 038 07 122 69
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
@@ -448,7 +448,7 @@ function generateCancellationEmailHTML(order: CancellationEmailData): string {
     <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
       <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur cette annulation ?</p>
       <p style="margin: 0; color: #666; font-size: 14px;">
-        📧 fermeduvardier@gmail.com | 📞 038 01 001 01
+        📧 fermeduvardier@gmail.com | 📞 038 07 122 69
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
@@ -547,7 +547,7 @@ function generateShippedEmailHTML(order: StatusUpdateEmailData): string {
     <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
       <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur votre commande ?</p>
       <p style="margin: 0; color: #666; font-size: 14px;">
-        📧 fermeduvardier@gmail.com | 📞 038 01 001 01
+        📧 fermeduvardier@gmail.com | 📞 038 07 122 69
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
@@ -631,7 +631,7 @@ function generateDeliveredEmailHTML(order: StatusUpdateEmailData): string {
     <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
       <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur votre commande ?</p>
       <p style="margin: 0; color: #666; font-size: 14px;">
-        📧 fermeduvardier@gmail.com | 📞 038 01 001 01
+        📧 fermeduvardier@gmail.com | 📞 038 07 122 69
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
@@ -672,15 +672,11 @@ export async function sendOrderConfirmationEmail(order: OrderData): Promise<bool
     const transporter = createTransporter();
     const customerHTML = generateCustomerEmailHTML(order);
 
-    const statusText = order.status === 'processing'
-      ? 'Confirmée'
-      : 'En attente';
-
-    // Email au client
+    // Email au client — le paiement mobile money se fait après la commande, donc toujours en attente ici
     await transporter.sendMail({
       from: `"Ferme du Vardier" <${process.env.SMTP_USER}>`,
       to: order.customerEmail,
-      subject: `✅ Commande ${order.orderNumber} - ${statusText}`,
+      subject: `⏳ Commande ${order.orderNumber} - En attente de paiement`,
       html: customerHTML,
     });
 

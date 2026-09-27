@@ -48,6 +48,7 @@ const ALL_STEPS: { id: Step; label: string; icon: React.ReactNode }[] = [
   { id: 'paiement', label: 'Paiement', icon: <CreditCard className="h-5 w-5" /> },
 ];
 
+// Seul MVola est actif pour le moment : les autres moyens sont affichés grisés (« Bientôt disponible »)
 const paymentMethods = [
   {
     id: 'mvola' as PaymentMethod,
@@ -62,6 +63,7 @@ const paymentMethods = [
     description: 'Paiement mobile Orange',
     icon: '/images/payments/orange-money.png',
     color: 'bg-orange-500',
+    comingSoon: true,
   },
   {
     id: 'airtel_money' as PaymentMethod,
@@ -69,6 +71,7 @@ const paymentMethods = [
     description: 'Paiement mobile Airtel',
     icon: '/images/payments/airtel-money.png',
     color: 'bg-red-500',
+    comingSoon: true,
   },
   {
     id: 'stripe' as PaymentMethod,
@@ -76,6 +79,7 @@ const paymentMethods = [
     description: 'Visa, Mastercard, etc.',
     icon: '/images/payments/stripe.png',
     color: 'bg-indigo-500',
+    comingSoon: true,
   },
 ];
 
@@ -119,7 +123,7 @@ export default function CheckoutPage() {
   // Calculations
   const subtotal = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const hasFreeShippingItem = cart.items.some((item) => item.freeShipping);
-  const shippingCost = getShippingCost(deliveryMethod, subtotal, hasFreeShippingItem);
+  const shippingCost = getShippingCost();
   const total = subtotal + shippingCost;
 
   // Livraison offerte sur un produit du panier → l'étape « Livraison » n'a plus d'objet, on la saute.
@@ -468,13 +472,7 @@ export default function CheckoutPage() {
                         <p className="font-medium text-warm-800">Livraison standard</p>
                         <p className="text-sm text-warm-600">Livraison sous 24-48h</p>
                       </div>
-                      <span className="font-semibold text-warm-800">
-                        {getShippingCost('standard', subtotal, hasFreeShippingItem) === 0 ? (
-                          <span className="text-prairie-600">Gratuit</span>
-                        ) : (
-                          formatPrice(getShippingCost('standard', subtotal, hasFreeShippingItem))
-                        )}
-                      </span>
+                      <span className="font-semibold text-prairie-600">Gratuit</span>
                     </label>
 
                     {/* Livraison express */}
@@ -498,13 +496,7 @@ export default function CheckoutPage() {
                         <p className="font-medium text-warm-800">Livraison express</p>
                         <p className="text-sm text-warm-600">Livraison le jour même</p>
                       </div>
-                      <span className="font-semibold text-warm-800">
-                        {getShippingCost('express', subtotal, hasFreeShippingItem) === 0 ? (
-                          <span className="text-prairie-600">Gratuit</span>
-                        ) : (
-                          formatPrice(getShippingCost('express', subtotal, hasFreeShippingItem))
-                        )}
-                      </span>
+                      <span className="font-semibold text-prairie-600">Gratuit</span>
                     </label>
                   </div>
                 </div>
@@ -521,10 +513,12 @@ export default function CheckoutPage() {
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
-                        className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
-                          paymentMethod === method.id
-                            ? 'border-prairie-600 bg-prairie-50'
-                            : 'border-warm-200 hover:border-prairie-300'
+                        className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors ${
+                          method.comingSoon
+                            ? 'border-warm-100 bg-warm-50 opacity-60 cursor-not-allowed'
+                            : paymentMethod === method.id
+                              ? 'border-prairie-600 bg-prairie-50 cursor-pointer'
+                              : 'border-warm-200 hover:border-prairie-300 cursor-pointer'
                         }`}
                       >
                         <input
@@ -533,6 +527,7 @@ export default function CheckoutPage() {
                           value={method.id}
                           checked={paymentMethod === method.id}
                           onChange={() => setPaymentMethod(method.id)}
+                          disabled={method.comingSoon}
                           className="sr-only"
                         />
                         <div className={`w-12 h-12 ${method.color} rounded-lg flex items-center justify-center`}>
@@ -540,7 +535,9 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-warm-800">{method.name}</p>
-                          <p className="text-sm text-warm-600">{method.description}</p>
+                          <p className="text-sm text-warm-600">
+                            {method.comingSoon ? 'Bientôt disponible' : method.description}
+                          </p>
                         </div>
                         {paymentMethod === method.id && (
                           <Check className="h-5 w-5 text-prairie-600" />

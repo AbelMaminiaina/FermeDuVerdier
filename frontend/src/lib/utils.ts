@@ -121,29 +121,9 @@ export function getDeliveryEstimate(method: string): string {
 }
 
 // Miroir de backend/src/lib/shipping.ts — garder les deux alignés.
-export const FREE_SHIPPING_THRESHOLD = 100000; // Ar
-export const SHIPPING_COSTS: Record<string, number> = {
-  standard: 3000,
-  express: 5000,
-  retrait: 0,
-};
-
-/**
- * Frais de livraison en Ariary (aperçu ; le montant facturé est recalculé côté backend).
- *
- * - `hasFreeShippingItem` : le panier contient au moins un produit « livraison gratuite »
- *   → livraison offerte, on ignore la méthode et le seuil.
- * - sinon : retrait gratuit, gratuit au-dessus du seuil, sinon forfait par méthode.
- */
-export function getShippingCost(
-  method: string,
-  subtotal: number,
-  hasFreeShippingItem = false
-): number {
-  if (hasFreeShippingItem) return 0;
-  if (method === 'retrait') return 0;
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0;
-  return SHIPPING_COSTS[method] ?? 0;
+/** Frais de livraison en Ariary : la livraison est offerte sur toutes les commandes. */
+export function getShippingCost(): number {
+  return 0;
 }
 
 /** Poids indicatif formaté, ex. « ≈ 1,8 kg ». */
