@@ -18,7 +18,7 @@ const slides = [
   },
   {
     id: 2,
-    image: '/images/caille/Soie.jpeg',
+    image: '/images/chickens/Poule de soie.jpeg',
     title: 'Poule Soie',
     titleHighlight: 'Race de poule domestique',
     description:
@@ -27,7 +27,7 @@ const slides = [
   },
   {
     id: 3,
-    image: '/images/caille/caille1.jpeg',
+    image: '/images/chickens/Caille.jpeg',
     title: 'Cailles',
     titleHighlight: 'Délicieuses',
     description:
