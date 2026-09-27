@@ -13,6 +13,7 @@ vi.mock('../services/emailService.js', () => ({
   sendOrderCancellationEmail: vi.fn().mockResolvedValue(true),
   sendOrderShippedEmail: vi.fn().mockResolvedValue(true),
   sendOrderDeliveredEmail: vi.fn().mockResolvedValue(true),
+  sendPaymentConfirmedEmail: vi.fn().mockResolvedValue(true),
 }));
 
 import prisma from '../lib/prisma.js';
@@ -22,6 +23,7 @@ import {
   sendOrderCancellationEmail,
   sendOrderShippedEmail,
   sendOrderDeliveredEmail,
+  sendPaymentConfirmedEmail,
 } from '../services/emailService.js';
 import checkoutRouter from './checkout.js';
 import { ADMIN_SESSION, withSession, type TestSession } from '../test/auth.js';
@@ -34,6 +36,7 @@ beforeEach(() => {
   vi.mocked(sendOrderCancellationEmail).mockClear();
   vi.mocked(sendOrderShippedEmail).mockClear();
   vi.mocked(sendOrderDeliveredEmail).mockClear();
+  vi.mocked(sendPaymentConfirmedEmail).mockClear();
   vi.mocked(invalidateProductCache).mockClear();
 });
 
@@ -314,6 +317,45 @@ describe('PATCH /api/checkout/orders/:orderId/status', () => {
 
     expect(sendOrderDeliveredEmail).toHaveBeenCalledTimes(1);
     expect(sendOrderShippedEmail).not.toHaveBeenCalled();
+  });
+
+  it('sends a payment-received email when a pending order is confirmed', async () => {
+    mockExistingOrder({ status: 'pending' });
+    mockUpdatedOrder({ status: 'confirmed' });
+
+    await request(buildApp())
+      .patch('/api/checkout/orders/o1/status')
+      .send({ status: 'confirmed' });
+
+    expect(sendPaymentConfirmedEmail).toHaveBeenCalledTimes(1);
+    const emailArg = vi.mocked(sendPaymentConfirmedEmail).mock.calls[0][0];
+    expect(emailArg.orderNumber).toBe('FDV-TEST');
+    expect(emailArg.customerEmail).toBe('jean@example.com');
+    expect(emailArg.total).toBe(45000);
+  });
+
+  it('sends the payment-received email when a pending order goes straight to processing', async () => {
+    mockExistingOrder({ status: 'pending' });
+    mockUpdatedOrder({ status: 'processing' });
+
+    await request(buildApp())
+      .patch('/api/checkout/orders/o1/status')
+      .send({ status: 'processing' });
+
+    expect(sendPaymentConfirmedEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not resend the payment-received email when a confirmed order moves to processing', async () => {
+    mockExistingOrder({ status: 'confirmed' });
+    mockUpdatedOrder({ status: 'processing' });
+
+    await request(buildApp())
+      .patch('/api/checkout/orders/o1/status')
+      .send({ status: 'processing' });
+
+    expect(sendPaymentConfirmedEmail).not.toHaveBeenCalled();
+    expect(sendOrderShippedEmail).not.toHaveBeenCalled();
+    expect(sendOrderDeliveredEmail).not.toHaveBeenCalled();
   });
 
   it('saves the cancellation reason and sends a cancellation email to the customer', async () => {

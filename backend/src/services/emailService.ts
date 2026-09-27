@@ -267,7 +267,7 @@ function generateCustomerEmailHTML(order: OrderData): string {
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
-          Ferme du Vardier - LE 187  Ambohitsoa Ambavatonelina, Madagascar<br>
+          Ferme du Vardier - LE 187 Ambohitsoa Ambavatonelina<br>
           Madagascar
         </p>
       </div>
@@ -452,7 +452,7 @@ function generateCancellationEmailHTML(order: CancellationEmailData): string {
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
-          Ferme du Vardier - Lot IF 210 Ambatofotsy Ambohimalaza<br>
+          Ferme du Vardier - LE 187 Ambohitsoa Ambavatonelina<br>
           Madagascar
         </p>
       </div>
@@ -551,7 +551,98 @@ function generateShippedEmailHTML(order: StatusUpdateEmailData): string {
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
-          Ferme du Vardier - Lot IF 210 Ambatofotsy Ambohimalaza<br>
+          Ferme du Vardier - LE 187 Ambohitsoa Ambavatonelina<br>
+          Madagascar
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
+  `;
+}
+
+// Template email pour le CLIENT - PAIEMENT REÇU (commande confirmée par l'admin)
+function generatePaymentConfirmedEmailHTML(order: StatusUpdateEmailData): string {
+  const trackingUrl = `${process.env.FRONTEND_URL || 'https://fermeduvardier.com'}/suivi-commande?order=${encodeURIComponent(order.orderNumber)}`;
+  const isPickup = order.deliveryMethod === 'retrait';
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Paiement reçu - ${order.orderNumber}</title>
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+
+  <div style="background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+
+    <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); color: white;">
+      <h1 style="margin: 0; font-size: 28px;">🌿 FERME DU VARDIER</h1>
+      <p style="margin: 5px 0 0 0; opacity: 0.9;">Produits fermiers de qualité</p>
+    </div>
+
+    <div style="padding: 30px;">
+
+      <div style="text-align: center; padding: 20px 0 30px 0;">
+        <div style="font-size: 50px; margin-bottom: 15px;">💚</div>
+        <h2 style="margin: 0; color: #16a34a; font-size: 24px;">Paiement reçu, merci !</h2>
+        <p style="margin: 10px 0 0 0; color: #666;">Bonjour ${order.customerName.split(' ')[0]}, nous avons bien reçu votre paiement de <strong>${formatPrice(order.total)}</strong>.<br>Votre commande est confirmée et nous la préparons.</p>
+      </div>
+
+      <div style="background-color: #f8f8f8; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+        <table style="width: 100%;">
+          <tr>
+            <td style="padding: 5px 0;"><strong>N° de commande:</strong></td>
+            <td style="text-align: right; font-family: monospace; font-size: 16px; color: #16a34a;">${order.orderNumber}</td>
+          </tr>
+          <tr>
+            <td style="padding: 5px 0;"><strong>Mode de livraison:</strong></td>
+            <td style="text-align: right;">${deliveryLabels[order.deliveryMethod] || order.deliveryMethod}</td>
+          </tr>
+          ${isPickup ? '' : `<tr>
+            <td style="padding: 5px 0;"><strong>Adresse:</strong></td>
+            <td style="text-align: right;">${order.address.street}, ${order.address.postalCode} ${order.address.city}</td>
+          </tr>`}
+        </table>
+      </div>
+
+      <h3 style="margin: 0 0 15px 0; color: #333;">Récapitulatif de votre commande</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #16a34a; color: white;">
+            <th style="padding: 12px; text-align: left; border-radius: 8px 0 0 0;">Produit</th>
+            <th style="padding: 12px; text-align: center;">Qté</th>
+            <th style="padding: 12px; text-align: right; border-radius: 0 8px 0 0;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${generateItemsRows(order.items)}
+        </tbody>
+      </table>
+
+      <div style="background-color: #f8f8f8; border-radius: 8px; padding: 20px; text-align: right; margin-bottom: 25px;">
+        <span style="color: #666;">Total payé (livraison offerte) : </span>
+        <strong style="font-size: 18px; color: #16a34a;">${formatPrice(order.total)}</strong>
+      </div>
+
+      <div style="text-align: center;">
+        <p style="margin: 0 0 15px 0; color: #666;">Nous vous écrirons dès que votre commande ${isPickup ? 'sera prête à être retirée' : 'sera expédiée'}.</p>
+        <a href="${trackingUrl}" style="display: inline-block; padding: 12px 28px; background-color: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Suivre ma commande</a>
+      </div>
+
+    </div>
+
+    <div style="padding: 25px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #e5e5e5;">
+      <p style="margin: 0 0 10px 0; font-weight: bold; color: #16a34a;">Une question sur votre commande ?</p>
+      <p style="margin: 0; color: #666; font-size: 14px;">
+        📧 fermeduvardier@gmail.com | 📞 038 07 122 69
+      </p>
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
+        <p style="margin: 0; color: #999; font-size: 12px;">
+          Ferme du Vardier - LE 187 Ambohitsoa Ambavatonelina<br>
           Madagascar
         </p>
       </div>
@@ -635,7 +726,7 @@ function generateDeliveredEmailHTML(order: StatusUpdateEmailData): string {
       </p>
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
         <p style="margin: 0; color: #999; font-size: 12px;">
-          Ferme du Vardier - Lot IF 210 Ambatofotsy Ambohimalaza<br>
+          Ferme du Vardier - LE 187 Ambohitsoa Ambavatonelina<br>
           Madagascar
         </p>
       </div>
@@ -740,6 +831,32 @@ export async function sendOrderCancellationEmail(order: CancellationEmailData): 
     return true;
   } catch (error) {
     console.error('Error sending cancellation email:', error);
+    return false;
+  }
+}
+
+// Envoyer email au CLIENT quand l'admin confirme le paiement
+export async function sendPaymentConfirmedEmail(order: StatusUpdateEmailData): Promise<boolean> {
+  try {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.log('SMTP not configured, skipping payment confirmation email');
+      return false;
+    }
+
+    const transporter = createTransporter();
+    const html = generatePaymentConfirmedEmailHTML(order);
+
+    await transporter.sendMail({
+      from: `"Ferme du Vardier" <${process.env.SMTP_USER}>`,
+      to: order.customerEmail,
+      subject: `💚 Commande ${order.orderNumber} - Paiement reçu`,
+      html,
+    });
+
+    console.log(`✉️ Email de paiement reçu envoyé à ${order.customerEmail} pour commande ${order.orderNumber}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending payment confirmation email:', error);
     return false;
   }
 }

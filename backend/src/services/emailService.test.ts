@@ -15,6 +15,7 @@ import {
   sendOrderCancellationEmail,
   sendOrderShippedEmail,
   sendOrderDeliveredEmail,
+  sendPaymentConfirmedEmail,
 } from './emailService.js';
 
 const baseOrder = {
@@ -278,6 +279,40 @@ describe('sendOrderDeliveredEmail', () => {
     sendMailMock.mockRejectedValueOnce(new Error('smtp error'));
 
     const result = await sendOrderDeliveredEmail(statusUpdate);
+
+    expect(result).toBe(false);
+  });
+});
+
+describe('sendPaymentConfirmedEmail', () => {
+  it('skips sending when SMTP credentials are not configured', async () => {
+    delete process.env.SMTP_USER;
+    delete process.env.SMTP_PASS;
+
+    const result = await sendPaymentConfirmedEmail(statusUpdate);
+
+    expect(result).toBe(false);
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it('tells the customer the payment was received, with a tracking link', async () => {
+    process.env.FRONTEND_URL = 'https://fermeduvardier.com';
+
+    const result = await sendPaymentConfirmedEmail(statusUpdate);
+
+    expect(result).toBe(true);
+    const call = sendMailMock.mock.calls[0][0];
+    expect(call.to).toBe('jean@example.com');
+    expect(call.subject).toContain('FDV-SHIP1');
+    expect(call.subject).toContain('Paiement reçu');
+    expect(call.html).toContain('Paiement reçu');
+    expect(call.html).toContain('https://fermeduvardier.com/suivi-commande?order=FDV-SHIP1');
+  });
+
+  it('returns false and does not throw when sendMail rejects', async () => {
+    sendMailMock.mockRejectedValueOnce(new Error('smtp error'));
+
+    const result = await sendPaymentConfirmedEmail(statusUpdate);
 
     expect(result).toBe(false);
   });

@@ -7,6 +7,7 @@ import {
   sendOrderCancellationEmail,
   sendOrderShippedEmail,
   sendOrderDeliveredEmail,
+  sendPaymentConfirmedEmail,
 } from '../services/emailService.js';
 import { invalidateProductCache } from '../lib/cache.js';
 import { computeShippingCost } from '../lib/shipping.js';
@@ -350,7 +351,11 @@ router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: 
         total: order.total,
         cancelledAt: new Date(),
       }).catch((err) => console.error('Failed to send cancellation email:', err));
-    } else if (status === 'shipped' || status === 'delivered') {
+    } else if (
+      status === 'shipped' ||
+      status === 'delivered' ||
+      (existingOrder.status === 'pending' && (status === 'confirmed' || status === 'processing'))
+    ) {
       const emailData = {
         orderNumber: order.orderNumber,
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
@@ -374,7 +379,11 @@ router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: 
         updatedAt: new Date(),
       };
 
-      const sendFn = status === 'shipped' ? sendOrderShippedEmail : sendOrderDeliveredEmail;
+      // Sortie de « En attente » (Confirmer ou directement En préparation) = paiement reçu
+      const sendFn =
+        status === 'shipped' ? sendOrderShippedEmail
+        : status === 'delivered' ? sendOrderDeliveredEmail
+        : sendPaymentConfirmedEmail;
       sendFn(emailData).catch((err) =>
         console.error(`Failed to send ${status} email:`, err)
       );
