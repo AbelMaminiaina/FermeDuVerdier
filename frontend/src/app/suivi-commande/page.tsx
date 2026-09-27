@@ -248,7 +248,8 @@ function SuiviCommandeContent() {
           {trackedOrder && (
             <div className="bg-white rounded-xl shadow-sm mb-12 overflow-hidden">
               <div className="border-b border-warm-100 p-4 sm:p-6">
-                <h2 className="text-xl font-bold text-warm-800">{trackedOrder.orderNumber}</h2>
+                {/* Numéro en police de texte : en Playfair, les chiffres « à l'ancienne » (1 ≈ ı) se lisent mal */}
+                <h2 className="font-sans text-xl font-bold tracking-wide text-warm-800">{trackedOrder.orderNumber}</h2>
                 <p className="text-sm text-warm-600">Passée le {formatLongDate(trackedOrder.createdAt)}</p>
               </div>
               <OrderDetail order={trackedOrder} />
@@ -337,7 +338,7 @@ function SuiviCommandeContent() {
               {/* Header modal */}
               <div className="sticky top-0 bg-white border-b border-warm-100 p-4 sm:p-6 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-warm-800">
+                  <h2 className="font-sans text-xl font-bold tracking-wide text-warm-800">
                     {selectedOrder.orderNumber}
                   </h2>
                   <p className="text-sm text-warm-600">{formatLongDate(selectedOrder.createdAt)}</p>
