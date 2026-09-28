@@ -1,44 +1,72 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Leaf, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { fadeInUp, fadeInRight, staggerContainer } from '@/lib/animations';
 
-const slides = [
+interface Slide {
+  id: number;
+  image: string;
+  alt: string;
+  title: string;
+  titleHighlight: string;
+  description: string;
+  // Recadrage sur mobile (écran en portrait), ex. 'center 40%'
+  mobilePosition?: string;
+}
+
+const slides: Slide[] = [
   {
     id: 1,
-    image: '/images/porc/Accueil.jpeg',
-    title: 'Porc de',
-    titleHighlight: 'Qualité Premium',
+    image: '/images/porc/kisoa_2.jpeg',
+    alt: 'Porcelets de lignée Piétrain à la ferme',
+    title: 'Porc Piétrain',
+    titleHighlight: 'Race européenne',
     description:
-      'Découvrez notre élevage porcin traditionnel. Des porcs élevés en plein air avec une alimentation naturelle pour une viande tendre et savoureuse.',
+      'Née en Belgique, dans le village de Piétrain, cette race européenne est reconnue pour sa musculature exceptionnelle et une viande riche en muscle, pauvre en gras.',
+    mobilePosition: '35% center',
   },
   {
     id: 2,
-    image: '/images/chickens/Poule de soie.jpeg',
-    title: 'Poule Soie',
-    titleHighlight: 'Race de poule domestique',
+    image: '/images/porc/kisoa_1.jpeg',
+    alt: 'Porcs de race Large White dans leur loge',
+    title: 'Porc Large White',
+    titleHighlight: 'Race européenne',
     description:
-      'Découvrez notre élevage de poule soie, qui est une authentique race ancienne reconnue en aviculture, bien qu on ne parle pas de "noblesse" au sens héraldique, mais plutôt d une race de prestige',
-    zoomIn: true,
+      "Originaire d'Angleterre, le Large White est une race européenne réputée pour sa robustesse, sa croissance régulière et sa viande maigre et tendre.",
   },
   {
     id: 3,
-    image: '/images/chickens/Caille.jpeg',
-    title: 'Cailles',
-    titleHighlight: 'Délicieuses',
+    image: '/images/porc/Accueil.jpeg',
+    alt: "Les loges de l'élevage porcin de la Ferme du Vardier sous le soleil",
+    title: 'Notre élevage',
+    titleHighlight: 'porcin',
     description:
-      'Découvrez nos cailles élevées avec soin. Une viande fine et savoureuse, parfaite pour vos repas gastronomiques.',
-    zoomIn: true,
+      'Des porcs élevés dans des loges propres et ensoleillées, avec une alimentation naturelle, pour une viande tendre et savoureuse.',
   },
 ];
+
+// Petit écran : suivre la largeur pour appliquer le recadrage mobile des images
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return isMobile;
+}
 
 export function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const isMobile = useIsMobile();
+  const touchStartX = useRef<number | null>(null);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -64,36 +92,57 @@ export function Hero() {
 
   const slide = slides[currentSlide];
 
+  // Mobile : balayer à gauche / à droite pour changer d'image
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 40) return;
+    if (dx < 0) nextSlide();
+    else prevSlide();
+  };
+
   return (
     <section
-      className="relative min-h-[90vh] flex items-center overflow-hidden"
+      className="relative min-h-[85svh] lg:min-h-[90vh] flex items-end lg:items-center overflow-hidden bg-warm-900"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Background images */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
-          className={`absolute inset-0 z-0 ${(slide as any).contain ? 'bg-warm-800' : ''}`}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
+          className="absolute inset-0 z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7 }}
         >
+          {/* Léger zoom lent (effet « Ken Burns »), limité pour garder l'image nette */}
           <motion.img
             src={slide.image}
-            alt={slide.title}
-            className={`absolute inset-0 w-full h-full ${(slide as any).contain ? 'object-contain' : 'object-cover'}`}
-            initial={{ scale: (slide as any).zoomIn ? 1.15 : 1 }}
-            animate={{ scale: (slide as any).zoomIn ? 1 : 1.1 }}
-            transition={{ duration: 5, ease: 'linear' }}
+            alt={slide.alt}
+            fetchPriority={currentSlide === 0 ? 'high' : 'auto'}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: isMobile ? slide.mobilePosition : undefined }}
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.06 }}
+            transition={{ duration: 6, ease: 'linear' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-warm-900/80 via-warm-900/60 to-transparent" />
+          {/* Mobile : image claire en haut, dégradé seulement en bas sous le texte */}
+          <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-black/85 via-black/35 via-45% to-transparent to-70%" />
+          {/* Grand écran : dégradé à gauche, derrière le texte */}
+          <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-warm-900/80 via-warm-900/60 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
       {/* Content */}
-      <div className="container mx-auto px-4 relative z-10 py-20">
+      <div className="container mx-auto px-4 lg:px-20 relative z-10 pt-24 pb-14 lg:py-20">
         <motion.div
           className="max-w-2xl"
           variants={staggerContainer}
@@ -101,9 +150,9 @@ export function Hero() {
           animate="animate"
         >
           {/* Badge */}
-          <motion.div variants={fadeInUp} className="mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-prairie-600/90 text-white rounded-full text-sm font-medium">
-              <Leaf className="h-4 w-4" />
+          <motion.div variants={fadeInUp} className="mb-3 lg:mb-6">
+            <span className="inline-flex items-center gap-1.5 lg:gap-2 px-3 py-1 lg:px-4 lg:py-2 bg-white/15 lg:bg-prairie-600/90 backdrop-blur-md text-white rounded-full text-xs lg:text-sm font-medium ring-1 ring-white/25 lg:ring-0">
+              <Leaf className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
               Élevage Responsable
             </span>
           </motion.div>
@@ -116,10 +165,11 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6 leading-tight"
+              className="text-[2rem] md:text-4xl lg:text-5xl font-display font-bold text-white mb-3 lg:mb-6 leading-tight drop-shadow-sm"
             >
-              {slide.title}{' '}
-              <span className="text-terre-400 text-2xl md:text-3xl lg:text-4xl">{slide.titleHighlight}</span>
+              {slide.title}
+              {/* Mobile : sous-titre sur sa propre ligne ; grand écran : à la suite du titre */}
+              <span className="block lg:inline text-terre-400 text-xl md:text-3xl lg:text-4xl lg:ml-3 mt-1 lg:mt-0">{slide.titleHighlight}</span>
             </motion.h1>
           </AnimatePresence>
 
@@ -131,7 +181,7 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-lg md:text-xl text-warm-200 mb-8 leading-relaxed"
+              className="text-[15px] md:text-xl text-white/85 lg:text-warm-200 mb-6 lg:mb-8 leading-relaxed line-clamp-4 lg:line-clamp-none"
             >
               {slide.description}
             </motion.p>
@@ -140,7 +190,7 @@ export function Hero() {
           {/* Values highlights */}
           <motion.div
             variants={fadeInUp}
-            className="flex flex-wrap gap-4 mb-8"
+            className="hidden sm:flex flex-wrap gap-4 mb-8"
           >
             <div className="flex items-center gap-2 text-warm-200">
               <Heart className="h-5 w-5 text-terre-400" />
@@ -161,19 +211,21 @@ export function Hero() {
           {/* CTAs */}
           <motion.div
             variants={fadeInUp}
-            className="flex flex-col sm:flex-row gap-4"
+            className="grid grid-cols-2 sm:flex sm:flex-row gap-3 sm:gap-4"
           >
             <Link href="/produits">
               <Button
                 size="lg"
                 icon={<ArrowRight className="h-5 w-5" />}
                 iconPosition="right"
+                className="w-full sm:w-auto px-4 sm:px-7 text-sm sm:text-[15px]"
               >
-                Découvrir nos produits
+                <span className="sm:hidden">Nos produits</span>
+                <span className="hidden sm:inline">Découvrir nos produits</span>
               </Button>
             </Link>
             <Link href="/notre-elevage">
-              <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white hover:text-warm-800">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto px-4 sm:px-7 text-sm sm:text-[15px] bg-white/10 backdrop-blur-md border-white text-white hover:bg-white hover:text-warm-800">
                 Visiter la ferme
               </Button>
             </Link>
@@ -181,9 +233,8 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Navigation arrows : sur mobile/tablette, en bas autour des indicateurs pour ne pas
-          masquer le texte ; sur grand écran, au milieu des côtés */}
-      <div className="absolute left-4 right-4 bottom-3 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 z-20 flex justify-between pointer-events-none">
+      {/* Flèches sur grand écran uniquement ; sur mobile on balaie l'image */}
+      <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 z-20 hidden lg:flex justify-between pointer-events-none">
         <motion.button
           onClick={prevSlide}
           className="p-2.5 lg:p-3 rounded-full bg-warm-900/50 lg:bg-white/20 backdrop-blur-sm text-white hover:bg-warm-900/70 lg:hover:bg-white/30 transition-all pointer-events-auto"
@@ -205,7 +256,7 @@ export function Hero() {
       </div>
 
       {/* Slide indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+      <div className="absolute bottom-5 lg:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 lg:gap-3">
         {slides.map((_, index) => (
           <motion.button
             key={index}
@@ -235,7 +286,7 @@ export function Hero() {
 
       {/* Decorative elements */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-cream-50 to-transparent z-10"
+        className="absolute bottom-0 left-0 right-0 h-32 hidden lg:block bg-gradient-to-t from-cream-50 to-transparent z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.8 }}
