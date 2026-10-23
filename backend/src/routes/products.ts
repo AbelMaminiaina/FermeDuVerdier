@@ -6,7 +6,7 @@ import { requireAdmin, getSessionUser, isAdmin } from '../lib/auth.js';
 const router = Router();
 
 // Transform product for frontend
-function transformProduct(p: any) {
+export function transformProduct(p: any) {
   return {
     ...p,
     category: p.category.replace('_', '-'),

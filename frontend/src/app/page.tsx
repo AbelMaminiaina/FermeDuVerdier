@@ -5,6 +5,7 @@ import { Values } from '@/components/home/Values';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { Testimonials } from '@/components/home/Testimonials';
 import { CTASection } from '@/components/home/CTASection';
+import { FarmAdvisor } from '@/components/advisor/FarmAdvisor';
 
 // FeaturedProducts fetches from the backend, which isn't reachable from the
 // isolated Docker build stage — force per-request rendering so the build
@@ -36,6 +37,7 @@ export default function HomePage() {
       }>
         <FeaturedProducts />
       </Suspense>
+      <FarmAdvisor />
       <Story />
       <Testimonials />
       <CTASection />

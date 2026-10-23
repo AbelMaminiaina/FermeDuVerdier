@@ -6,11 +6,15 @@ import contactRouter from './routes/contact.js';
 import checkoutRouter from './routes/checkout.js';
 import newsletterRouter from './routes/newsletter.js';
 import categoriesRouter from './routes/categories.js';
+import advisorRouter from './routes/advisor.js';
 import { connectRedis, redis, isRedisAvailable } from './lib/redis.js';
 import { requireAdmin } from './lib/auth.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Derrière Nginx : req.ip = vraie IP du visiteur (X-Forwarded-For), utilisée par la limite du conseiller
+app.set('trust proxy', 1);
 
 // Middleware
 app.use(cors({
@@ -27,6 +31,7 @@ app.use('/api/contact', contactRouter);
 app.use('/api/checkout', checkoutRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/categories', categoriesRouter);
+app.use('/api/advisor', advisorRouter);
 
 // Health check with Redis status
 app.get('/api/health', async (_req, res) => {

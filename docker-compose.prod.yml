@@ -60,6 +60,11 @@ services:
       SMTP_SECURE: ${SMTP_SECURE:-false}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
+      # Conseiller IA : Mistral, puis Gemini en secours — sans clé, recherche par mots-clés
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      MISTRAL_MODEL: ${MISTRAL_MODEL:-ministral-8b-latest}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.1-flash-lite}
     depends_on:
       postgres:
         condition: service_healthy

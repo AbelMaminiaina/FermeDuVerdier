@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Product } from '@/types';
 import ProductGrid from '@/components/products/ProductGrid';
 import ProductFilter from '@/components/products/ProductFilter';
+import { FarmAdvisor } from '@/components/advisor/FarmAdvisor';
 import { fadeInUp } from '@/lib/animations';
 
 // Recherche insensible à la casse, aux accents et aux ligatures
@@ -135,6 +136,8 @@ function ProductsContent({ initialProducts }: ProductsClientProps) {
         {/* Products grid */}
         <ProductGrid products={filteredProducts} />
       </div>
+
+      <FarmAdvisor className="py-16 bg-white border-t border-warm-100" />
     </div>
   );
 }
