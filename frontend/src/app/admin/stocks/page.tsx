@@ -103,7 +103,7 @@ export default function AdminStocksPage() {
   const [savingStock, setSavingStock] = useState<string | null>(null);
 
   // Modal
-  const [modal, setModal] = useState<{ mode: 'add' | 'edit'; product?: Product; hasOrders?: boolean } | null>(null);
+  const [modal, setModal] = useState<{ mode: 'add' | 'edit'; product?: Product } | null>(null);
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -202,25 +202,15 @@ export default function AdminStocksPage() {
 
   // Get category display name
   const getCategoryName = (cat: string) => {
+    // Catégorie supprimée : le produit est conservé avec une catégorie vide
+    if (!cat) return 'Sans catégorie';
     const normalized = categoryToForm(cat);
     return categoryMap[normalized] || categoryMap[cat] || cat;
   };
 
   // Open modal
-  const openModal = async (mode: 'add' | 'edit', product?: Product) => {
-    let hasOrders = false;
-
+  const openModal = (mode: 'add' | 'edit', product?: Product) => {
     if (mode === 'edit' && product) {
-      // Un produit lié à des commandes reste modifiable, sauf son nom (l'historique
-      // des commandes affiche le nom en direct).
-      try {
-        const res = await adminFetch(`${API_URL}/products/${product.id}/has-orders`);
-        const data = await res.json();
-        hasOrders = Boolean(data.hasOrders);
-      } catch (e) {
-        // En cas d'erreur, on n'impose aucune restriction
-      }
-
       setForm({
         name: product.name,
         description: product.description || '',
@@ -240,7 +230,7 @@ export default function AdminStocksPage() {
         productType: 'piece', estimatedWeightKg: '', freeShipping: false, availableFrom: '',
       });
     }
-    setModal({ mode, product, hasOrders });
+    setModal({ mode, product });
   };
 
   // Create new product based on existing one
@@ -287,6 +277,10 @@ export default function AdminStocksPage() {
 
   // Save product
   const saveProduct = async () => {
+    if (!form.category) {
+      setToast({ type: 'error', message: 'Choisissez une catégorie pour ce produit' });
+      return;
+    }
     setSaving(true);
     const images = form.images.split('\n').map(s => s.trim()).filter(Boolean);
     const trimmedWeight = form.estimatedWeightKg.trim();
@@ -421,6 +415,7 @@ export default function AdminStocksPage() {
           {categories.filter(c => c.isActive).map(c => (
             <option key={c.id} value={c.slug.replace(/-/g, '_')}>{c.name}</option>
           ))}
+          {products.some(p => !p.category) && <option value="">Sans catégorie</option>}
         </select>
       </div>
 
@@ -558,15 +553,9 @@ export default function AdminStocksPage() {
                     <input
                       value={form.name}
                       onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      disabled={modal.hasOrders}
-                      className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 focus:border-prairie-500 outline-none disabled:bg-warm-100 disabled:text-warm-500 disabled:cursor-not-allowed"
+                      className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 focus:border-prairie-500 outline-none"
                       placeholder="Ex: Poulet fermier entier"
                     />
-                    {modal.hasOrders && (
-                      <p className="text-xs text-warm-500 mt-1">
-                        Le nom ne peut pas être modifié : ce produit est lié à des commandes. Tous les autres champs restent modifiables.
-                      </p>
-                    )}
                   </div>
 
                   <div>
@@ -576,6 +565,7 @@ export default function AdminStocksPage() {
                       onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                       className="w-full px-3 py-2 md:px-4 md:py-2.5 border border-warm-300 rounded-lg focus:ring-2 focus:ring-prairie-500 outline-none"
                     >
+                      {!form.category && <option value="" disabled>Sans catégorie — à choisir</option>}
                       {categories.filter(c => c.isActive).map(c => (
                         <option key={c.id} value={c.slug.replace(/-/g, '_')}>{c.name}</option>
                       ))}
@@ -775,7 +765,7 @@ export default function AdminStocksPage() {
             {/* Content */}
             <div className="px-6 py-4 text-center">
               <h3 className="text-xl font-bold text-warm-800 mb-2">
-                {deleteModal.hasOrders ? 'Attention' : 'Confirmer la suppression'}
+                Confirmer la suppression
               </h3>
 
               {deleteModal.hasOrders ? (
@@ -785,11 +775,11 @@ export default function AdminStocksPage() {
                       Ce produit est lié à {deleteModal.ordersCount} commande{deleteModal.ordersCount > 1 ? 's' : ''}
                     </p>
                     <p className="text-amber-700 text-sm">
-                      Il ne peut pas être supprimé définitivement. Il sera <strong>désactivé</strong> et masqué du catalogue.
+                      Ces commandes conserveront le nom et le prix du produit.
                     </p>
                   </div>
                   <p className="text-warm-600">
-                    Voulez-vous désactiver{' '}
+                    Voulez-vous vraiment supprimer{' '}
                     <span className="font-semibold text-warm-800">&quot;{deleteModal.product.name}&quot;</span> ?
                   </p>
                 </>
@@ -819,30 +809,17 @@ export default function AdminStocksPage() {
               <button
                 onClick={confirmDelete}
                 disabled={deleting}
-                className={`flex-1 px-4 py-2.5 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                  deleteModal.hasOrders
-                    ? 'bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400'
-                    : 'bg-red-600 hover:bg-red-700 disabled:bg-red-400'
-                }`}
+                className="flex-1 px-4 py-2.5 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400"
               >
                 {deleting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {deleteModal.hasOrders ? 'Désactivation...' : 'Suppression...'}
+                    Suppression...
                   </>
                 ) : (
                   <>
-                    {deleteModal.hasOrders ? (
-                      <>
-                        <XCircle className="h-4 w-4" />
-                        Désactiver
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="h-4 w-4" />
-                        Supprimer
-                      </>
-                    )}
+                    <Trash2 className="h-4 w-4" />
+                    Supprimer
                   </>
                 )}
               </button>

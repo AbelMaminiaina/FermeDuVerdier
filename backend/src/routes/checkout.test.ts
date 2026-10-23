@@ -131,8 +131,8 @@ describe('POST /api/checkout', () => {
     prismaMock.customer.create.mockResolvedValue({ id: 'cust1' } as any);
     prismaMock.address.create.mockResolvedValue({ id: 'addr1' } as any);
     prismaMock.product.findMany.mockResolvedValue([
-      { id: 'p1', stockQuantity: 10, availableFrom },
-      { id: 'p2', stockQuantity: 10, availableFrom: null },
+      { id: 'p1', name: 'Poulet fermier (catalogue)', stockQuantity: 10, availableFrom },
+      { id: 'p2', name: 'Œufs', stockQuantity: 10, availableFrom: null },
     ] as any);
     prismaMock.order.create.mockResolvedValue({ id: 'o1', orderNumber: 'FDV-TEST', items: [] } as any);
     prismaMock.product.update.mockResolvedValue({} as any);
@@ -140,8 +140,8 @@ describe('POST /api/checkout', () => {
     await request(buildApp()).post('/api/checkout').send(validPayload);
 
     const createdItems = (prismaMock.order.create.mock.calls[0][0] as any).data.items.create;
-    expect(createdItems[0]).toMatchObject({ productId: 'p1', availableFrom });
-    expect(createdItems[1]).toMatchObject({ productId: 'p2', availableFrom: null });
+    expect(createdItems[0]).toMatchObject({ productId: 'p1', productName: 'Poulet fermier (catalogue)', availableFrom });
+    expect(createdItems[1]).toMatchObject({ productId: 'p2', productName: 'Œufs', availableFrom: null });
 
     const emailArg = vi.mocked(sendOrderConfirmationEmail).mock.calls[0][0];
     expect(emailArg.items[0]).toMatchObject({ name: 'Poulet', availableFrom });
@@ -242,7 +242,7 @@ describe('PATCH /api/checkout/orders/:orderId/status', () => {
       deliveryMethod: 'standard',
       customer: { firstName: 'Jean', lastName: 'Dupont', email: 'jean@example.com' },
       address: { street: '12 rue des Champs', city: 'Antananarivo', postalCode: '101', country: 'Madagascar' },
-      items: [{ quantity: 2, price: 15000, product: { name: 'Poulet fermier' } }],
+      items: [{ quantity: 2, price: 15000, productName: 'Poulet fermier' }],
       ...overrides,
     } as any);
   }
@@ -472,7 +472,7 @@ describe('GET /api/checkout/track/:orderNumber', () => {
     customerId: 'c1',
     address: { city: 'Antananarivo' },
     items: [
-      { quantity: 2, price: 15000, availableFrom: null, product: { name: 'Poulet' } },
+      { quantity: 2, price: 15000, availableFrom: null, productName: 'Poulet' },
     ],
   };
 

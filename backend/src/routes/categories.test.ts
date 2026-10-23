@@ -5,6 +5,9 @@ import { mockReset, type DeepMockProxy } from 'vitest-mock-extended';
 import type { PrismaClient } from '@prisma/client';
 
 vi.mock('../lib/prisma.js');
+vi.mock('../lib/cache.js', () => ({
+  invalidateProductCache: vi.fn().mockResolvedValue(undefined),
+}));
 
 import prisma from '../lib/prisma.js';
 import categoriesRouter from './categories.js';
@@ -139,28 +142,46 @@ describe('PUT /api/categories/:id', () => {
 
     const updateArgs = prismaMock.category.update.mock.calls[0][0] as any;
     expect(updateArgs.data.slug).toBe('poulet');
+    expect(prismaMock.product.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('moves the products to the new slug when the category is renamed', async () => {
+    prismaMock.category.findUnique.mockResolvedValue(category({ slug: 'poulet-fermier' }) as any);
+    prismaMock.category.findFirst.mockResolvedValue(null);
+    prismaMock.$transaction.mockResolvedValue([category({ name: 'Volaille de chair', slug: 'volaille-de-chair' }), { count: 3 }] as any);
+
+    const res = await request(buildApp()).put('/api/categories/1').send({ name: 'Volaille de chair' });
+
+    expect(res.status).toBe(200);
+    expect(prismaMock.product.updateMany).toHaveBeenCalledWith({
+      where: { category: 'poulet_fermier' },
+      data: { category: 'volaille_de_chair' },
+    });
   });
 });
 
 describe('DELETE /api/categories/:id', () => {
-  it('refuses to delete a category that still has products', async () => {
-    prismaMock.category.findUnique.mockResolvedValue(category() as any);
-    prismaMock.product.count.mockResolvedValue(2);
+  it('returns 404 for a missing category', async () => {
+    prismaMock.category.findUnique.mockResolvedValue(null);
 
     const res = await request(buildApp()).delete('/api/categories/1');
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(prismaMock.category.delete).not.toHaveBeenCalled();
   });
 
-  it('deletes an empty category', async () => {
-    prismaMock.category.findUnique.mockResolvedValue(category() as any);
-    prismaMock.product.count.mockResolvedValue(0);
-    prismaMock.category.delete.mockResolvedValue(category() as any);
+  it('deletes a category that still has products, leaving them hidden and uncategorized', async () => {
+    prismaMock.category.findUnique.mockResolvedValue(category({ slug: 'poulet-fermier' }) as any);
+    prismaMock.$transaction.mockResolvedValue([{ count: 2 }, category()] as any);
 
     const res = await request(buildApp()).delete('/api/categories/1');
 
     expect(res.status).toBe(200);
+    expect(res.body.uncategorizedProducts).toBe(2);
+    expect(prismaMock.product.updateMany).toHaveBeenCalledWith({
+      where: { category: 'poulet_fermier' },
+      data: { category: '', categoryId: null, isActive: false },
+    });
     expect(prismaMock.category.delete).toHaveBeenCalledWith({ where: { id: '1' } });
   });
 });

@@ -321,32 +321,19 @@ describe('PUT /api/products/:productId', () => {
     prismaMock.category.findFirst.mockResolvedValue({ id: 'c1' } as any);
   });
 
-  it('refuses to rename a product that is linked to orders', async () => {
+  it('renames a product even when it is linked to orders', async () => {
     prismaMock.product.findUnique.mockResolvedValue(baseProduct({ name: 'Ancien nom' }) as any);
-    prismaMock.orderItem.findFirst.mockResolvedValue({ id: 'oi1' } as any);
-
-    const res = await request(buildApp())
-      .put('/api/products/p1')
-      .send({ name: 'Nouveau nom', category: 'poulet', price: 20000 });
-
-    expect(res.status).toBe(400);
-    expect(res.body.error).toMatch(/nom.*commandes/i);
-    expect(prismaMock.product.update).not.toHaveBeenCalled();
-  });
-
-  it('lets every other field be edited on a product linked to orders (name unchanged)', async () => {
-    prismaMock.product.findUnique.mockResolvedValue(baseProduct({ name: 'Poulet fermier', price: 15000 }) as any);
+    prismaMock.product.findFirst.mockResolvedValue(null);
     prismaMock.orderItem.findFirst.mockResolvedValue({ id: 'oi1' } as any);
     prismaMock.product.update.mockResolvedValue(baseProduct() as any);
 
     const res = await request(buildApp())
       .put('/api/products/p1')
-      .send({ name: 'Poulet fermier', category: 'poulet', price: 99000, freeShipping: true });
+      .send({ name: 'Nouveau nom', category: 'poulet', price: 20000 });
 
     expect(res.status).toBe(200);
     const updateCall = prismaMock.product.update.mock.calls[0][0] as any;
-    expect(updateCall.data.price).toBe(99000);
-    expect(updateCall.data.freeShipping).toBe(true);
+    expect(updateCall.data.name).toBe('Nouveau nom');
   });
 
   it('updates productType, estimatedWeightKg and freeShipping', async () => {
@@ -426,24 +413,8 @@ describe('PUT /api/products/:productId', () => {
 });
 
 describe('DELETE /api/products/:productId', () => {
-  it('soft-deletes a product that has existing orders', async () => {
+  it('deletes a product even when it has orders', async () => {
     prismaMock.product.findUnique.mockResolvedValue(baseProduct() as any);
-    prismaMock.orderItem.findFirst.mockResolvedValue({ id: 'oi1' } as any);
-
-    const res = await request(buildApp()).delete('/api/products/p1');
-
-    expect(res.status).toBe(200);
-    expect(res.body.message).toContain('désactivé');
-    expect(prismaMock.product.delete).not.toHaveBeenCalled();
-    expect(prismaMock.product.update).toHaveBeenCalledWith({
-      where: { id: 'p1' },
-      data: { inStock: false, stockQuantity: 0 },
-    });
-  });
-
-  it('hard-deletes a product with no orders', async () => {
-    prismaMock.product.findUnique.mockResolvedValue(baseProduct() as any);
-    prismaMock.orderItem.findFirst.mockResolvedValue(null);
 
     const res = await request(buildApp()).delete('/api/products/p1');
 

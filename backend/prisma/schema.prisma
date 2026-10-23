@@ -195,8 +195,9 @@ model OrderItem {
   id        String  @id @default(uuid())
   orderId   String
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+  productId   String?  // null une fois le produit supprimé du catalogue
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName String   // Nom figé au moment de la commande (survit à la suppression du produit)
 
   quantity  Int
   price     Int       // Prix unitaire en Ariary au moment de la commande

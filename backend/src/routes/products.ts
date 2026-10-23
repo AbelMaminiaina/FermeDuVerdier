@@ -350,20 +350,6 @@ router.put('/:productId', requireAdmin, async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Produit non trouvé' });
     }
 
-    // Un produit lié à des commandes reste entièrement modifiable, sauf son nom :
-    // les historiques de commandes affichent le nom du produit en direct.
-    if (name !== existingProduct.name) {
-      const linkedOrderItem = await prisma.orderItem.findFirst({
-        where: { productId },
-        select: { id: true },
-      });
-      if (linkedOrderItem) {
-        return res.status(400).json({
-          error: "Le nom d'un produit lié à des commandes ne peut pas être modifié.",
-        });
-      }
-    }
-
     // Generate new slug if name changed
     let slug = existingProduct.slug;
     if (name !== existingProduct.name) {
@@ -494,24 +480,7 @@ router.delete('/:productId', requireAdmin, async (req: Request, res: Response) =
       return res.status(404).json({ error: 'Produit non trouvé' });
     }
 
-    // Check if product has orders
-    const orderItems = await prisma.orderItem.findFirst({
-      where: { productId },
-    });
-
-    if (orderItems) {
-      // Soft delete - just mark as out of stock instead of deleting
-      await prisma.product.update({
-        where: { id: productId },
-        data: { inStock: false, stockQuantity: 0 },
-      });
-      await invalidateProductCache();
-      return res.json({
-        success: true,
-        message: 'Produit désactivé (conservé car lié à des commandes)'
-      });
-    }
-
+    // Les commandes passées gardent le nom et le prix figés sur leurs lignes
     await prisma.product.delete({ where: { id: productId } });
     await invalidateProductCache();
     res.json({ success: true, message: 'Produit supprimé' });

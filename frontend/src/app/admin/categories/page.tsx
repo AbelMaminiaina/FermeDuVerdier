@@ -142,17 +142,6 @@ export default function AdminCategoriesPage() {
     if (!deleteModal) return;
 
     const { category } = deleteModal;
-    const productCount = category._count?.products || 0;
-
-    // Check if category has products
-    if (productCount > 0) {
-      setToast({
-        type: 'error',
-        message: `Impossible de supprimer : ${productCount} produit(s) lié(s)`
-      });
-      setDeleteModal(null);
-      return;
-    }
 
     setDeleting(true);
     try {
@@ -163,7 +152,7 @@ export default function AdminCategoriesPage() {
         setCategories(prev => prev.filter(c => c.id !== category.id));
         setToast({
           type: 'success',
-          message: `"${category.name}" supprimée avec succès`
+          message: data.message || `"${category.name}" supprimée avec succès`
         });
       } else {
         setToast({
@@ -423,7 +412,7 @@ export default function AdminCategoriesPage() {
             {/* Content */}
             <div className="px-6 py-4 text-center">
               <h3 className="text-xl font-bold text-warm-800 mb-2">
-                {(deleteModal.category._count?.products || 0) > 0 ? 'Suppression impossible' : 'Confirmer la suppression'}
+                Confirmer la suppression
               </h3>
 
               {(deleteModal.category._count?.products || 0) > 0 ? (
@@ -433,11 +422,12 @@ export default function AdminCategoriesPage() {
                       Cette catégorie contient {deleteModal.category._count?.products} produit{(deleteModal.category._count?.products || 0) > 1 ? 's' : ''}
                     </p>
                     <p className="text-amber-700 text-sm">
-                      Vous devez d&apos;abord déplacer ou supprimer les produits de cette catégorie avant de pouvoir la supprimer.
+                      Ils seront conservés mais masqués du catalogue, avec la mention «&nbsp;Sans catégorie&nbsp;». Vous pourrez les réaffecter depuis la gestion des stocks.
                     </p>
                   </div>
                   <p className="text-warm-600">
-                    <span className="font-semibold text-warm-800">&quot;{deleteModal.category.name}&quot;</span>
+                    Voulez-vous vraiment supprimer la catégorie{' '}
+                    <span className="font-semibold text-warm-800">&quot;{deleteModal.category.name}&quot;</span> ?
                   </p>
                 </>
               ) : (
@@ -461,27 +451,25 @@ export default function AdminCategoriesPage() {
                 disabled={deleting}
                 className="flex-1"
               >
-                {(deleteModal.category._count?.products || 0) > 0 ? 'Fermer' : 'Annuler'}
+                Annuler
               </Button>
-              {(deleteModal.category._count?.products || 0) === 0 && (
-                <button
-                  onClick={confirmDelete}
-                  disabled={deleting}
-                  className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  {deleting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Suppression...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="h-4 w-4" />
-                      Supprimer
-                    </>
-                  )}
-                </button>
-              )}
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Suppression...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Supprimer
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

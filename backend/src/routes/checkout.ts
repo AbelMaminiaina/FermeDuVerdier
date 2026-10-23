@@ -89,7 +89,7 @@ router.post('/', async (req: Request, res: Response) => {
     const productIds = validatedData.items.map(item => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, stockQuantity: true, availableFrom: true },
+      select: { id: true, name: true, stockQuantity: true, availableFrom: true },
     });
 
     const productMap = new Map(products.map(p => [p.id, p]));
@@ -132,6 +132,7 @@ router.post('/', async (req: Request, res: Response) => {
         items: {
           create: validatedData.items.map((item) => ({
             productId: item.productId,
+            productName: productMap.get(item.productId)?.name ?? item.name,
             quantity: item.quantity,
             price: item.price,
             availableFrom: productMap.get(item.productId)?.availableFrom ?? null,
@@ -229,16 +230,7 @@ router.get('/orders', requireAdmin, async (req: Request, res: Response) => {
       include: {
         customer: true,
         address: true,
-        items: {
-          include: {
-            product: {
-              select: {
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
+        items: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -264,7 +256,7 @@ router.get('/orders', requireAdmin, async (req: Request, res: Response) => {
         country: order.address.country,
       } : null,
       items: order.items.map((item) => ({
-        name: item.product.name,
+        name: item.productName,
         quantity: item.quantity,
         price: item.price,
         availableFrom: item.availableFrom,
@@ -311,20 +303,17 @@ router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: 
       include: {
         customer: true,
         address: true,
-        items: {
-          include: {
-            product: { select: { name: true } },
-          },
-        },
+        items: true,
       },
     });
 
     // Stock réservé à la création → on le restitue ; sinon (stock insuffisant) rien à restaurer.
     if (status === 'cancelled' && existingOrder.stockReserved) {
+      // Les produits supprimés depuis (productId null) n'ont plus de stock à restituer
       await Promise.all(
-        existingOrder.items.map((item) =>
+        existingOrder.items.filter((item) => item.productId).map((item) =>
           prisma.product.update({
-            where: { id: item.productId },
+            where: { id: item.productId! },
             data: {
               stockQuantity: { increment: item.quantity },
               inStock: true,
@@ -343,7 +332,7 @@ router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: 
         customerEmail: order.customer.email,
         reason: reason || undefined,
         items: order.items.map((item) => ({
-          name: item.product.name,
+          name: item.productName,
           quantity: item.quantity,
           price: item.price,
           availableFrom: item.availableFrom,
@@ -361,7 +350,7 @@ router.patch('/orders/:orderId/status', requireAdmin, async (req: Request, res: 
         customerName: `${order.customer.firstName} ${order.customer.lastName}`,
         customerEmail: order.customer.email,
         items: order.items.map((item) => ({
-          name: item.product.name,
+          name: item.productName,
           quantity: item.quantity,
           price: item.price,
           availableFrom: item.availableFrom,
@@ -416,16 +405,7 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
         orders: {
           include: {
             address: true,
-            items: {
-              include: {
-                product: {
-                  select: {
-                    name: true,
-                    slug: true,
-                  },
-                },
-              },
-            },
+            items: true,
           },
           orderBy: { createdAt: 'desc' },
         },
@@ -454,7 +434,7 @@ router.get('/customer/:email', async (req: Request, res: Response) => {
         country: order.address.country,
       } : null,
       items: order.items.map((item) => ({
-        name: item.product.name,
+        name: item.productName,
         quantity: item.quantity,
         price: item.price,
         availableFrom: item.availableFrom,
@@ -479,7 +459,7 @@ router.get('/track/:orderNumber', async (req: Request, res: Response) => {
       where: { orderNumber },
       include: {
         address: { select: { city: true } },
-        items: { include: { product: { select: { name: true } } } },
+        items: true,
       },
     });
 
@@ -499,7 +479,7 @@ router.get('/track/:orderNumber', async (req: Request, res: Response) => {
         createdAt: order.createdAt,
         city: order.address?.city ?? null,
         items: order.items.map((item) => ({
-          name: item.product.name,
+          name: item.productName,
           quantity: item.quantity,
           price: item.price,
           availableFrom: item.availableFrom,
