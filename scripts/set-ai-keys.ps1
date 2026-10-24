@@ -109,8 +109,9 @@ grep -E '^(MISTRAL|GEMINI)_' "`$ENV_FILE" | sed -E 's/^([A-Z_]+_API_KEY=.{6}).*/
 "@ -replace "`r`n", "`n"
 
 Write-Step "Etape 3 : mise a jour de .env.production sur $target"
-# Windows PowerShell peut ajouter un BOM UTF-8 en tete : sed le retire, sinon "set -euo pipefail" serait ignore
-$remoteScript | & ssh @sshArgs $target 'sed ''1s/^\xEF\xBB\xBF//'' | bash -s'
+# Windows PowerShell peut ajouter un BOM UTF-8 en tete et un CRLF a la fin : sed retire les deux,
+# sinon "set -euo pipefail" serait ignore et la derniere commande recevrait un \r
+$remoteScript | & ssh @sshArgs $target 'sed -e ''1s/^\xEF\xBB\xBF//'' -e ''s/\r$//'' | bash -s'
 $code = $LASTEXITCODE
 $mistralKey = $null; $geminiKey = $null; $remoteScript = $null
 if ($code -ne 0) { Stop-Script "la mise a jour a echoue sur le serveur (code $code). Sauvegarde locale : $localBackup" }
