@@ -7,6 +7,7 @@ import { Button } from '@/components/ui';
 import ProductGrid from '@/components/products/ProductGrid';
 import { askAdvisor, AdvisorResponse } from '@/lib/api/advisor';
 import { fadeInUp, viewportOnce } from '@/lib/animations';
+import AdvisorProductRow from './AdvisorProductRow';
 
 const SUGGESTIONS = [
   'Je débute un petit élevage de poules',
@@ -14,12 +15,14 @@ const SUGGESTIONS = [
   'Je veux des œufs frais toute la semaine',
 ];
 
-interface FarmAdvisorProps {
-  className?: string;
+interface AdvisorChatProps {
+  // Panneau étroit : toujours la liste compacte, jamais la grille de grandes cartes
+  compact?: boolean;
+  onNavigate?: () => void;
 }
 
-// Conseiller IA : le client décrit son besoin, le backend propose des produits du catalogue
-export function FarmAdvisor({ className = 'py-16 bg-cream-50' }: FarmAdvisorProps) {
+// Formulaire + réponse du conseiller IA, partagé par la section de page et le panneau flottant
+export function AdvisorChat({ compact = false, onNavigate }: AdvisorChatProps) {
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<AdvisorResponse | null>(null);
@@ -47,8 +50,94 @@ export function FarmAdvisor({ className = 'py-16 bg-cream-50' }: FarmAdvisorProp
     ask(question);
   };
 
+  const rows = answer && (
+    <div className="space-y-3">
+      {answer.products.map((product) => (
+        <AdvisorProductRow key={product.id} product={product} onNavigate={onNavigate} />
+      ))}
+    </div>
+  );
+
   return (
-    <section className={className}>
+    <div>
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+        <div className={compact ? 'flex flex-col gap-3' : 'flex flex-col sm:flex-row gap-3'}>
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            maxLength={500}
+            placeholder="Ex. : débuter avec des poules"
+            aria-label="Votre question au conseiller"
+            className="flex-1 min-w-0 rounded-md border border-warm-200 bg-white px-4 py-3 text-warm-800 placeholder:text-warm-400 focus:outline-none focus:ring-[3px] focus:ring-prairie-200 focus:border-prairie-500"
+          />
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={question.trim().length < 3}
+            icon={<Send className="h-4 w-4" />}
+          >
+            Conseillez-moi
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-2 mt-4">
+          {SUGGESTIONS.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => ask(s)}
+              disabled={loading}
+              className="rounded-full border border-warm-200 bg-white px-3 py-1.5 text-sm text-warm-600 hover:border-prairie-400 hover:text-prairie-700 transition-colors disabled:opacity-50"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </form>
+
+      {error && (
+        <p role="alert" className="max-w-2xl mx-auto mt-6 text-center text-red-600">
+          {error}
+        </p>
+      )}
+
+      <div className={compact ? 'mt-6' : 'mt-10'} aria-live="polite">
+        {loading && (
+          <p className="text-center text-warm-500 animate-pulse">Le conseiller réfléchit…</p>
+        )}
+        {answer && !loading && (
+          <>
+            <p className="max-w-2xl mx-auto mb-6 rounded-lg bg-white border border-prairie-100 px-5 py-4 text-warm-700">
+              {answer.message}
+            </p>
+            {answer.products.length > 0 &&
+              (compact ? (
+                rows
+              ) : (
+                <>
+                  {/* Téléphone : liste compacte ; tablette et ordinateur : grille de cartes */}
+                  <div className="md:hidden">{rows}</div>
+                  <div className="hidden md:block">
+                    <ProductGrid products={answer.products} />
+                  </div>
+                </>
+              ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface FarmAdvisorProps {
+  className?: string;
+}
+
+// Section « Besoin d'un conseil ? » intégrée aux pages (accueil, boutique)
+export function FarmAdvisor({ className = 'py-16 bg-cream-50' }: FarmAdvisorProps) {
+  return (
+    <section className={className} data-advisor-section>
       <div className="container mx-auto px-4">
         <motion.div
           className="max-w-2xl mx-auto text-center mb-8"
@@ -69,61 +158,7 @@ export function FarmAdvisor({ className = 'py-16 bg-cream-50' }: FarmAdvisorProp
           </p>
         </motion.div>
 
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              maxLength={500}
-              placeholder="Ex. : je veux commencer un élevage de poules pondeuses"
-              aria-label="Votre question au conseiller"
-              className="flex-1 min-w-0 rounded-md border border-warm-200 bg-white px-4 py-3 text-warm-800 placeholder:text-warm-400 focus:outline-none focus:ring-[3px] focus:ring-prairie-200 focus:border-prairie-500"
-            />
-            <Button
-              type="submit"
-              loading={loading}
-              disabled={question.trim().length < 3}
-              icon={<Send className="h-4 w-4" />}
-            >
-              Conseillez-moi
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-2 mt-4">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => ask(s)}
-                disabled={loading}
-                className="rounded-full border border-warm-200 bg-white px-3 py-1.5 text-sm text-warm-600 hover:border-prairie-400 hover:text-prairie-700 transition-colors disabled:opacity-50"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </form>
-
-        {error && (
-          <p role="alert" className="max-w-2xl mx-auto mt-6 text-center text-red-600">
-            {error}
-          </p>
-        )}
-
-        <div className="mt-10" aria-live="polite">
-          {loading && (
-            <p className="text-center text-warm-500 animate-pulse">Le conseiller réfléchit…</p>
-          )}
-          {answer && !loading && (
-            <>
-              <p className="max-w-2xl mx-auto mb-8 rounded-lg bg-white border border-prairie-100 px-5 py-4 text-warm-700">
-                {answer.message}
-              </p>
-              {answer.products.length > 0 && <ProductGrid products={answer.products} />}
-            </>
-          )}
-        </div>
+        <AdvisorChat />
       </div>
     </section>
   );

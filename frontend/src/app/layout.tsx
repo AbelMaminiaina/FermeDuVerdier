@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { AdvisorLauncher } from '@/components/advisor/AdvisorLauncher';
 import { ToastProvider } from '@/components/ui/Toast';
 import { SessionProvider } from '@/components/providers/SessionProvider';
 import {
@@ -139,6 +140,7 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
+            <AdvisorLauncher />
           </ToastProvider>
         </SessionProvider>
       </body>
