@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { AuthorAvatar } from '@/components/blog/AuthorAvatar';
 import { motion } from 'framer-motion';
 import { Calendar, User, Clock, ArrowRight } from 'lucide-react';
 import { blogPosts } from '@/data/blog';
@@ -176,13 +177,7 @@ export default function BlogPage() {
                       <div className="flex items-center justify-between text-sm text-warm-500">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full overflow-hidden relative">
-                            <Image
-                              src={post.author.avatar}
-                              alt={post.author.name}
-                              fill
-                              sizes="24px"
-                              className="object-cover"
-                            />
+                            <AuthorAvatar name={post.author.name} avatar={post.author.avatar} size={24} />
                           </div>
                           <span>{post.author.name}</span>
                         </div>

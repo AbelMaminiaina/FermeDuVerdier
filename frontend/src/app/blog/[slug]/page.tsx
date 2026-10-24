@@ -4,6 +4,7 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { AuthorAvatar } from '@/components/blog/AuthorAvatar';
 import { motion } from 'framer-motion';
 import { Calendar, User, Clock, ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { getBlogPostBySlug, getRelatedPosts } from '@/data/blog';
@@ -131,13 +132,7 @@ export default function BlogPostPage() {
               <div className="flex flex-wrap items-center gap-4 text-white/80">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full overflow-hidden relative ring-2 ring-white/50">
-                    <Image
-                      src={post.author.avatar}
-                      alt={post.author.name}
-                      fill
-                      sizes="32px"
-                      className="object-cover"
-                    />
+                    <AuthorAvatar name={post.author.name} avatar={post.author.avatar} size={32} />
                   </div>
                   <span>{post.author.name}</span>
                 </div>
@@ -227,13 +222,7 @@ export default function BlogPostPage() {
               <h3 className="font-semibold text-warm-800 mb-4">À propos de l&apos;auteur</h3>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden relative">
-                  <Image
-                    src={post.author.avatar}
-                    alt={post.author.name}
-                    fill
-                    sizes="48px"
-                    className="object-cover"
-                  />
+                  <AuthorAvatar name={post.author.name} avatar={post.author.avatar} size={48} />
                 </div>
                 <span className="font-medium text-warm-800">{post.author.name}</span>
               </div>
